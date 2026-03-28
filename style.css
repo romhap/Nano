@@ -273,7 +273,7 @@ em {
 
 .truth-stats {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 32px;
     margin: 48px 0;
@@ -283,7 +283,7 @@ em {
 .stat {
     text-align: center;
     flex: 0 0 auto;
-    min-width: 120px;
+    width: 140px;
 }
 
 .stat-number {
@@ -292,18 +292,22 @@ em {
     color: var(--text);
     line-height: 1;
     margin-bottom: 8px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .stat-label {
     font-size: 0.85rem;
     color: var(--text-muted);
-    max-width: 160px;
 }
 
 .stat-arrow {
     font-size: 1.5rem;
     color: var(--text-muted);
     opacity: 0.4;
+    padding-top: 0.8rem;
 }
 
 .truth-text {

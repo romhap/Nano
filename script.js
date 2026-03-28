@@ -8,7 +8,7 @@
 //    - Set success URL to: https://YOUR-DOMAIN.com/?payment=success
 //    - Enable "collect email address"
 // 5. Paste the payment link URL below:
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/YOUR_LINK_HERE';
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/28E3cvb6i4NaaikecNgw000';
 // 6. Enable the Stripe Customer Portal and paste link below (for cancellations):
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/YOUR_PORTAL_HERE';
 // ============================================================
