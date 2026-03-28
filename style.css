@@ -274,11 +274,10 @@ em {
 
 .rom-photo {
     width: 100%;
-    max-width: 340px;
+    max-width: 440px;
     border-radius: var(--radius);
     object-fit: cover;
     aspect-ratio: 3/4;
-    filter: grayscale(100%);
 }
 
 /* === Ticker Bar === */

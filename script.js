@@ -15,7 +15,7 @@ const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4Naaikec
 
 // === Countdown Timer (15 days from first visit, stored in localStorage) ===
 function updateCountdown() {
-    const DURATION_MS = 15 * 24 * 60 * 60 * 1000; // 15 days
+    const DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
     let deadline = localStorage.getItem('imat_deadline');
     if (!deadline) {
         deadline = Date.now() + DURATION_MS;
