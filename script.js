@@ -10,7 +10,7 @@
 // 5. Paste the payment link URL below:
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/28E3cvb6i4NaaikecNgw000';
 // 6. Enable the Stripe Customer Portal and paste link below (for cancellations):
-const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/YOUR_PORTAL_HERE';
+const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/YOUR_PORTAL_HERE'; // Replace when you enable Stripe Customer Portal
 // ============================================================
 
 // === Countdown Timer (7 days from now, resets weekly) ===
