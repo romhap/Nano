@@ -13,23 +13,24 @@ const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/28E3cvb6i4NaaikecNgw000';
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000'; // Replace when you enable Stripe Customer Portal
 // ============================================================
 
-// === Countdown Timer (7 days from now, resets weekly) ===
+// === Countdown Timer (15 days from first visit, stored in localStorage) ===
 function updateCountdown() {
-    const now = new Date();
-    // Calculate next Sunday midnight as deadline
-    const daysUntilSunday = (7 - now.getDay()) % 7 || 7;
-    const target = new Date(now);
-    target.setDate(now.getDate() + daysUntilSunday);
-    target.setHours(23, 59, 59, 0);
+    const DURATION_MS = 15 * 24 * 60 * 60 * 1000; // 15 days
+    let deadline = localStorage.getItem('imat_deadline');
+    if (!deadline) {
+        deadline = Date.now() + DURATION_MS;
+        localStorage.setItem('imat_deadline', deadline);
+    }
+    deadline = Number(deadline);
 
-    const diff = target - now;
+    const diff = Math.max(0, deadline - Date.now());
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
     const el = document.getElementById('countdown');
     if (el) {
-        el.textContent = `${days}d ${hours}h ${mins}m`;
+        el.textContent = `${days}D ${hours}H ${mins}M`;
     }
 }
 
