@@ -3,372 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beat the IMAT — Personal Mentorship with Rom Haparnass</title>
+    <title>Rom — IMAT Mentorship</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Hero Section -->
+
+    <!-- Nav -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">Rom.</a>
+            <a href="#enroll" class="nav-link">Apply</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
     <section class="hero">
-        <div class="hero-bg-overlay"></div>
-        <nav class="navbar">
-            <div class="logo">IMAT<span class="logo-accent">Compass</span></div>
-            <a href="#enroll" class="nav-cta">Claim Your Spot</a>
-        </nav>
-        <div class="hero-content">
-            <div class="badge">Only 8 Students Accepted</div>
-            <h1>You Already Have<br>Everything You Need<br>to <span class="gradient-text">Pass the IMAT.</span></h1>
-            <p class="hero-sub">You just don't know it yet. I'll show you how.</p>
-            <p class="hero-desc">I'm Rom — I scored among the highest worldwide on the IMAT in 2021, got into Padova with the 2nd highest entry score, received the Departmental Scholarship of Excellency, and I never paid a single dollar for any prep course or agency. Now I'll be your personal compass.</p>
-            <a href="#enroll" class="btn btn-primary btn-lg pulse">Start Your Journey — €44/month</a>
-            <p class="hero-micro">Cancel anytime. No contracts. Just results.</p>
-        </div>
-        <div class="scroll-indicator">
-            <span>Scroll to discover</span>
-            <div class="scroll-arrow">↓</div>
-        </div>
-    </section>
-
-    <!-- Problem Section -->
-    <section class="problem-section">
-        <div class="container">
-            <h2 class="section-title">Let's Talk About <span class="gradient-text">The Truth</span></h2>
-            <div class="truth-grid">
-                <div class="truth-card dark">
-                    <div class="truth-number">90%</div>
-                    <p>of IMAT candidates <strong>fail</strong> every single year.</p>
-                </div>
-                <div class="truth-card dark">
-                    <div class="truth-number">90%</div>
-                    <p>of those who fail paid for <strong>generic prep courses.</strong></p>
-                </div>
-                <div class="truth-card accent">
-                    <div class="truth-number">?</div>
-                    <p>If you follow the same path as everyone else, why would <strong>your result be different?</strong></p>
+        <div class="hero-inner">
+            <div class="hero-text">
+                <p class="hero-eyebrow">IMAT mentorship — by someone who actually did it</p>
+                <h1>I won't teach you<br>the material.<br><em>I'll teach you<br>how to think.</em></h1>
+                <p class="hero-body">Most candidates spend thousands on prep courses and still fail. I spent zero — and scored among the highest in the world. Now I take on 8 students a year to show them the difference.</p>
+                <div class="hero-cta">
+                    <a href="#enroll" class="btn btn-primary">Apply for a spot</a>
+                    <span class="hero-price">€44/mo · Cancel anytime. No contracts.</span>
                 </div>
             </div>
-            <div class="comparison-block">
-                <h3>The Expensive Lie vs. The Truth</h3>
-                <div class="compare-grid">
-                    <div class="compare-card bad">
-                        <div class="compare-header">Generic IMAT Courses</div>
-                        <div class="compare-price">€600 — €2,500</div>
-                        <ul>
-                            <li>Same material thousands of students study</li>
-                            <li>No personal attention — you're just a number</li>
-                            <li>No emotional support when you're breaking down at 2 AM</li>
-                            <li>No strategic thinking — just "study more"</li>
-                            <li>Zero competitive edge — everyone gets the same thing</li>
-                            <li>They profit whether you pass or fail</li>
-                        </ul>
-                        <div class="compare-verdict">Following the crowd = same results as the crowd.</div>
-                    </div>
-                    <div class="compare-card good">
-                        <div class="compare-header">1-on-1 with Rom</div>
-                        <div class="compare-price">€44/month</div>
-                        <ul>
-                            <li>Personalized strategy built around <em>your</em> strengths</li>
-                            <li>Weekly private mentorship — just you and me</li>
-                            <li>Mental resilience coaching when doubt creeps in</li>
-                            <li>Learn to think differently, not just study harder</li>
-                            <li>An approach no other candidate has</li>
-                            <li>I succeed only when you succeed</li>
-                        </ul>
-                        <div class="compare-verdict">Think different. Score different.</div>
-                    </div>
-                </div>
+            <div class="hero-image">
+                <img src="rom.jpg" alt="Rom" class="rom-photo">
             </div>
         </div>
     </section>
 
-    <!-- About Rom Section -->
-    <section class="about-section">
+    <!-- Ticker — spots left -->
+    <div class="ticker-bar">
+        <div class="ticker-inner">
+            <div class="ticker-pulse"></div>
+            <span class="ticker-text"><strong id="spotsLeft">8</strong> spots left</span>
+            <span class="ticker-sep">·</span>
+            <span class="ticker-text ticker-timer">Applications close in <strong id="countdown"></strong></span>
+        </div>
+    </div>
+
+    <!-- The uncomfortable truth -->
+    <section class="section section-truth">
         <div class="container">
-            <div class="about-content">
+            <h2 class="section-heading">The uncomfortable math<br>nobody tells you</h2>
+            <div class="truth-stats">
+                <div class="stat">
+                    <div class="stat-number">12,000</div>
+                    <div class="stat-label">candidates sit the IMAT</div>
+                </div>
+                <div class="stat-arrow">→</div>
+                <div class="stat">
+                    <div class="stat-number">~1,000</div>
+                    <div class="stat-label">actually get in</div>
+                </div>
+                <div class="stat-arrow">→</div>
+                <div class="stat">
+                    <div class="stat-number">90%</div>
+                    <div class="stat-label">who fail used a prep course</div>
+                </div>
+            </div>
+            <p class="truth-text">Think about that. Nine out of ten candidates who fail did exactly what everyone told them to do — they paid €600 to €2,500 for a generic preparation course. They sat in the same classes, read the same slides, used the same strategies as thousands of other people. And then they're surprised when they get the same result as everyone else.</p>
+            <p class="truth-text">If 90% of people who follow a path fail, that path is the problem. Not you.</p>
+        </div>
+    </section>
+
+    <!-- Comparison -->
+    <section class="section section-compare">
+        <div class="container">
+            <div class="compare-grid">
+                <div class="compare-card compare-them">
+                    <div class="compare-label">The generic path</div>
+                    <div class="compare-price-tag">€600 – €2,500</div>
+                    <ul>
+                        <li>Same material as 5,000 other students</li>
+                        <li>No one knows your name</li>
+                        <li>No strategy — just "study everything"</li>
+                        <li>No support at 2 AM when doubt hits</li>
+                        <li>You blend in. You compete with everyone.</li>
+                    </ul>
+                    <div class="compare-bottom">You pay more. You get less. You're one of thousands.</div>
+                </div>
+                <div class="compare-card compare-me">
+                    <div class="compare-label">Working with Rom</div>
+                    <div class="compare-price-tag">€44/month</div>
+                    <ul>
+                        <li>Strategy built around <em>your</em> mind</li>
+                        <li>I know your name, your fears, your gaps</li>
+                        <li>Learn to think, not just memorize</li>
+                        <li>I'm on WhatsApp when you need me</li>
+                        <li>You stand apart. You compete with nobody.</li>
+                    </ul>
+                    <div class="compare-bottom">The students who score highest study alone. I just make sure they're never lost.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section class="section section-about">
+        <div class="container">
+            <div class="about-grid">
                 <div class="about-text">
-                    <h2 class="section-title">Who is <span class="gradient-text">Rom?</span></h2>
-                    <p class="about-lead">I'm not a teacher. I'm not a tutor. I'm the person who already walked the exact path you're dreaming about — and I'm reaching my hand back to pull you forward.</p>
-                    <div class="credentials">
-                        <div class="cred-item">
-                            <span class="cred-icon">🏆</span>
-                            <span>2nd Highest Entry Score — University of Padova</span>
-                        </div>
-                        <div class="cred-item">
-                            <span class="cred-icon">🎓</span>
-                            <span>Departmental Scholarship of Excellency Recipient</span>
-                        </div>
-                        <div class="cred-item">
-                            <span class="cred-icon">🌍</span>
-                            <span>Among the Highest IMAT Scores Worldwide (2021, EU & Non-EU)</span>
-                        </div>
-                        <div class="cred-item">
-                            <span class="cred-icon">📚</span>
-                            <span>5th Year Med Student — 0 Exams Left — Top of Class</span>
-                        </div>
-                        <div class="cred-item">
-                            <span class="cred-icon">✈️</span>
-                            <span>Traveled the World While Studying — Lived Fully</span>
-                        </div>
-                        <div class="cred-item">
-                            <span class="cred-icon">💸</span>
-                            <span>$0 Spent on Prep Courses — 100% Self-Studied</span>
-                        </div>
-                    </div>
-                    <p class="about-philosophy">"The highest scores in the IMAT go to those who studied solo. I'm here to guide the solo ones — the people who want to be independent of the system."</p>
+                    <h2 class="section-heading">Who's behind this</h2>
+                    <p>I'm Rom. Fifth-year medical student at the University of Padova. I entered with the 2nd highest score in the faculty and received the Departmental Scholarship of Excellency. I've traveled the world during my studies, kept my position at the top of my class, and I have zero exams remaining.</p>
+                    <p>In 2021, I took the IMAT and scored among the highest results worldwide — both EU and Non-EU categories. Without spending a single dollar on any preparation course or agency.</p>
+                    <p>I'm not sharing this to impress you. I'm sharing it because I need you to understand: <em>the method matters more than the money.</em></p>
+                    <p>I figured out how to study less and score higher. Not by working harder than everyone — by thinking differently than everyone. And that's what I want to pass on.</p>
+                </div>
+                <div class="about-creds">
+                    <div class="cred">2nd highest entry score — Padova</div>
+                    <div class="cred">Departmental Scholarship of Excellency</div>
+                    <div class="cred">Top worldwide IMAT score, 2021</div>
+                    <div class="cred">5th year — 0 exams left — top of class</div>
+                    <div class="cred">€0 spent on prep courses</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- What You Get Section -->
-    <section class="benefits-section">
+    <!-- What you get -->
+    <section class="section section-includes">
         <div class="container">
-            <h2 class="section-title">What You'll <span class="gradient-text">Receive</span></h2>
-            <p class="section-sub">Everything you need. Nothing you don't.</p>
-            <div class="benefits-grid">
-                <div class="benefit-card">
-                    <div class="benefit-icon">📞</div>
-                    <h3>Weekly 1-on-1 Mentorship</h3>
-                    <p>Private video calls every week. Just you and Rom. Goal setting, progress review, and strategic planning for the week ahead.</p>
+            <h2 class="section-heading">What this actually looks like</h2>
+            <p class="section-sub">This isn't a course. It's a relationship. Here's what that means week to week.</p>
+            <div class="includes-grid">
+                <div class="include-item">
+                    <div class="include-num">01</div>
+                    <h3>Weekly 1-on-1 calls</h3>
+                    <p>Every week, we sit down together. We review what worked, what didn't, and map out your next moves. No group calls. No recordings. Just us.</p>
                 </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">🧠</div>
-                    <h3>Strategy Secrets & Methods</h3>
-                    <p>The exact thinking frameworks and study methods that got one of the highest IMAT scores worldwide. Study less. Achieve more.</p>
+                <div class="include-item">
+                    <div class="include-num">02</div>
+                    <h3>Personal WhatsApp line</h3>
+                    <p>You'll have my number. Questions, doubts, small victories — message me. I reply personally. Not a bot, not an assistant. Me.</p>
                 </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">💬</div>
-                    <h3>WhatsApp Personal Support</h3>
-                    <p>Direct access to Rom on WhatsApp. Questions, doubts, moments of panic — I'm there. Not a chatbot. Not a group. Just us.</p>
+                <div class="include-item">
+                    <div class="include-num">03</div>
+                    <h3>Strategic study design</h3>
+                    <p>I'll build your weekly plan around your life, your pace, your weak spots. You'll know exactly what to do each day — and more importantly, what to skip.</p>
                 </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">🎯</div>
-                    <h3>Strategic Study Plans</h3>
-                    <p>Personalized weekly study roadmaps designed around your strengths, weaknesses, and available time. No generic templates.</p>
+                <div class="include-item">
+                    <div class="include-num">04</div>
+                    <h3>The thinking methods</h3>
+                    <p>Probabilistic reasoning. Elimination patterns. The mental frameworks that let you answer questions you've never studied. This is what separates top scorers from the rest.</p>
                 </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">💪</div>
-                    <h3>Mental Mentorship</h3>
-                    <p>Learn to handle pressure, kill self-doubt, and build the unshakable confidence you need. Feel "I can do this" for the first time.</p>
+                <div class="include-item">
+                    <div class="include-num">05</div>
+                    <h3>Mental game coaching</h3>
+                    <p>The IMAT is as much psychological as intellectual. I'll help you kill self-doubt, handle pressure, and walk into that exam room knowing — not hoping — you belong there.</p>
                 </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">🧩</div>
-                    <h3>Probabilistic Thinking</h3>
-                    <p>Master the art of intelligent guessing and elimination — the skill that separates top scorers from everyone else.</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">🏫</div>
-                    <h3>University Selection Help</h3>
-                    <p>Guidance on which universities to target, how to maximize your chances, and the strategic picks most candidates overlook.</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">🔥</div>
-                    <h3>The "I Can Do This" Feeling</h3>
-                    <p>For the first time, you'll feel focused, secure, and self-trusting. You'll stop asking "can I?" and start knowing "I will."</p>
+                <div class="include-item">
+                    <div class="include-num">06</div>
+                    <h3>University strategy</h3>
+                    <p>Which universities to target, how preferences work, the strategic picks most candidates completely overlook. We'll position you to maximize your chances.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Emotional CTA Section -->
-    <section class="emotional-section">
+    <!-- Emotional -->
+    <section class="section section-letter">
         <div class="container">
-            <div class="emotional-content">
-                <h2>I Know How It Feels.</h2>
-                <p>You're lying in bed at night, scrolling through IMAT forums, feeling your stomach twist with anxiety. Everyone seems to know more than you. Everyone seems more prepared. You wonder if you're good enough. If this dream is even realistic for someone like you.</p>
-                <p><strong>I was exactly where you are.</strong></p>
-                <p>No money for expensive courses. No connections. No one telling me I could do it. Just a burning dream and the decision to trust myself.</p>
-                <p>That decision changed everything. And right now, reading this, you're standing at the same crossroads.</p>
-                <p class="emotional-highlight">You don't need more courses. You don't need more material.<br>You need someone who's been there to show you that <strong>you already have the light inside you.</strong><br>I'm just here to help you see it.</p>
-                <a href="#enroll" class="btn btn-primary btn-lg">I'm Ready to Trust Myself →</a>
+            <div class="letter">
+                <p>I know what it feels like.</p>
+                <p>Scrolling through forums at midnight. Watching everyone seem more prepared, more confident, more everything. Wondering if this dream is realistic for someone like you. Wondering if you're smart enough, disciplined enough, lucky enough.</p>
+                <p>I sat exactly where you're sitting. No money for fancy courses. No connections. No one who'd done this before to tell me it was possible.</p>
+                <p>Just a feeling in my gut that I was supposed to do this — and the stubbornness to figure out my own way.</p>
+                <p>That stubbornness was my biggest advantage. And I think it might be yours too.</p>
+                <p>You don't need someone to hold your hand through 500 hours of material. You need someone who's been where you're going to tell you: <em>you already have what it takes. You just need the right direction.</em></p>
+                <p class="letter-sig">— Rom</p>
             </div>
         </div>
     </section>
 
-    <!-- Exclusivity Section -->
-    <section class="exclusive-section">
+    <!-- Exclusivity -->
+    <section class="section section-exclusive">
         <div class="container">
-            <div class="exclusive-card">
-                <div class="spots-counter">
-                    <div class="spots-number" id="spotsLeft">8</div>
-                    <div class="spots-label">spots remaining</div>
-                </div>
-                <h2>This Is Not for Everyone.</h2>
-                <p>I'm a 5th-year med student. I have my own exams, my thesis, and my commitments. I physically cannot mentor more than <strong>8 students</strong> at the level of personal attention I demand of myself.</p>
-                <p>This isn't a marketing trick. This is math. 8 students × weekly calls × daily WhatsApp support = every bit of my available time.</p>
-                <p>I'm looking for students who share my mindset:</p>
+            <div class="exclusive-box">
+                <h2>Why only 8.</h2>
+                <p>I'm still a student. I have my thesis, my exams, my life. I physically cannot give this level of personal attention to more than 8 people at once — and I refuse to do it halfway.</p>
+                <p>This isn't artificial scarcity. It's arithmetic. Eight students, weekly calls, daily WhatsApp — that's every free hour I have.</p>
+                <p>I want students who think like I do:</p>
                 <ul>
-                    <li>You believe in self-reliance, not dependency</li>
-                    <li>You're willing to work hard — but smarter, not just harder</li>
-                    <li>You want to be guided, not spoon-fed</li>
-                    <li>You're serious about medicine as your life path</li>
-                    <li>You're ready to commit from today until the exam</li>
+                    <li>Self-reliant. Not looking to be spoon-fed.</li>
+                    <li>Serious. This is medicine, not a backup plan.</li>
+                    <li>Ready to commit from now until exam day.</li>
+                    <li>Willing to trust the process even when it feels unconventional.</li>
                 </ul>
-                <p class="exclusive-warning">When the 8 spots fill, this page closes. No waitlist. No exceptions.</p>
+                <p class="exclusive-final">If that sounds like you — one of the 8 spots has your name on it.</p>
             </div>
         </div>
     </section>
 
-    <!-- Enrollment Section -->
-    <section class="enroll-section" id="enroll">
+    <!-- Enrollment -->
+    <section class="section section-enroll" id="enroll">
         <div class="container">
-            <h2 class="section-title">Begin Your <span class="gradient-text">Journey</span></h2>
-            <p class="section-sub">€44/month. Cancel anytime. Your future starts now.</p>
+            <h2 class="section-heading">Begin</h2>
+            <p class="section-sub">Fill in your details, accept the terms, and you'll be redirected to the secure payment page.</p>
 
-            <div class="enroll-wrapper">
-                <!-- Step 1: Details -->
+            <div class="enroll-box">
+                <!-- Step 1: Details + Terms -->
                 <div class="enroll-step active" id="step1">
-                    <div class="step-indicator">
-                        <div class="step-dot active">1</div>
-                        <div class="step-line"></div>
-                        <div class="step-dot">2</div>
-                        <div class="step-line"></div>
-                        <div class="step-dot">3</div>
-                    </div>
-                    <h3>Your Details</h3>
-                    <form id="detailsForm">
-                        <div class="form-group">
-                            <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" required placeholder="Your full name">
+                    <form id="enrollForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full name</label>
+                                <input type="text" id="fullName" required placeholder="Your name">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" required placeholder="you@email.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="whatsapp">WhatsApp (with country code)</label>
+                                <input type="tel" id="whatsapp" required placeholder="+1 234 567 890">
+                            </div>
+                            <div class="form-group">
+                                <label for="country">Country</label>
+                                <input type="text" id="country" required placeholder="Where are you from?">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" required placeholder="your@email.com">
+                            <label for="motivation">Why medicine in Italy? <span class="optional">(optional)</span></label>
+                            <textarea id="motivation" rows="3" placeholder="Your story in a few words..."></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="whatsapp">WhatsApp Number (with country code)</label>
-                            <input type="tel" id="whatsapp" required placeholder="+1 234 567 890">
+
+                        <div class="terms-toggle">
+                            <button type="button" class="terms-toggle-btn" id="toggleTerms">Read Terms & Conditions ↓</button>
                         </div>
-                        <div class="form-group">
-                            <label for="country">Country</label>
-                            <input type="text" id="country" required placeholder="Where are you from?">
+                        <div class="terms-box" id="termsBox">
+                            <div class="terms-content">
+                                <h4>Terms & Conditions of Service</h4>
+                                <p><strong>Last Updated: March 2026</strong></p>
+
+                                <p><strong>1. Nature of Service.</strong> This service is a personal consulting and mentorship service provided by Rom ("Mentor") on a non-professional, peer-to-peer advisory basis. The Mentor is not a licensed educator, tutor, teacher, academic advisor, or examination preparation professional. This service constitutes informal personal consulting only. The Mentor shares personal experience, opinions, and general guidance at his sole discretion.</p>
+
+                                <p><strong>2. No Guarantees or Promises of Results.</strong> By subscribing, you ("Subscriber") explicitly acknowledge and agree that: (a) The Mentor makes absolutely NO guarantee, warranty, promise, or representation — express or implied — regarding any particular outcome, result, exam score, university admission, or academic performance. (b) There is no promise or guarantee that you will pass the IMAT, achieve any specific score, gain admission to any university, or attain any particular academic result. (c) Past performance, scores, or achievements of the Mentor are personal to the Mentor and are in no way indicative, predictive, or representative of any results the Subscriber may or may not achieve. (d) Success on the IMAT or in any academic pursuit depends on numerous factors entirely outside the Mentor's control, including but not limited to the Subscriber's effort, aptitude, prior knowledge, dedication, health, exam conditions, and external circumstances.</p>
+
+                                <p><strong>3. Scope and Delivery of Service.</strong> (a) The Mentor provides mentorship, guidance, and support on a best-effort basis at the Mentor's sole and absolute discretion. (b) The frequency, duration, format, and content of mentorship sessions, messages, and support are determined solely by the Mentor and may vary. (c) The Mentor reserves the right to modify, adjust, pause, or change the nature, frequency, or method of the service at any time and for any reason, without prior notice. (d) The Mentor is not obligated to deliver any specific number of sessions, hours of support, response times, or any particular format of service. (e) The service is delivered based on the Mentor's availability and personal judgment, not on any fixed schedule or obligation.</p>
+
+                                <p><strong>4. No Refund Policy.</strong> (a) ALL PAYMENTS ARE NON-REFUNDABLE. Once a monthly payment has been processed, it is final and non-refundable under any circumstances, including but not limited to: dissatisfaction with the service, failure to achieve desired results, change of mind, inability to participate, or for any other reason. (b) The Subscriber's sole remedy for dissatisfaction is to cancel the subscription to prevent future charges. Cancellation takes effect for the billing period following the current one. (c) No partial refunds, pro-rated refunds, or credits will be issued for any reason.</p>
+
+                                <p><strong>5. Cancellation.</strong> (a) The Subscriber may cancel their subscription at any time through the payment provider's portal or by contacting the Mentor. (b) Cancellation will take effect at the end of the current paid billing period. (c) No refund is provided for the current billing period upon cancellation. (d) The Mentor also reserves the right to cancel or terminate the service for any Subscriber at any time, at the Mentor's sole discretion, with or without cause and with or without notice.</p>
+
+                                <p><strong>6. Limitation of Liability.</strong> (a) To the maximum extent permitted by applicable law, the Mentor shall not be liable for any direct, indirect, incidental, consequential, special, punitive, or exemplary damages of any kind arising out of or related to this service, including but not limited to: loss of income, academic opportunities, exam fees, travel costs, emotional distress, or any other losses. (b) The Subscriber agrees that the total cumulative liability of the Mentor, if any, shall not exceed the amount paid by the Subscriber for the single most recent monthly payment. (c) The Subscriber assumes full and sole responsibility for all decisions made based on the mentorship.</p>
+
+                                <p><strong>7. Indemnification.</strong> The Subscriber agrees to indemnify, defend, and hold harmless the Mentor from and against any and all claims, demands, losses, damages, liabilities, costs, and expenses (including reasonable attorneys' fees) arising from or related to: (a) the Subscriber's participation in the service, (b) any decisions or actions taken by the Subscriber, (c) the Subscriber's breach of these terms, or (d) any third-party claims related to the Subscriber's use of the service.</p>
+
+                                <p><strong>8. No Professional Relationship.</strong> No professional, fiduciary, employer-employee, teacher-student, or any other formal relationship is created by this service. The Mentor acts purely as a peer sharing personal experiences and opinions.</p>
+
+                                <p><strong>9. Intellectual Property.</strong> All strategies, methods, materials, and advice shared during the mentorship are the intellectual property of the Mentor and may not be reproduced, shared, distributed, or resold without express written consent.</p>
+
+                                <p><strong>10. Privacy.</strong> Personal information provided during registration will be used solely for the purpose of delivering the mentorship service. This information will not be sold or shared with third parties.</p>
+
+                                <p><strong>11. Dispute Resolution.</strong> Any disputes arising from this agreement shall be governed by the laws of the Republic of Estonia. Any legal proceedings shall be conducted in the courts of Estonia.</p>
+
+                                <p><strong>12. Entire Agreement.</strong> These Terms constitute the entire agreement between the Subscriber and the Mentor regarding the service and supersede all prior communications, representations, and agreements.</p>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="motivation">Why do you want to study medicine in Italy? (Optional)</label>
-                            <textarea id="motivation" rows="3" placeholder="Tell me your story..."></textarea>
+
+                        <div class="terms-check">
+                            <label class="checkbox-wrap">
+                                <input type="checkbox" id="acceptTerms" required>
+                                <span class="check-box"></span>
+                                <span class="check-text">I have read and accept the Terms & Conditions. I understand this is a consulting service with no guarantees, all payments are non-refundable, and I may only cancel for the following month.</span>
+                            </label>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-full">Continue to Terms →</button>
+
+                        <button type="submit" class="btn btn-primary btn-full" id="payBtn" disabled>
+                            Continue to payment — €44/month
+                        </button>
                     </form>
                 </div>
 
-                <!-- Step 2: Terms -->
-                <div class="enroll-step" id="step2">
-                    <div class="step-indicator">
-                        <div class="step-dot completed">✓</div>
-                        <div class="step-line active"></div>
-                        <div class="step-dot active">2</div>
-                        <div class="step-line"></div>
-                        <div class="step-dot">3</div>
-                    </div>
-                    <h3>Terms & Conditions</h3>
-                    <div class="terms-box">
-                        <div class="terms-content" id="termsContent">
-                            <h4>IMAT Compass Mentorship — Terms & Conditions of Service</h4>
-                            <p><strong>Last Updated: March 2026</strong></p>
-
-                            <p><strong>1. Nature of Service.</strong> This service is a personal consulting and mentorship service provided by Rom Haparnass ("Mentor") on a non-professional, peer-to-peer advisory basis. The Mentor is not a licensed educator, tutor, teacher, academic advisor, or examination preparation professional. This service constitutes informal personal consulting only. The Mentor shares personal experience, opinions, and general guidance at his sole discretion.</p>
-
-                            <p><strong>2. No Guarantees or Promises of Results.</strong> By subscribing, you ("Subscriber") explicitly acknowledge and agree that: (a) The Mentor makes absolutely NO guarantee, warranty, promise, or representation — express or implied — regarding any particular outcome, result, exam score, university admission, or academic performance. (b) There is no promise or guarantee that you will pass the IMAT, achieve any specific score, gain admission to any university, or attain any particular academic result. (c) Past performance, scores, or achievements of the Mentor are personal to the Mentor and are in no way indicative, predictive, or representative of any results the Subscriber may or may not achieve. (d) Success on the IMAT or in any academic pursuit depends on numerous factors entirely outside the Mentor's control, including but not limited to the Subscriber's effort, aptitude, prior knowledge, dedication, health, exam conditions, and external circumstances.</p>
-
-                            <p><strong>3. Scope and Delivery of Service.</strong> (a) The Mentor provides mentorship, guidance, and support on a best-effort basis at the Mentor's sole and absolute discretion. (b) The frequency, duration, format, and content of mentorship sessions, messages, and support are determined solely by the Mentor and may vary. (c) The Mentor reserves the right to modify, adjust, pause, or change the nature, frequency, or method of the service at any time and for any reason, without prior notice. (d) The Mentor is not obligated to deliver any specific number of sessions, hours of support, response times, or any particular format of service. (e) The service is delivered based on the Mentor's availability, mood, and personal judgment, not on any fixed schedule or obligation.</p>
-
-                            <p><strong>4. No Refund Policy.</strong> (a) ALL PAYMENTS ARE NON-REFUNDABLE. Once a monthly payment has been processed, it is final and non-refundable under any circumstances, including but not limited to: dissatisfaction with the service, failure to achieve desired results, change of mind, inability to participate, or for any other reason. (b) The Subscriber's sole remedy for dissatisfaction is to cancel the subscription to prevent future charges. Cancellation takes effect for the billing period following the current one. (c) No partial refunds, pro-rated refunds, or credits will be issued for any reason.</p>
-
-                            <p><strong>5. Cancellation.</strong> (a) The Subscriber may cancel their subscription at any time. (b) Cancellation will take effect at the end of the current paid billing period. The Subscriber will continue to have access to the service until the end of the period already paid for. (c) No refund is provided for the current billing period upon cancellation. (d) The Mentor also reserves the right to cancel or terminate the service for any Subscriber at any time, at the Mentor's sole discretion, with or without cause and with or without notice.</p>
-
-                            <p><strong>6. Limitation of Liability.</strong> (a) To the maximum extent permitted by applicable law, the Mentor shall not be liable for any direct, indirect, incidental, consequential, special, punitive, or exemplary damages of any kind arising out of or related to this service, including but not limited to: loss of income, academic opportunities, exam fees, travel costs, emotional distress, or any other losses. (b) The Subscriber agrees that the total cumulative liability of the Mentor, if any, shall not exceed the amount paid by the Subscriber for the single most recent monthly payment. (c) The Subscriber assumes full and sole responsibility for all decisions made based on the mentorship, including study strategies, university selections, and any actions taken or not taken.</p>
-
-                            <p><strong>7. Indemnification.</strong> The Subscriber agrees to indemnify, defend, and hold harmless the Mentor from and against any and all claims, demands, losses, damages, liabilities, costs, and expenses (including reasonable attorneys' fees) arising from or related to: (a) the Subscriber's participation in the service, (b) any decisions or actions taken by the Subscriber based on the mentorship, (c) the Subscriber's breach of these terms, or (d) any third-party claims related to the Subscriber's use of the service.</p>
-
-                            <p><strong>8. No Professional Relationship.</strong> No professional, fiduciary, employer-employee, teacher-student, or any other formal relationship is created by this service. The Mentor acts purely as a peer sharing personal experiences and opinions.</p>
-
-                            <p><strong>9. Intellectual Property.</strong> All strategies, methods, materials, and advice shared during the mentorship are the intellectual property of the Mentor and may not be reproduced, shared, distributed, or resold without express written consent.</p>
-
-                            <p><strong>10. Privacy.</strong> Personal information provided during registration (name, email, WhatsApp number, country) will be used solely for the purpose of delivering the mentorship service and communicating with the Subscriber. This information will not be sold or shared with third parties.</p>
-
-                            <p><strong>11. Dispute Resolution.</strong> Any disputes arising from this agreement shall be governed by the laws of the Republic of Estonia. The parties agree to attempt to resolve disputes amicably before pursuing any legal action. Any legal proceedings shall be conducted in the courts of Estonia.</p>
-
-                            <p><strong>12. Entire Agreement.</strong> These Terms constitute the entire agreement between the Subscriber and the Mentor regarding the service and supersede all prior communications, representations, and agreements. By checking the acceptance box below, the Subscriber confirms they have read, understood, and agree to be bound by all terms and conditions stated herein.</p>
-                        </div>
-                    </div>
-                    <div class="terms-accept">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="acceptTerms">
-                            <span class="checkmark"></span>
-                            <span>I have read and I accept the Terms & Conditions. I understand that this is a consulting service with no guarantees of results, all payments are non-refundable, and I waive any claims against the Mentor.</span>
-                        </label>
-                    </div>
-                    <button class="btn btn-primary btn-full" id="toPayment" disabled>Continue to Payment →</button>
-                    <button class="btn btn-ghost btn-full" id="backToDetails">← Back</button>
-                </div>
-
-                <!-- Step 3: Payment -->
-                <div class="enroll-step" id="step3">
-                    <div class="step-indicator">
-                        <div class="step-dot completed">✓</div>
-                        <div class="step-line completed"></div>
-                        <div class="step-dot completed">✓</div>
-                        <div class="step-line active"></div>
-                        <div class="step-dot active">3</div>
-                    </div>
-                    <h3>Payment — €44/month</h3>
-                    <div class="payment-info">
-                        <p>Complete your first monthly payment via bank transfer to activate your mentorship:</p>
-                        <div class="iban-details">
-                            <div class="iban-row">
-                                <span class="iban-label">Recipient:</span>
-                                <span class="iban-value">Rom Haparnass</span>
-                            </div>
-                            <div class="iban-row">
-                                <span class="iban-label">IBAN:</span>
-                                <span class="iban-value" id="ibanNumber">EE257777000143102704</span>
-                                <button class="copy-btn" onclick="copyIBAN()">Copy</button>
-                            </div>
-                            <div class="iban-row">
-                                <span class="iban-label">BIC/SWIFT:</span>
-                                <span class="iban-value">LHVBEE22</span>
-                            </div>
-                            <div class="iban-row">
-                                <span class="iban-label">Amount:</span>
-                                <span class="iban-value">€44.00</span>
-                            </div>
-                            <div class="iban-row">
-                                <span class="iban-label">Reference:</span>
-                                <span class="iban-value" id="paymentRef">IMAT-[YourName]</span>
-                            </div>
-                        </div>
-                        <p class="payment-note">Use your full name as the payment reference so I can match your payment. Recurring monthly — set up a standing order for convenience.</p>
-                    </div>
-
-                    <div class="payment-confirm">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="confirmPayment">
-                            <span class="checkmark"></span>
-                            <span>I have completed the bank transfer of €44.00</span>
-                        </label>
-                    </div>
-                    <button class="btn btn-primary btn-full" id="confirmBtn" disabled>Confirm Payment & Start Journey 🚀</button>
-                    <button class="btn btn-ghost btn-full" id="backToTerms">← Back</button>
-                </div>
-
-                <!-- Step 4: Success -->
-                <div class="enroll-step" id="step4">
-                    <div class="success-content">
-                        <div class="success-icon">🎉</div>
-                        <h2>Welcome to the Journey!</h2>
-                        <p>You just made the most important decision of your IMAT journey. I'm proud of you.</p>
-                        <p>Now let's make it real — send me a message on WhatsApp so we can schedule our first call:</p>
-                        <a href="https://wa.me/393514466587?text=Hey%20Rom%2C%20I%20paid%20and%20ready%20to%20start%20our%20journey%20together%2C%20let%27s%20schedule%20our%20first%20mentorship%20call%20for%20tomorrow!" class="btn btn-whatsapp btn-lg btn-full" target="_blank" rel="noopener">
-                            💬 Message Rom on WhatsApp
+                <!-- Step 2: Success (shown after return from Stripe) -->
+                <div class="enroll-step" id="stepSuccess">
+                    <div class="success-wrap">
+                        <div class="success-check">✓</div>
+                        <h3>You're in.</h3>
+                        <p>Welcome. You just made the decision that most people never make — to trust yourself and take a different path.</p>
+                        <p>Let's not waste a single day. Send me a message on WhatsApp and we'll schedule your first call:</p>
+                        <a href="https://wa.me/393514466587?text=Hey%20Rom%2C%20I%20paid%20and%20ready%20to%20start%20our%20journey%20together%2C%20let%27s%20schedule%20our%20first%20mentorship%20call%20for%20tomorrow!" class="btn btn-whatsapp btn-full" target="_blank" rel="noopener">
+                            Message Rom on WhatsApp →
                         </a>
-                        <p class="success-note">This will open WhatsApp with a pre-written message. I'll respond within 24 hours to schedule our first 1-on-1 call!</p>
-
-                        <div class="manage-sub">
-                            <h4>Manage Your Subscription</h4>
-                            <p>If you ever need to cancel your monthly subscription, you can do so by stopping the standing order in your bank app, or click below to notify me:</p>
-                            <a href="https://wa.me/393514466587?text=Hey%20Rom%2C%20I%20need%20to%20cancel%20my%20subscription%20starting%20next%20month." class="btn btn-ghost" target="_blank" rel="noopener">Cancel Subscription</a>
+                        <p class="success-small">I'll reply within 24 hours to schedule our first 1-on-1.</p>
+                        <div class="manage-section">
+                            <p class="manage-label">Need to cancel later?</p>
+                            <p class="manage-text">You can cancel your subscription anytime from the <a href="#" id="manageLink">Stripe customer portal</a>, or message me directly.</p>
                         </div>
                     </div>
                 </div>
@@ -376,22 +304,48 @@
         </div>
     </section>
 
-    <!-- Final CTA Section -->
-    <section class="final-cta">
+    <!-- Final -->
+    <section class="section section-final">
         <div class="container">
-            <h2>12,000 Candidates. 1,000 Win.<br><span class="gradient-text">Will You Be One of Them?</span></h2>
-            <p>The exam doesn't care how many courses you bought.<br>It cares how you think. Let me teach you how to think.</p>
-            <a href="#enroll" class="btn btn-primary btn-lg pulse">Claim Your Spot — Only 8 Available</a>
+            <h2>12,000 candidates.<br>1,000 get in.<br><em>Which side are you on?</em></h2>
+            <a href="#enroll" class="btn btn-primary">Apply now</a>
         </div>
     </section>
 
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>IMAT Compass — Personal Mentorship by Rom Haparnass</p>
-            <p class="footer-small">This is a personal consulting service. No guarantees of exam results or university admission are made or implied. See Terms & Conditions for full details.</p>
+            <p class="footer-brand">Rom. — IMAT Mentorship</p>
+            <p class="footer-legal">Personal consulting service. No guarantees of results or admission are made or implied.</p>
         </div>
     </footer>
+
+    <!--
+    ============================================================
+    STRIPE SETUP INSTRUCTIONS
+    ============================================================
+    To enable payments, you need to:
+
+    1. Create a Stripe account at https://stripe.com
+    2. In Stripe Dashboard, go to Products → Create Product
+       - Name: "IMAT Mentorship with Rom"
+       - Price: €44.00 / month (recurring)
+    3. Create a Payment Link for that product:
+       - Go to Payment Links → Create
+       - Select your €44/mo product
+       - Enable "Collect customer email" and any custom fields
+       - Set success URL to: https://YOUR-DOMAIN.com/?payment=success
+       - Copy the Payment Link URL
+    4. Replace the STRIPE_PAYMENT_LINK value in script.js with your link
+    5. For subscription management, go to Settings → Customer Portal
+       - Enable it and copy the portal link
+       - Replace STRIPE_PORTAL_LINK in script.js
+
+    Your IBAN (EE257777000143102704, BIC: LHVBEE22) should be added
+    as your payout bank account in Stripe Dashboard → Settings → Payouts.
+    Stripe will collect card payments and transfer to your IBAN automatically.
+    ============================================================
+    -->
 
     <script src="script.js"></script>
 </body>
