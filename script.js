@@ -116,7 +116,7 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .exclusive-box, .letter').forEach(el => {
+document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-letter').forEach(el => {
     el.classList.add('fade-in');
     observer.observe(el);
 });

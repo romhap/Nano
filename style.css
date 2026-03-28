@@ -282,6 +282,8 @@ em {
 
 .stat {
     text-align: center;
+    flex: 0 0 auto;
+    min-width: 120px;
 }
 
 .stat-number {
@@ -308,13 +310,8 @@ em {
     color: var(--text-soft);
     font-size: 1.05rem;
     max-width: 640px;
-    margin: 0 auto 16px;
+    margin: 0 auto 40px;
     text-align: center;
-}
-
-/* Comparison */
-.section-compare {
-    background: var(--bg-alt);
 }
 
 .compare-grid {
@@ -394,14 +391,6 @@ em {
     color: var(--accent);
 }
 
-.compare-bottom {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    font-style: italic;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-}
-
 /* About */
 .section-about {
     background: var(--bg);
@@ -436,6 +425,31 @@ em {
     font-weight: 500;
 }
 
+.about-letter {
+    margin-top: 32px;
+    padding: 28px;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--border);
+}
+
+.about-letter p {
+    font-size: 1rem;
+    color: var(--text-soft);
+    margin-bottom: 12px;
+}
+
+.about-letter p:last-of-type:not(.letter-sig) {
+    margin-bottom: 12px;
+}
+
+.letter-sig {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    color: var(--accent) !important;
+    margin-bottom: 0 !important;
+}
+
 /* Includes */
 .section-includes {
     background: var(--bg-alt);
@@ -459,12 +473,19 @@ em {
     border-color: var(--accent);
 }
 
-.include-num {
-    font-size: 0.8rem;
-    color: var(--accent);
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
+.includes-note {
+    margin-top: 40px;
+    text-align: center;
+    padding: 24px;
+    background: var(--accent-bg);
+    border: 1px solid rgba(184, 134, 11, 0.2);
+    border-radius: var(--radius);
+}
+
+.includes-note p {
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 .include-item h3 {
@@ -476,95 +497,6 @@ em {
 .include-item p {
     color: var(--text-soft);
     font-size: 0.95rem;
-}
-
-/* Letter */
-.section-letter {
-    background: var(--bg-dark);
-    color: var(--bg);
-}
-
-.letter {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.letter p {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    color: rgba(250, 250, 247, 0.75);
-    line-height: 1.8;
-}
-
-.letter p:first-child {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.6rem;
-    color: var(--bg);
-    margin-bottom: 28px;
-}
-
-.letter em {
-    color: var(--accent-soft);
-}
-
-.letter-sig {
-    font-family: 'DM Serif Display', serif;
-    font-style: italic;
-    color: var(--accent-soft) !important;
-    margin-top: 32px;
-    font-size: 1.2rem !important;
-}
-
-/* Exclusive */
-.section-exclusive {
-    background: var(--bg);
-}
-
-.exclusive-box {
-    max-width: 600px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.exclusive-box h2 {
-    margin-bottom: 20px;
-}
-
-.exclusive-box p {
-    color: var(--text-soft);
-    margin-bottom: 16px;
-    font-size: 1.05rem;
-}
-
-.exclusive-box ul {
-    list-style: none;
-    text-align: left;
-    max-width: 440px;
-    margin: 24px auto;
-}
-
-.exclusive-box ul li {
-    padding: 10px 0;
-    padding-left: 24px;
-    position: relative;
-    color: var(--text-soft);
-    border-bottom: 1px solid var(--border-light);
-}
-
-.exclusive-box ul li::before {
-    content: '·';
-    position: absolute;
-    left: 8px;
-    color: var(--accent);
-    font-weight: 700;
-    font-size: 1.4rem;
-    line-height: 1;
-}
-
-.exclusive-final {
-    color: var(--text) !important;
-    font-weight: 600;
-    margin-top: 24px;
 }
 
 /* === Enrollment === */
