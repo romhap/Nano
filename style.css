@@ -221,8 +221,8 @@ em {
     margin: 0 auto;
     padding: 0 32px;
     display: grid;
-    grid-template-columns: 1.3fr 0.7fr;
-    gap: 64px;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
     align-items: center;
 }
 
@@ -274,7 +274,7 @@ em {
 
 .rom-photo {
     width: 100%;
-    max-width: 440px;
+    max-width: 560px;
     border-radius: var(--radius);
     object-fit: cover;
     aspect-ratio: 3/4;
