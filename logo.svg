@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 48">
+  <!-- IMP Letters -->
+  <path d="M4 8 L4 34" stroke="#0A0A0A" stroke-width="5.5" stroke-linecap="square"/>
+  <path d="M16 8 L16 34 M16 8 L26 28 L36 8 L36 34" stroke="#0A0A0A" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+  <path d="M46 8 L46 34 M46 8 L56 8 Q62 8 62 15.5 Q62 23 56 23 L46 23" stroke="#0A0A0A" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+  <!-- Blue accent line -->
+  <rect x="0" y="38" width="66" height="2.5" fill="#0047FF" rx="0.5"/>
+  <!-- Full name -->
+  <text x="76" y="22" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="500" font-size="10" fill="#888" letter-spacing="2.5">IMAT MENTORSHIP PROGRAM</text>
+  <text x="76" y="34" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="600" font-size="9" fill="#0A0A0A" letter-spacing="1">by Rom</text>
+</svg>
