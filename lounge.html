@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lounge — IMP</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: #0A0A0A;
+            min-height: 100vh;
+        }
+
+        .lounge-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .lounge-nav .nav-inner {
+            max-width: 940px;
+            margin: 0 auto;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lounge-nav .nav-logo-img {
+            height: 36px;
+            filter: invert(1);
+        }
+
+        .lounge-nav .nav-link {
+            color: #fff;
+            border-color: #333;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .lounge-nav .nav-link:hover {
+            background: #fff;
+            color: #0A0A0A;
+            border-color: #fff;
+        }
+
+        /* Gate */
+        .lounge-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 80px 32px 40px;
+        }
+
+        .gate-wrap {
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+        }
+
+        .gate-diamond {
+            width: 48px;
+            height: 48px;
+            border: 2px solid #0047FF;
+            transform: rotate(45deg);
+            margin: 0 auto 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gate-diamond-inner {
+            width: 8px;
+            height: 8px;
+            background: #0047FF;
+        }
+
+        .gate-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 2.4rem;
+            color: #fff;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .gate-sub {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 36px;
+            letter-spacing: 0.01em;
+        }
+
+        .gate-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .gate-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.15s;
+        }
+
+        .gate-input:focus {
+            outline: none;
+            border-color: #0047FF;
+        }
+
+        .gate-input::placeholder {
+            color: #444;
+        }
+
+        .gate-btn {
+            padding: 14px 28px;
+            background: #fff;
+            color: #0A0A0A;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .gate-btn:hover {
+            background: #ddd;
+        }
+
+        .gate-error {
+            color: #D42020;
+            font-size: 0.8rem;
+            margin-top: 16px;
+            min-height: 1.2em;
+        }
+
+        .gate-hint {
+            margin-top: 48px;
+            color: #333;
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+        }
+
+        /* Content (once authenticated) */
+        .lounge-inside {
+            display: none;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .lounge-inside.visible {
+            display: block;
+            animation: loungeReveal 0.8s ease;
+        }
+
+        @keyframes loungeReveal {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .inside-diamond {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #0047FF;
+            transform: rotate(45deg);
+            margin: 0 auto 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .inside-diamond-inner {
+            width: 6px;
+            height: 6px;
+            background: #0047FF;
+        }
+
+        .inside-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 2rem;
+            color: #fff;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+        }
+
+        .inside-text {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .inside-divider {
+            width: 40px;
+            height: 2px;
+            background: #0047FF;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="lounge-nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo"><img src="logo.svg" alt="IMP" class="nav-logo-img"></a>
+            <a href="index.html" class="nav-link">Back to IMP</a>
+        </div>
+    </nav>
+
+    <div class="lounge-page">
+        <!-- Gate -->
+        <div class="gate-wrap" id="loungeGate">
+            <div class="gate-diamond"><div class="gate-diamond-inner"></div></div>
+            <h1 class="gate-title">The Lounge</h1>
+            <p class="gate-sub">Members-only area. Enter your access code.</p>
+            <div class="gate-form">
+                <input type="password" id="loungePassword" placeholder="Access code" class="gate-input" autofocus>
+                <button class="gate-btn" id="loungeBtn">Enter</button>
+            </div>
+            <p class="gate-error" id="loungeError"></p>
+            <p class="gate-hint">IMP members receive the code after enrollment.</p>
+        </div>
+
+        <!-- Authenticated content -->
+        <div class="lounge-inside" id="loungeContent">
+            <div class="inside-diamond"><div class="inside-diamond-inner"></div></div>
+            <h1 class="inside-title">Welcome to The Lounge</h1>
+            <p class="inside-text">You're in. This space is being prepared for you.<br>Content coming soon.</p>
+            <div class="inside-divider"></div>
+        </div>
+    </div>
+
+    <script>
+        const LOUNGE_PASSWORD = 'Paprika2000';
+
+        const gate = document.getElementById('loungeGate');
+        const content = document.getElementById('loungeContent');
+        const btn = document.getElementById('loungeBtn');
+        const input = document.getElementById('loungePassword');
+        const error = document.getElementById('loungeError');
+
+        // Check if already authenticated
+        if (localStorage.getItem('imp_lounge_auth') === 'true') {
+            gate.style.display = 'none';
+            content.classList.add('visible');
+        }
+
+        function attemptLogin() {
+            if (input.value === LOUNGE_PASSWORD) {
+                localStorage.setItem('imp_lounge_auth', 'true');
+                gate.style.display = 'none';
+                content.classList.add('visible');
+                error.textContent = '';
+            } else {
+                error.textContent = 'Incorrect access code.';
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        btn.addEventListener('click', attemptLogin);
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                attemptLogin();
+            }
+        });
+    </script>
+
+</body>
+</html>
