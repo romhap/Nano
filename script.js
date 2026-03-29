@@ -1,21 +1,13 @@
 // ============================================================
-// CONFIGURATION — Replace these with your actual Stripe links
+// CONFIGURATION
 // ============================================================
-// 1. Create a Stripe account → stripe.com
-// 2. Add your IBAN (EE257777000143102704, BIC: LHVBEE22) as payout method
-// 3. Create a Product: "IMAT Mentorship" at €44/month recurring
-// 4. Create a Payment Link for that product
-//    - Set success URL to: https://YOUR-DOMAIN.com/?payment=success
-//    - Enable "collect email address"
-// 5. Paste the payment link URL below:
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/28E3cvb6i4NaaikecNgw000';
-// 6. Enable the Stripe Customer Portal and paste link below (for cancellations):
-const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000'; // Replace when you enable Stripe Customer Portal
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/eVqdR9gqCcfCduw0lXgw001';
+const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
 // ============================================================
 
-// === Countdown Timer (15 days from first visit, stored in localStorage) ===
+// === Countdown Timer (7 days from first visit, stored in localStorage) ===
 function updateCountdown() {
-    const DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+    const DURATION_MS = 7 * 24 * 60 * 60 * 1000;
     let deadline = localStorage.getItem('imat_deadline');
     if (!deadline) {
         deadline = Date.now() + DURATION_MS;
@@ -66,36 +58,29 @@ document.getElementById('enrollForm').addEventListener('submit', function (e) {
         timestamp: new Date().toISOString()
     };
 
-    // Store locally so we can show success page on return
     localStorage.setItem('imat_subscriber', JSON.stringify(data));
 
-    // Build Stripe link with prefilled email
     const paymentUrl = STRIPE_PAYMENT_LINK +
         (STRIPE_PAYMENT_LINK.includes('?') ? '&' : '?') +
         'prefilled_email=' + encodeURIComponent(data.email);
 
-    // Redirect to Stripe Checkout
     window.location.href = paymentUrl;
 });
 
 // === Check for successful payment return ===
 if (window.location.search.includes('payment=success')) {
-    // Show success step
     const step1 = document.getElementById('step1');
     const stepSuccess = document.getElementById('stepSuccess');
     if (step1) step1.classList.remove('active');
     if (stepSuccess) stepSuccess.classList.add('active');
 
-    // Set portal link
     const manageLink = document.getElementById('manageLink');
     if (manageLink) manageLink.href = STRIPE_PORTAL_LINK;
 
-    // Scroll to enroll section
     setTimeout(() => {
         document.getElementById('enroll').scrollIntoView({ behavior: 'smooth' });
     }, 300);
 
-    // Clean URL
     window.history.replaceState({}, '', window.location.pathname);
 }
 
@@ -121,3 +106,45 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
     el.classList.add('fade-in');
     observer.observe(el);
 });
+
+// === Lounge (password-gated) ===
+const LOUNGE_PASSWORD = 'Paprika2000';
+
+function initLounge() {
+    const gate = document.getElementById('loungeGate');
+    const content = document.getElementById('loungeContent');
+    const btn = document.getElementById('loungeBtn');
+    const input = document.getElementById('loungePassword');
+    const error = document.getElementById('loungeError');
+
+    if (!gate || !content || !btn || !input) return;
+
+    // Check if already authenticated
+    if (localStorage.getItem('imp_lounge_auth') === 'true') {
+        gate.style.display = 'none';
+        content.classList.add('visible');
+    }
+
+    function attemptLogin() {
+        if (input.value === LOUNGE_PASSWORD) {
+            localStorage.setItem('imp_lounge_auth', 'true');
+            gate.style.display = 'none';
+            content.classList.add('visible');
+            if (error) error.textContent = '';
+        } else {
+            if (error) error.textContent = 'Incorrect access code.';
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    btn.addEventListener('click', attemptLogin);
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            attemptLogin();
+        }
+    });
+}
+
+initLounge();
