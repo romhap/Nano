@@ -176,19 +176,9 @@
                                 <input type="email" id="email" required placeholder="you@email.com">
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="whatsapp">WhatsApp (with country code)</label>
-                                <input type="tel" id="whatsapp" required placeholder="+1 234 567 890">
-                            </div>
-                            <div class="form-group">
-                                <label for="country">Country</label>
-                                <input type="text" id="country" required placeholder="Where are you from?">
-                            </div>
-                        </div>
                         <div class="form-group">
-                            <label for="motivation">Why medicine in Italy? <span class="optional">(optional)</span></label>
-                            <textarea id="motivation" rows="3" placeholder="Your story in a few words..."></textarea>
+                            <label for="whatsapp">WhatsApp (with country code)</label>
+                            <input type="tel" id="whatsapp" required placeholder="+1 234 567 890">
                         </div>
 
                         <div class="terms-toggle">
@@ -197,7 +187,7 @@
                         <div class="terms-box" id="termsBox">
                             <div class="terms-content">
                                 <h4>Terms & Conditions of Service</h4>
-                                <p><strong>Last Updated: March 2026</strong></p>
+                                <p><strong>Last Updated: March 2026 · Version 2026.03.31</strong></p>
 
                                 <p><strong>1. Nature of Service.</strong> This service is a personal, informal consulting and mentorship service provided by Rom ("Mentor") on a non-professional, peer-to-peer advisory basis. The Mentor is NOT a licensed educator, tutor, teacher, academic advisor, counselor, coach, examination preparation professional, or any other type of regulated professional. This service constitutes strictly informal personal consulting based on the Mentor's own personal experience and opinions. The Mentor does not hold any professional certifications, accreditations, or qualifications in education, tutoring, coaching, counseling, or exam preparation. Any guidance, advice, strategies, methods, or opinions shared are purely personal and anecdotal.</p>
 
@@ -239,7 +229,9 @@
 
                                 <p><strong>20. Dispute Resolution and Governing Law.</strong> (a) Any disputes, claims, or controversies arising from or related to this agreement, the service, or the relationship between the parties shall be governed exclusively by the laws of the Republic of Estonia, without regard to conflict of law principles. (b) The parties agree to first attempt to resolve any dispute through informal negotiation for a period of no less than 30 days before initiating any formal proceedings. (c) Any legal proceedings shall be conducted exclusively in the courts of Tallinn, Estonia, and the Subscriber consents to the personal jurisdiction of such courts. (d) The Subscriber is responsible for all costs, fees, and expenses associated with any dispute or legal proceeding, including the Mentor's legal fees if the Mentor prevails.</p>
 
-                                <p><strong>21. Entire Agreement and Acknowledgment.</strong> (a) These Terms constitute the entire agreement between the Subscriber and the Mentor regarding the service and supersede all prior communications, representations, understandings, and agreements, whether written or oral. (b) No oral promises, statements, representations, or assurances made by the Mentor — whether on the website, in marketing materials, in social media, during calls, in messages, or otherwise — shall be binding or enforceable unless explicitly incorporated into these written Terms. (c) The Subscriber acknowledges that any marketing language, promotional statements, or aspirational content on the website or in communications is not contractual and does not form part of this agreement. (d) By checking the acceptance box, the Subscriber confirms they have carefully read, fully understood, and voluntarily agree to be bound by ALL terms and conditions stated herein, and that they have had the opportunity to seek independent legal advice before agreeing.</p>
+                                <p><strong>21. Eligibility — Exclusion of Future Meds Academy / Future Health Science Academy Students.</strong> (a) This service is NOT available to any individual who is currently enrolled in, or has been enrolled in, Future Meds Academy and/or Future Health Science Academy at any point during the six (6) months preceding the date of application or purchase. (b) By applying for or purchasing this service, you confirm that you are not currently enrolled in Future Meds Academy / Future Health Science Academy and have not been enrolled there during the previous 6 months. If this statement is false, enrollment may be refused or cancelled. (c) The Mentor reserves the absolute right to verify eligibility at any time and through any means. (d) If it is discovered — at any time before, during, or after the provision of the service — that the Subscriber falsely stated their eligibility, the Mentor may immediately refuse, suspend, or cancel the service without refund, without notice, and without liability. The Subscriber shall have no claim for compensation, reimbursement, or damages resulting from such refusal, suspension, or cancellation. (e) Any attempt to conceal, misrepresent, or falsify eligibility status constitutes a material breach of these Terms and may result in immediate termination of the service and forfeiture of all payments made.</p>
+
+                                <p><strong>22. Entire Agreement and Acknowledgment.</strong> (a) These Terms (Version 2026.03.31) constitute the entire agreement between the Subscriber and the Mentor regarding the service and supersede all prior communications, representations, understandings, and agreements, whether written or oral. (b) No oral promises, statements, representations, or assurances made by the Mentor — whether on the website, in marketing materials, in social media, during calls, in messages, or otherwise — shall be binding or enforceable unless explicitly incorporated into these written Terms. (c) The Subscriber acknowledges that any marketing language, promotional statements, or aspirational content on the website or in communications is not contractual and does not form part of this agreement. (d) By checking the acceptance box, the Subscriber confirms they have carefully read, fully understood, and voluntarily agree to be bound by ALL terms and conditions stated herein, and that they have had the opportunity to seek independent legal advice before agreeing.</p>
                             </div>
                         </div>
 
@@ -248,6 +240,14 @@
                                 <input type="checkbox" id="acceptTerms" required>
                                 <span class="check-box"></span>
                                 <span class="check-text">I have read and accept the Terms & Conditions. I understand this is a consulting service with no guarantees, all payments are non-refundable, and I may only cancel for the following month.</span>
+                            </label>
+                        </div>
+
+                        <div class="terms-check">
+                            <label class="checkbox-wrap">
+                                <input type="checkbox" id="acceptEligibility" required>
+                                <span class="check-box"></span>
+                                <span class="check-text">I confirm that I am not a current or recent (last 6 months) Future Meds Academy student.</span>
                             </label>
                         </div>
 
@@ -312,7 +312,7 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p class="footer-brand">IMP, by Rom.</p>
+            <p class="footer-brand">IMAT MENTORSHIP PROGRAM, BY ROM.</p>
             <p class="footer-legal">Personal consulting service. No guarantees of results or admission are made or implied.</p>
         </div>
     </footer>

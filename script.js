@@ -38,33 +38,59 @@ document.getElementById('toggleTerms').addEventListener('click', function () {
         : 'Read Terms & Conditions ↓';
 });
 
-// === Checkbox enables button ===
-document.getElementById('acceptTerms').addEventListener('change', function () {
-    document.getElementById('payBtn').disabled = !this.checked;
-});
+// === Both checkboxes must be checked to enable button ===
+const acceptTerms = document.getElementById('acceptTerms');
+const acceptEligibility = document.getElementById('acceptEligibility');
+
+function updatePayBtn() {
+    document.getElementById('payBtn').disabled = !(acceptTerms.checked && acceptEligibility.checked);
+}
+
+acceptTerms.addEventListener('change', updatePayBtn);
+acceptEligibility.addEventListener('change', updatePayBtn);
 
 // === Form submission → redirect to Stripe ===
 document.getElementById('enrollForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
-    if (!document.getElementById('acceptTerms').checked) return;
+    if (!acceptTerms.checked || !acceptEligibility.checked) return;
+
+    const TERMS_VERSION = '2026.03.31';
+    const timestamp = new Date().toISOString();
 
     const data = {
         name: document.getElementById('fullName').value.trim(),
         email: document.getElementById('email').value.trim(),
         whatsapp: document.getElementById('whatsapp').value.trim(),
-        country: document.getElementById('country').value.trim(),
-        motivation: document.getElementById('motivation').value.trim(),
-        timestamp: new Date().toISOString()
+        consents: {
+            terms_accepted: true,
+            eligibility_confirmed: true,
+            terms_version: TERMS_VERSION
+        },
+        timestamp: timestamp,
+        user_agent: navigator.userAgent,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        locale: navigator.language
     };
 
-    localStorage.setItem('imat_subscriber', JSON.stringify(data));
+    // Attempt to log IP via public API (best-effort, non-blocking)
+    fetch('https://api.ipify.org?format=json')
+        .then(r => r.json())
+        .then(ip => { data.ip = ip.ip; })
+        .catch(() => { data.ip = 'unavailable'; })
+        .finally(() => {
+            // Store submission log (append to array for multiple submissions)
+            const log = JSON.parse(localStorage.getItem('imat_submissions') || '[]');
+            log.push(data);
+            localStorage.setItem('imat_submissions', JSON.stringify(log));
+            localStorage.setItem('imat_subscriber', JSON.stringify(data));
 
-    const paymentUrl = STRIPE_PAYMENT_LINK +
-        (STRIPE_PAYMENT_LINK.includes('?') ? '&' : '?') +
-        'prefilled_email=' + encodeURIComponent(data.email);
+            const paymentUrl = STRIPE_PAYMENT_LINK +
+                (STRIPE_PAYMENT_LINK.includes('?') ? '&' : '?') +
+                'prefilled_email=' + encodeURIComponent(data.email);
 
-    window.location.href = paymentUrl;
+            window.location.href = paymentUrl;
+        });
 });
 
 // === Check for successful payment return ===

@@ -36,7 +36,7 @@
         }
 
         .lounge-nav .nav-logo-img {
-            height: 36px;
+            height: 52px;
             filter: invert(1);
         }
 
@@ -168,6 +168,112 @@
             letter-spacing: 0.04em;
         }
 
+        /* Landmark Animation */
+        .landmark-container {
+            width: 280px;
+            height: 200px;
+            margin: 0 auto 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .landmark-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .landmark-svg path,
+        .landmark-svg line,
+        .landmark-svg circle,
+        .landmark-svg rect,
+        .landmark-svg ellipse,
+        .landmark-svg polyline,
+        .landmark-svg polygon {
+            fill: none;
+            stroke: #0047FF;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .landmark-svg .filled {
+            fill: #0047FF;
+            fill-opacity: 0.08;
+        }
+
+        /* Each landmark fades in/out in sequence */
+        .landmark-scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            animation: landmarkCycle 16s ease-in-out infinite;
+        }
+
+        .landmark-scene:nth-child(1) { animation-delay: 0s; }
+        .landmark-scene:nth-child(2) { animation-delay: 4s; }
+        .landmark-scene:nth-child(3) { animation-delay: 8s; }
+        .landmark-scene:nth-child(4) { animation-delay: 12s; }
+
+        @keyframes landmarkCycle {
+            0% { opacity: 0; transform: scale(0.96); }
+            5% { opacity: 1; transform: scale(1); }
+            22% { opacity: 1; transform: scale(1); }
+            27% { opacity: 0; transform: scale(1.02); }
+            100% { opacity: 0; }
+        }
+
+        .landmark-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #0047FF;
+            opacity: 0;
+            animation: landmarkCycle 16s ease-in-out infinite;
+        }
+
+        .landmark-label:nth-of-type(1) { animation-delay: 0s; }
+        .landmark-label:nth-of-type(2) { animation-delay: 4s; }
+        .landmark-label:nth-of-type(3) { animation-delay: 8s; }
+        .landmark-label:nth-of-type(4) { animation-delay: 12s; }
+
+        /* Draw-in effect for SVG paths */
+        .landmark-scene path,
+        .landmark-scene polyline,
+        .landmark-scene line {
+            stroke-dasharray: 800;
+            stroke-dashoffset: 800;
+            animation: drawIn 2s ease forwards;
+        }
+
+        .landmark-scene:nth-child(1) path,
+        .landmark-scene:nth-child(1) polyline,
+        .landmark-scene:nth-child(1) line { animation-delay: 0.2s; }
+        .landmark-scene:nth-child(2) path,
+        .landmark-scene:nth-child(2) polyline,
+        .landmark-scene:nth-child(2) line { animation-delay: 4.2s; }
+        .landmark-scene:nth-child(3) path,
+        .landmark-scene:nth-child(3) polyline,
+        .landmark-scene:nth-child(3) line { animation-delay: 8.2s; }
+        .landmark-scene:nth-child(4) path,
+        .landmark-scene:nth-child(4) polyline,
+        .landmark-scene:nth-child(4) line { animation-delay: 12.2s; }
+
+        @keyframes drawIn {
+            to { stroke-dashoffset: 0; }
+        }
+
         /* Content (once authenticated) */
         .lounge-inside {
             display: none;
@@ -247,13 +353,178 @@
                 <button class="gate-btn" id="loungeBtn">Enter</button>
             </div>
             <p class="gate-error" id="loungeError"></p>
-            <p class="gate-hint">IMP members receive the code after enrollment.</p>
         </div>
 
         <!-- Authenticated content -->
         <div class="lounge-inside" id="loungeContent">
             <div class="inside-diamond"><div class="inside-diamond-inner"></div></div>
             <h1 class="inside-title">Welcome to The Lounge</h1>
+
+            <!-- Italian Landmark Morphing Animation -->
+            <div class="landmark-container">
+                <!-- 1. Colosseum -->
+                <div class="landmark-scene">
+                    <svg class="landmark-svg" viewBox="0 0 280 180">
+                        <!-- Colosseum base ellipse -->
+                        <ellipse cx="140" cy="150" rx="120" ry="20" class="filled"/>
+                        <!-- Main structure -->
+                        <path d="M30,150 L30,70 Q30,40 60,35 Q100,25 140,22 Q180,25 220,35 Q250,40 250,70 L250,150"/>
+                        <!-- Top rim -->
+                        <path d="M30,70 Q30,45 60,38 Q100,28 140,25 Q180,28 220,38 Q250,45 250,70"/>
+                        <!-- Upper arches row -->
+                        <path d="M50,70 L50,50 M80,70 L80,42 M110,70 L110,38 M140,70 L140,36 M170,70 L170,38 M200,70 L200,42 M230,70 L230,50"/>
+                        <path d="M50,70 Q65,60 80,70 M80,70 Q95,60 110,70 M110,70 Q125,60 140,70 M140,70 Q155,60 170,70 M170,70 Q185,60 200,70 M200,70 Q215,60 230,70"/>
+                        <!-- Middle tier -->
+                        <line x1="35" y1="90" x2="245" y2="90"/>
+                        <!-- Middle arches -->
+                        <path d="M45,90 L45,110 M75,90 L75,110 M105,90 L105,110 M135,90 L135,110 M165,90 L165,110 M195,90 L195,110 M225,90 L225,110"/>
+                        <path d="M45,110 Q60,100 75,110 M75,110 Q90,100 105,110 M105,110 Q120,100 135,110 M135,110 Q150,100 165,110 M165,110 Q180,100 195,110 M195,110 Q210,100 225,110"/>
+                        <!-- Lower tier -->
+                        <line x1="32" y1="110" x2="248" y2="110"/>
+                        <!-- Lower arches -->
+                        <path d="M40,110 L40,145 M72,110 L72,145 M104,110 L104,145 M136,110 L136,145 M168,110 L168,145 M200,110 L200,145 M232,110 L232,145"/>
+                        <path d="M40,145 Q56,130 72,145 M72,145 Q88,130 104,145 M104,145 Q120,130 136,145 M136,145 Q152,130 168,145 M168,145 Q184,130 200,145 M200,145 Q216,130 232,145"/>
+                        <!-- Broken right section (ruin effect) -->
+                        <path d="M250,70 L255,68 L252,60 L258,55" style="stroke-width:1; opacity:0.4;"/>
+                    </svg>
+                </div>
+
+                <!-- 2. Leaning Tower of Pisa -->
+                <div class="landmark-scene">
+                    <svg class="landmark-svg" viewBox="0 0 280 180">
+                        <!-- Ground -->
+                        <line x1="60" y1="168" x2="220" y2="168" style="opacity:0.3;"/>
+                        <!-- Tower body (leaning ~5deg) -->
+                        <g transform="rotate(-5, 140, 168)">
+                            <!-- Base -->
+                            <ellipse cx="140" cy="165" rx="32" ry="6" class="filled"/>
+                            <!-- Tier 1 -->
+                            <rect x="110" y="145" width="60" height="20" rx="1"/>
+                            <path d="M112,145 Q120,140 128,145 M128,145 Q136,140 144,145 M144,145 Q152,140 160,145 M160,145 Q168,140 168,145"/>
+                            <!-- Tier 2 -->
+                            <rect x="112" y="125" width="56" height="20" rx="1"/>
+                            <path d="M114,125 Q122,120 130,125 M130,125 Q138,120 146,125 M146,125 Q154,120 162,125 M162,125 Q166,120 168,125"/>
+                            <!-- Tier 3 -->
+                            <rect x="114" y="105" width="52" height="20" rx="1"/>
+                            <path d="M116,105 Q124,100 132,105 M132,105 Q140,100 148,105 M148,105 Q156,100 164,105"/>
+                            <!-- Tier 4 -->
+                            <rect x="116" y="85" width="48" height="20" rx="1"/>
+                            <path d="M118,85 Q126,80 134,85 M134,85 Q142,80 150,85 M150,85 Q158,80 162,85"/>
+                            <!-- Tier 5 -->
+                            <rect x="118" y="65" width="44" height="20" rx="1"/>
+                            <path d="M120,65 Q128,60 136,65 M136,65 Q144,60 152,65 M152,65 Q158,60 160,65"/>
+                            <!-- Tier 6 -->
+                            <rect x="120" y="45" width="40" height="20" rx="1"/>
+                            <path d="M122,45 Q130,40 138,45 M138,45 Q146,40 154,45 M154,45 Q158,40 160,45"/>
+                            <!-- Bell chamber -->
+                            <ellipse cx="140" cy="38" rx="18" ry="4"/>
+                            <rect x="124" y="30" width="32" height="8" rx="1"/>
+                            <ellipse cx="140" cy="30" rx="14" ry="3"/>
+                            <!-- Columns in bell chamber -->
+                            <line x1="128" y1="30" x2="128" y2="38"/>
+                            <line x1="134" y1="30" x2="134" y2="38"/>
+                            <line x1="140" y1="30" x2="140" y2="38"/>
+                            <line x1="146" y1="30" x2="146" y2="38"/>
+                            <line x1="152" y1="30" x2="152" y2="38"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 3. Venice / Rialto Bridge + Gondola -->
+                <div class="landmark-scene">
+                    <svg class="landmark-svg" viewBox="0 0 280 180">
+                        <!-- Water -->
+                        <path d="M0,140 Q20,138 40,140 Q60,142 80,140 Q100,138 120,140 Q140,142 160,140 Q180,138 200,140 Q220,142 240,140 Q260,138 280,140" style="stroke-width:1; opacity:0.3;"/>
+                        <path d="M0,148 Q20,146 40,148 Q60,150 80,148 Q100,146 120,148 Q140,150 160,148 Q180,146 200,148 Q220,150 240,148 Q260,146 280,148" style="stroke-width:1; opacity:0.15;"/>
+                        <!-- Rialto Bridge arch -->
+                        <path d="M40,130 Q60,125 80,110 Q100,85 140,78 Q180,85 200,110 Q220,125 240,130" class="filled"/>
+                        <!-- Bridge railing -->
+                        <path d="M60,118 Q100,82 140,72 Q180,82 220,118"/>
+                        <!-- Bridge steps left -->
+                        <line x1="40" y1="130" x2="60" y2="130"/>
+                        <line x1="50" y1="130" x2="65" y2="118"/>
+                        <!-- Bridge steps right -->
+                        <line x1="240" y1="130" x2="220" y2="130"/>
+                        <line x1="230" y1="130" x2="215" y2="118"/>
+                        <!-- Covered passage on bridge -->
+                        <path d="M90,102 L90,88 Q115,74 140,70 Q165,74 190,88 L190,102"/>
+                        <!-- Arched windows in passage -->
+                        <path d="M108,98 Q116,88 124,98"/>
+                        <path d="M132,94 Q140,84 148,94"/>
+                        <path d="M156,98 Q164,88 172,98"/>
+                        <!-- Columns -->
+                        <line x1="90" y1="102" x2="90" y2="96"/>
+                        <line x1="190" y1="102" x2="190" y2="96"/>
+                        <!-- Buildings left -->
+                        <rect x="10" y="80" width="35" height="50" style="opacity:0.4;"/>
+                        <rect x="15" y="86" width="8" height="10" style="opacity:0.3;"/>
+                        <rect x="28" y="86" width="8" height="10" style="opacity:0.3;"/>
+                        <!-- Buildings right -->
+                        <rect x="235" y="75" width="35" height="55" style="opacity:0.4;"/>
+                        <rect x="240" y="82" width="8" height="10" style="opacity:0.3;"/>
+                        <rect x="253" y="82" width="8" height="10" style="opacity:0.3;"/>
+                        <!-- Gondola -->
+                        <path d="M95,148 Q105,142 130,140 Q155,140 165,142 Q170,144 168,148 Q155,150 130,150 Q105,150 95,148 Z"/>
+                        <line x1="92" y1="148" x2="82" y2="142"/>
+                        <path d="M82,142 Q80,138 84,136" style="stroke-width:1;"/>
+                        <!-- Gondolier pole -->
+                        <line x1="160" y1="140" x2="165" y2="118" style="stroke-width:1;"/>
+                    </svg>
+                </div>
+
+                <!-- 4. Florence Duomo -->
+                <div class="landmark-scene">
+                    <svg class="landmark-svg" viewBox="0 0 280 180">
+                        <!-- Base/facade -->
+                        <rect x="80" y="110" width="120" height="58" class="filled"/>
+                        <!-- Main dome -->
+                        <path d="M95,110 Q95,50 140,30 Q185,50 185,110"/>
+                        <!-- Dome ribs -->
+                        <path d="M140,30 L140,110" style="stroke-width:1; opacity:0.5;"/>
+                        <path d="M115,68 L115,110" style="stroke-width:1; opacity:0.3;"/>
+                        <path d="M165,68 L165,110" style="stroke-width:1; opacity:0.3;"/>
+                        <!-- Lantern on top -->
+                        <rect x="134" y="18" width="12" height="12" rx="1"/>
+                        <line x1="140" y1="8" x2="140" y2="18"/>
+                        <circle cx="140" cy="7" r="3"/>
+                        <!-- Dome base ring -->
+                        <path d="M90,110 Q90,108 95,108 L185,108 Q190,108 190,110"/>
+                        <!-- Octagonal drum windows -->
+                        <circle cx="115" cy="104" r="3" style="stroke-width:1;"/>
+                        <circle cx="140" cy="104" r="3" style="stroke-width:1;"/>
+                        <circle cx="165" cy="104" r="3" style="stroke-width:1;"/>
+                        <!-- Facade details -->
+                        <path d="M80,130 L200,130" style="stroke-width:1; opacity:0.3;"/>
+                        <path d="M80,148" style="stroke-width:1; opacity:0.3;"/>
+                        <!-- Rose window -->
+                        <circle cx="140" cy="140" r="8"/>
+                        <circle cx="140" cy="140" r="4" style="stroke-width:1;"/>
+                        <!-- Door arches -->
+                        <path d="M100,168 L100,155 Q110,148 120,155 L120,168"/>
+                        <path d="M130,168 L130,150 Q140,140 150,150 L150,168"/>
+                        <path d="M160,168 L160,155 Q170,148 180,155 L180,168"/>
+                        <!-- Campanile (bell tower) right -->
+                        <rect x="208" y="50" width="22" height="118" class="filled"/>
+                        <line x1="208" y1="70" x2="230" y2="70" style="stroke-width:1; opacity:0.3;"/>
+                        <line x1="208" y1="90" x2="230" y2="90" style="stroke-width:1; opacity:0.3;"/>
+                        <line x1="208" y1="110" x2="230" y2="110" style="stroke-width:1; opacity:0.3;"/>
+                        <line x1="208" y1="130" x2="230" y2="130" style="stroke-width:1; opacity:0.3;"/>
+                        <!-- Campanile top -->
+                        <path d="M208,50 L219,38 L230,50"/>
+                        <!-- Campanile windows -->
+                        <path d="M214,56 Q219,50 224,56" style="stroke-width:1;"/>
+                        <rect x="214" y="72" width="10" height="6" rx="1" style="stroke-width:1; opacity:0.4;"/>
+                        <rect x="214" y="92" width="10" height="6" rx="1" style="stroke-width:1; opacity:0.4;"/>
+                    </svg>
+                </div>
+
+                <!-- Labels -->
+                <span class="landmark-label" style="animation-delay: 0s;">Colosseo · Roma</span>
+                <span class="landmark-label" style="animation-delay: 4s;">Torre di Pisa</span>
+                <span class="landmark-label" style="animation-delay: 8s;">Ponte di Rialto · Venezia</span>
+                <span class="landmark-label" style="animation-delay: 12s;">Duomo · Firenze</span>
+            </div>
+
             <p class="inside-text">You're in. This space is being prepared for you.<br>Content coming soon.</p>
             <div class="inside-divider"></div>
         </div>
