@@ -33,7 +33,8 @@
                 <p class="hero-body">12,000 candidates fight for the IMAT. Only 900 enter. 92% lose — because they all follow the same path. I scored among the highest worldwide without paying for a single course. Now I take a handful of students and show them how.</p>
                 <div class="hero-cta">
                     <a href="#enroll" class="btn btn-primary">Apply for a spot</a>
-                    <span class="hero-price">€60/mo · Cancel anytime. No contracts.</span>
+                    <span class="hero-price"><s class="price-old">€85/mo</s> <strong>€60/mo</strong> · Cancel anytime. No contracts.</span>
+                    <span class="hero-price-note">Price rises to €85/mo in May.</span>
                 </div>
             </div>
             <div class="hero-image">
@@ -88,7 +89,7 @@
                 </div>
                 <div class="compare-card compare-me">
                     <div class="compare-label">IMP with Rom</div>
-                    <div class="compare-price-tag">€60/month</div>
+                    <div class="compare-price-tag"><s style="opacity:0.4; font-size:0.6em; vertical-align:middle;">€85</s> €60/month</div>
                     <ul>
                         <li>Strategy built around <em>your</em> mind</li>
                         <li>I know your name, your fears, your gaps</li>
@@ -160,9 +161,95 @@
     <section class="section section-enroll" id="enroll">
         <div class="container">
             <h2 class="section-heading">Begin</h2>
-            <p class="section-sub">Fill in your details, accept the terms, and you'll be redirected to the secure payment page.</p>
+            <p class="section-sub">First, let's see if this program is right for you.</p>
 
-            <div class="enroll-box">
+            <!-- Match Quiz -->
+            <div class="quiz-box" id="quizBox">
+                <div class="quiz-progress">
+                    <div class="quiz-progress-bar" id="quizProgressBar"></div>
+                </div>
+                <div class="quiz-counter" id="quizCounter">Question 1 of 6</div>
+
+                <div class="quiz-questions" id="quizQuestions">
+                    <!-- Q1 -->
+                    <div class="quiz-q active" data-q="0">
+                        <p class="quiz-question">How do you prefer to study?</p>
+                        <div class="quiz-options">
+                            <button class="quiz-opt" data-score="3">On my own — I need structure, not spoon-feeding</button>
+                            <button class="quiz-opt" data-score="2">Mix of self-study and guidance</button>
+                            <button class="quiz-opt" data-score="1">I prefer recorded lessons or group courses</button>
+                            <button class="quiz-opt" data-score="0">I need someone to teach me everything step by step</button>
+                        </div>
+                    </div>
+                    <!-- Q2 -->
+                    <div class="quiz-q" data-q="1">
+                        <p class="quiz-question">What's your biggest challenge with IMAT prep?</p>
+                        <div class="quiz-options">
+                            <button class="quiz-opt" data-score="3">I don't know <em>what</em> to focus on or how deep to go</button>
+                            <button class="quiz-opt" data-score="2">I lack a strategy — I study a lot but not effectively</button>
+                            <button class="quiz-opt" data-score="2">I struggle with confidence and exam-day pressure</button>
+                            <button class="quiz-opt" data-score="1">I haven't started yet and need everything from scratch</button>
+                        </div>
+                    </div>
+                    <!-- Q3 -->
+                    <div class="quiz-q" data-q="2">
+                        <p class="quiz-question">How much time can you dedicate weekly?</p>
+                        <div class="quiz-options">
+                            <button class="quiz-opt" data-score="3">15+ hours — I'm all in</button>
+                            <button class="quiz-opt" data-score="2">8–15 hours — serious but balanced</button>
+                            <button class="quiz-opt" data-score="1">4–8 hours — I have other commitments</button>
+                            <button class="quiz-opt" data-score="0">Less than 4 hours</button>
+                        </div>
+                    </div>
+                    <!-- Q4 -->
+                    <div class="quiz-q" data-q="3">
+                        <p class="quiz-question">What do you value most in a mentor?</p>
+                        <div class="quiz-options">
+                            <button class="quiz-opt" data-score="3">Someone who tells me what to do, not does it for me</button>
+                            <button class="quiz-opt" data-score="3">Real experience — someone who actually scored high</button>
+                            <button class="quiz-opt" data-score="2">Availability and personal attention</button>
+                            <button class="quiz-opt" data-score="1">Pre-made materials and video lessons</button>
+                        </div>
+                    </div>
+                    <!-- Q5 -->
+                    <div class="quiz-q" data-q="4">
+                        <p class="quiz-question">How do you feel about studying independently with strategic direction?</p>
+                        <div class="quiz-options">
+                            <button class="quiz-opt" data-score="3">That's exactly what I want — point me in the right direction</button>
+                            <button class="quiz-opt" data-score="2">I'm open to it if I have someone to check in with</button>
+                            <button class="quiz-opt" data-score="1">I'd prefer more hand-holding</button>
+                            <button class="quiz-opt" data-score="0">I need full lessons and constant supervision</button>
+                        </div>
+                    </div>
+                    <!-- Q6 -->
+                    <div class="quiz-q" data-q="5">
+                        <p class="quiz-question">When is your IMAT exam?</p>
+                        <div class="quiz-options">
+                            <button class="quiz-opt" data-score="3">This year — I need focused, strategic prep now</button>
+                            <button class="quiz-opt" data-score="2">Next year — I want to start early and build right</button>
+                            <button class="quiz-opt" data-score="2">I'm retaking — I failed before and need a different approach</button>
+                            <button class="quiz-opt" data-score="1">I'm still exploring options</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result -->
+                <div class="quiz-result" id="quizResult" style="display:none;">
+                    <div class="quiz-score-ring" id="quizScoreRing">
+                        <svg viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="52" class="ring-bg"/>
+                            <circle cx="60" cy="60" r="52" class="ring-fill" id="quizRingFill"/>
+                        </svg>
+                        <div class="quiz-score-number" id="quizScoreNumber">0%</div>
+                    </div>
+                    <h3 class="quiz-result-title" id="quizResultTitle"></h3>
+                    <p class="quiz-result-text" id="quizResultText"></p>
+                    <button class="btn btn-primary btn-full" id="quizContinueBtn">Continue to enrollment →</button>
+                </div>
+            </div>
+
+            <div class="enroll-box" id="enrollBox" style="display:none;">
+                <p class="enroll-intro">Fill in your details, accept the terms, and you'll be redirected to the secure payment page.</p>
                 <!-- Step 1: Details + Terms -->
                 <div class="enroll-step active" id="step1">
                     <form id="enrollForm">
@@ -252,7 +339,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-full" id="payBtn" disabled>
-                            Continue to payment — €60/month
+                            Continue to payment — <s>€85</s> €60/month
                         </button>
                     </form>
                 </div>

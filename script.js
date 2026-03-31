@@ -110,6 +110,108 @@ if (window.location.search.includes('payment=success')) {
     window.history.replaceState({}, '', window.location.pathname);
 }
 
+// === Match Quiz ===
+(function() {
+    const questions = document.querySelectorAll('.quiz-q');
+    const progressBar = document.getElementById('quizProgressBar');
+    const counter = document.getElementById('quizCounter');
+    const resultBox = document.getElementById('quizResult');
+    const quizBox = document.getElementById('quizBox');
+    const enrollBox = document.getElementById('enrollBox');
+    const total = questions.length;
+    let current = 0;
+    let scores = [];
+
+    if (!questions.length) return;
+
+    document.querySelectorAll('.quiz-opt').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const score = parseInt(this.dataset.score);
+            scores[current] = score;
+
+            // Visual feedback
+            this.parentElement.querySelectorAll('.quiz-opt').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+
+            // Short delay then advance
+            setTimeout(() => {
+                current++;
+                if (current < total) {
+                    // Show next question
+                    questions.forEach(q => q.classList.remove('active'));
+                    questions[current].classList.add('active');
+                    progressBar.style.width = ((current / total) * 100) + '%';
+                    counter.textContent = 'Question ' + (current + 1) + ' of ' + total;
+                } else {
+                    // Show result
+                    showResult();
+                }
+            }, 400);
+        });
+    });
+
+    function showResult() {
+        const maxScore = total * 3;
+        const totalScore = scores.reduce((a, b) => a + b, 0);
+        const pct = Math.round((totalScore / maxScore) * 100);
+
+        progressBar.style.width = '100%';
+        counter.style.display = 'none';
+        document.getElementById('quizQuestions').style.display = 'none';
+        resultBox.style.display = 'block';
+
+        // Determine color and message
+        let color, title, text;
+        if (pct >= 72) {
+            color = 'green';
+            title = 'This program is made for you.';
+            text = 'You\'re independent, driven, and you don\'t need someone to hold your hand — you need someone who\'s been there to show you the way. IMP was built for candidates exactly like you. Don\'t wait.';
+        } else if (pct >= 45) {
+            color = 'orange';
+            title = 'You could benefit from this.';
+            text = 'You have the motivation but might need to shift your approach. IMP can bridge that gap — Rom will help you build the structure and mindset to study the right way. It\'s worth trying.';
+        } else {
+            color = 'red';
+            title = 'This might not be the right fit — yet.';
+            text = 'IMP is designed for self-driven candidates who want direction, not full lessons. If you\'re looking for a traditional course, this isn\'t it. But if you\'re ready to change your approach, the door is open.';
+        }
+
+        // Animate score ring
+        const ringFill = document.getElementById('quizRingFill');
+        const circumference = 326.73;
+        const offset = circumference - (pct / 100) * circumference;
+        ringFill.classList.add(color);
+
+        setTimeout(() => {
+            ringFill.style.strokeDashoffset = offset;
+        }, 100);
+
+        // Animate score number
+        const scoreNum = document.getElementById('quizScoreNumber');
+        let count = 0;
+        const interval = setInterval(() => {
+            count += 2;
+            if (count >= pct) {
+                count = pct;
+                clearInterval(interval);
+            }
+            scoreNum.textContent = count + '%';
+        }, 20);
+
+        const titleEl = document.getElementById('quizResultTitle');
+        titleEl.textContent = title;
+        titleEl.classList.add(color);
+        document.getElementById('quizResultText').textContent = text;
+
+        // Continue button reveals enrollment form
+        document.getElementById('quizContinueBtn').addEventListener('click', function() {
+            quizBox.style.display = 'none';
+            enrollBox.style.display = 'block';
+            enrollBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+})();
+
 // === Smooth scroll ===
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
