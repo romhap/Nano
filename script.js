@@ -141,7 +141,7 @@ if (window.location.search.includes('payment=success')) {
                     questions.forEach(q => q.classList.remove('active'));
                     questions[current].classList.add('active');
                     progressBar.style.width = ((current / total) * 100) + '%';
-                    counter.textContent = 'Question ' + (current + 1) + ' of ' + total;
+                    counter.textContent = 'Screening — ' + (current + 1) + ' of ' + total;
                 } else {
                     // Show result
                     showResult();
@@ -164,16 +164,16 @@ if (window.location.search.includes('payment=success')) {
         let color, title, text;
         if (pct >= 72) {
             color = 'green';
-            title = 'This program is made for you.';
-            text = 'You\'re independent, driven, and you don\'t need someone to hold your hand — you need someone who\'s been there to show you the way. IMP was built for candidates exactly like you. Don\'t wait.';
+            title = 'Rom would take you on.';
+            text = 'You\'re the type of candidate Rom looks for — independent, hungry, and ready to be directed. He doesn\'t work with many. If a spot is open, this is your chance to claim it.';
         } else if (pct >= 45) {
             color = 'orange';
-            title = 'You could benefit from this.';
-            text = 'You have the motivation but might need to shift your approach. IMP can bridge that gap — Rom will help you build the structure and mindset to study the right way. It\'s worth trying.';
+            title = 'Rom might consider you.';
+            text = 'You have potential, but Rom only invests time in candidates who are ready to show up and execute. If you\'re willing to commit and shift your approach, apply — he\'ll review your profile.';
         } else {
             color = 'red';
-            title = 'This might not be the right fit — yet.';
-            text = 'IMP is designed for self-driven candidates who want direction, not full lessons. If you\'re looking for a traditional course, this isn\'t it. But if you\'re ready to change your approach, the door is open.';
+            title = 'Not what Rom is looking for — yet.';
+            text = 'Rom works with self-driven candidates who need direction, not full lessons. This isn\'t a course. But if something changes and you\'re ready to work differently — the application stays open.';
         }
 
         // Animate score ring
