@@ -281,14 +281,14 @@ em {
     color: var(--text);
 }
 
-.hero-price-note {
+.hero-cancel {
     display: block;
-    font-size: 0.72rem;
-    color: var(--accent);
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    margin-top: 4px;
     font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    margin-top: 6px;
 }
 
 .hero-image {
