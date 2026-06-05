@@ -8,489 +8,909 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <style>
-        body {
-            background: #0A0A0A;
-            min-height: 100vh;
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0A0A0A;--bg2:#111;--bg3:#161616;--card:#151515;
+            --text:#E8E8E8;--text2:#999;--text3:#555;
+            --border:#222;--border2:#2a2a2a;
+            --accent:#0047FF;--accent2:#3366FF;--accent-bg:rgba(0,71,255,0.08);
+            --green:#1A8754;--green-bg:rgba(26,135,84,0.1);
+            --orange:#E67E22;--orange-bg:rgba(230,126,34,0.1);
+            --red:#D42020;--red-bg:rgba(212,32,32,0.1);
+            --radius:4px;
         }
-
-        .lounge-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(10, 10, 10, 0.92);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid #1a1a1a;
+        [data-theme="light"]{
+            --bg:#FFFFFF;--bg2:#F5F5F5;--bg3:#EEEEEE;--card:#FFFFFF;
+            --text:#0A0A0A;--text2:#666;--text3:#999;
+            --border:#E0E0E0;--border2:#EEEEEE;
+            --accent-bg:rgba(0,71,255,0.05);
+            --green-bg:rgba(26,135,84,0.06);--orange-bg:rgba(230,126,34,0.06);--red-bg:rgba(212,32,32,0.06);
         }
+        html{scroll-behavior:smooth}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased;min-height:100vh}
+        h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1.15;letter-spacing:-0.03em}
 
-        .lounge-nav .nav-inner {
-            max-width: 940px;
-            margin: 0 auto;
-            padding: 14px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        /* === NAV === */
+        .lnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+        [data-theme="light"] .lnav{background:rgba(255,255,255,0.92)}
+        .lnav-inner{max-width:940px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center}
+        .lnav-logo img{height:44px;filter:invert(1)}
+        [data-theme="light"] .lnav-logo img{filter:none}
+        .lnav-right{display:flex;align-items:center;gap:12px}
+        .lnav-link{color:var(--text2);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius);transition:all .15s}
+        .lnav-link:hover{background:var(--text);color:var(--bg);border-color:var(--text)}
+        .theme-btn{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);cursor:pointer;padding:7px 10px;font-size:.85rem;transition:all .15s;line-height:1}
+        .theme-btn:hover{border-color:var(--text);color:var(--text)}
 
-        .lounge-nav .nav-logo-img {
-            height: 52px;
-            filter: invert(1);
-        }
+        /* === GATE === */
+        .gate-page{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 24px 40px}
+        .gate-wrap{text-align:center;max-width:420px;width:100%}
+        .gate-title{font-size:2.2rem;color:var(--text);margin-bottom:6px}
+        .gate-sub{color:var(--text3);font-size:.88rem;margin-bottom:32px}
+        .gate-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+        .gate-input{padding:13px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem;transition:border-color .15s;width:100%}
+        .gate-input:focus{outline:none;border-color:var(--accent)}
+        .gate-input::placeholder{color:var(--text3)}
+        .gate-btn{width:100%;padding:14px;background:var(--text);color:var(--bg);border:none;border-radius:var(--radius);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
+        .gate-btn:hover{opacity:.85}
+        .gate-error{color:var(--red);font-size:.8rem;margin-top:14px;min-height:1.2em}
 
-        .lounge-nav .nav-link {
-            color: #fff;
-            border-color: #333;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 600;
-            font-size: 0.75rem;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            text-decoration: none;
-            padding: 8px 16px;
-            border: 1px solid #333;
-            border-radius: 4px;
-            transition: all 0.15s;
-        }
+        /* Landmarks */
+        .landmark-container{width:260px;height:180px;margin:0 auto 36px;position:relative;overflow:hidden}
+        .landmark-svg{position:absolute;top:0;left:0;width:100%;height:100%}
+        .landmark-svg path,.landmark-svg line,.landmark-svg circle,.landmark-svg rect,.landmark-svg ellipse{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+        .landmark-svg .filled{fill:var(--accent);fill-opacity:.08}
+        .landmark-scene{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;animation:lmCycle 16s ease-in-out infinite}
+        .landmark-scene:nth-child(1){animation-delay:0s}.landmark-scene:nth-child(2){animation-delay:4s}.landmark-scene:nth-child(3){animation-delay:8s}.landmark-scene:nth-child(4){animation-delay:12s}
+        @keyframes lmCycle{0%{opacity:0;transform:scale(.96)}5%{opacity:1;transform:scale(1)}22%{opacity:1;transform:scale(1)}27%{opacity:0;transform:scale(1.02)}100%{opacity:0}}
+        .landmark-label{position:absolute;bottom:0;left:0;right:0;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:.6rem;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);opacity:0;animation:lmCycle 16s ease-in-out infinite}
+        .landmark-label:nth-of-type(1){animation-delay:0s}.landmark-label:nth-of-type(2){animation-delay:4s}.landmark-label:nth-of-type(3){animation-delay:8s}.landmark-label:nth-of-type(4){animation-delay:12s}
+        .landmark-scene path,.landmark-scene line{stroke-dasharray:800;stroke-dashoffset:800;animation:drawIn 2s ease forwards}
+        .landmark-scene:nth-child(1) path,.landmark-scene:nth-child(1) line{animation-delay:.2s}
+        .landmark-scene:nth-child(2) path,.landmark-scene:nth-child(2) line{animation-delay:4.2s}
+        .landmark-scene:nth-child(3) path,.landmark-scene:nth-child(3) line{animation-delay:8.2s}
+        .landmark-scene:nth-child(4) path,.landmark-scene:nth-child(4) line{animation-delay:12.2s}
+        @keyframes drawIn{to{stroke-dashoffset:0}}
 
-        .lounge-nav .nav-link:hover {
-            background: #fff;
-            color: #0A0A0A;
-            border-color: #fff;
-        }
+        /* === APP SHELL === */
+        .app{display:none;min-height:100vh;padding-top:64px}
+        .app.visible{display:block;animation:fadeUp .6s ease}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .app-container{max-width:760px;margin:0 auto;padding:32px 24px 80px}
 
-        /* Gate */
-        .lounge-page {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 80px 32px 40px;
-        }
+        /* === SHARED === */
+        .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:20px}
+        .card-label{font-family:'Space Grotesk',sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:16px;font-weight:600}
+        .section-title{font-size:1.4rem;margin-bottom:6px}
+        .section-sub{color:var(--text2);font-size:.88rem;margin-bottom:32px}
+        .btn{display:inline-block;padding:12px 28px;border-radius:var(--radius);font-weight:700;font-size:.8rem;text-decoration:none;border:none;cursor:pointer;transition:all .15s;letter-spacing:.04em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;text-align:center}
+        .btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:var(--accent2)}
+        .btn-outline{background:none;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--text);background:var(--bg2)}
+        .btn-full{display:block;width:100%}
+        .btn:disabled{opacity:.3;cursor:not-allowed}
+        .hidden{display:none!important}
 
-        .gate-wrap {
-            text-align: center;
-            max-width: 420px;
-            width: 100%;
-        }
+        /* === INPUT FORM === */
+        .dx-section{margin-bottom:24px}
+        .dx-section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+        .dx-section-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:-.01em}
+        .dx-section-qs{font-size:.7rem;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+        .dx-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+        .dx-field{display:flex;flex-direction:column;gap:4px}
+        .dx-field label{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;font-family:'Space Grotesk',sans-serif}
+        .dx-field input{padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem;text-align:center;width:100%}
+        .dx-field input:focus{outline:none;border-color:var(--accent)}
+        .dx-divider{height:1px;background:var(--border);margin:20px 0}
+        .dx-total-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0}
+        .dx-total-label{font-size:.75rem;color:var(--text2)}
+        .dx-total-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem}
 
-        .gate-diamond {
-            width: 48px;
-            height: 48px;
-            border: 2px solid #0047FF;
-            transform: rotate(45deg);
-            margin: 0 auto 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        /* Target universities */
+        .uni-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        @media(max-width:500px){.uni-grid{grid-template-columns:1fr}}
+        .uni-check{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s;font-size:.85rem}
+        .uni-check:hover{border-color:var(--text3)}
+        .uni-check.selected{border-color:var(--accent);background:var(--accent-bg)}
+        .uni-check input{display:none}
+        .uni-dot{width:14px;height:14px;border:2px solid var(--border);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+        .uni-check.selected .uni-dot{border-color:var(--accent);background:var(--accent)}
+        .uni-check.selected .uni-dot::after{content:'✓';color:#fff;font-size:.65rem;font-weight:700}
+        .uni-cutoff{margin-left:auto;font-size:.7rem;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-weight:600}
 
-        .gate-diamond-inner {
-            width: 8px;
-            height: 8px;
-            background: #0047FF;
-        }
+        /* === RESULTS === */
+        .results{animation:fadeUp .8s ease}
+        .score-hero{text-align:center;padding:40px 20px}
+        .score-ring-wrap{width:160px;height:160px;margin:0 auto 20px;position:relative}
+        .score-ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+        .sr-bg{fill:none;stroke:var(--border);stroke-width:8}
+        .sr-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:408.4;stroke-dashoffset:408.4;transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1),stroke .5s}
+        .score-number{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+        .score-number .big{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:2.4rem;letter-spacing:-.04em;line-height:1}
+        .score-number .of{font-size:.7rem;color:var(--text3);font-weight:500;margin-top:2px}
+        .score-verdict{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:4px}
+        .score-percentile{font-size:.82rem;color:var(--text2)}
 
-        .gate-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 2.4rem;
-            color: #fff;
-            letter-spacing: -0.03em;
-            margin-bottom: 8px;
-        }
+        /* Section breakdown */
+        .breakdown-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+        .breakdown-row:last-child{border-bottom:none}
+        .breakdown-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.82rem;min-width:110px}
+        .breakdown-bar-wrap{flex:1;height:8px;background:var(--bg2);border-radius:4px;overflow:hidden}
+        .breakdown-bar{height:100%;border-radius:4px;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+        .breakdown-score{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.82rem;min-width:48px;text-align:right}
+        .breakdown-detail{font-size:.7rem;color:var(--text3);min-width:90px;text-align:right}
 
-        .gate-sub {
-            color: #555;
-            font-size: 0.9rem;
-            margin-bottom: 36px;
-            letter-spacing: 0.01em;
-        }
+        /* Gap analysis */
+        .gap-card{padding:20px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;position:relative;overflow:hidden}
+        .gap-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+        .gap-card.gap-pass::before{background:var(--green)}.gap-card.gap-close::before{background:var(--orange)}.gap-card.gap-far::before{background:var(--red)}
+        .gap-uni{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:4px}
+        .gap-bar-wrap{display:flex;align-items:center;gap:12px;margin:10px 0 6px}
+        .gap-bar-track{flex:1;height:6px;background:var(--bg2);border-radius:3px;position:relative}
+        .gap-bar-you{height:100%;border-radius:3px;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+        .gap-bar-cutoff{position:absolute;top:-4px;height:14px;width:2px;background:var(--text);border-radius:1px}
+        .gap-msg{font-size:.82rem;color:var(--text2);line-height:1.5}
+        .gap-msg strong{color:var(--text)}
+        .gap-points{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.95rem;text-align:right;min-width:60px}
 
-        .gate-form {
-            display: flex;
-            gap: 8px;
-        }
+        /* Weakness analysis */
+        .weak-item{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+        .weak-item:last-child{border-bottom:none}
+        .weak-icon{width:28px;height:28px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:2px}
+        .weak-icon.high{background:var(--red-bg);color:var(--red)}.weak-icon.med{background:var(--orange-bg);color:var(--orange)}.weak-icon.low{background:var(--green-bg);color:var(--green)}
+        .weak-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;margin-bottom:2px}
+        .weak-desc{font-size:.8rem;color:var(--text2);line-height:1.5}
+        .weak-pts{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;margin-left:auto;flex-shrink:0;padding-left:12px}
 
-        .gate-input {
-            flex: 1;
-            padding: 14px 18px;
-            background: #111;
-            border: 1px solid #222;
-            border-radius: 4px;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            transition: border-color 0.15s;
-        }
+        /* Guessing discipline */
+        .guess-stat{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+        .guess-stat:last-child{border-bottom:none}
+        .guess-label{font-size:.85rem;color:var(--text2)}
+        .guess-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem}
 
-        .gate-input:focus {
-            outline: none;
-            border-color: #0047FF;
-        }
+        /* CTA */
+        .cta-card{text-align:center;background:var(--accent-bg);border:1px solid rgba(0,71,255,.2);border-radius:var(--radius);padding:36px 28px}
+        .cta-card h3{font-size:1.2rem;margin-bottom:8px}
+        .cta-card p{font-size:.88rem;color:var(--text2);margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6}
 
-        .gate-input::placeholder {
-            color: #444;
-        }
+        /* History */
+        .history-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
+        .history-item:hover{opacity:.7}
+        .history-item:last-child{border-bottom:none}
+        .history-date{font-size:.8rem;color:var(--text2)}
+        .history-score{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem}
+        .history-actions{display:flex;gap:8px}
+        .history-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.75rem;padding:4px 8px;transition:color .15s}
+        .history-del:hover{color:var(--red)}
 
-        .gate-btn {
-            padding: 14px 28px;
-            background: #fff;
-            color: #0A0A0A;
-            border: none;
-            border-radius: 4px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 0.8rem;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
+        /* Admin */
+        .admin-table{width:100%;border-collapse:collapse}
+        .admin-table th{font-family:'Space Grotesk',sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-weight:600;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+        .admin-table td{padding:12px;border-bottom:1px solid var(--border);font-size:.85rem}
+        .admin-table .status-active{color:var(--green)}.admin-table .status-blocked{color:var(--red)}
+        .admin-add{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:20px}
+        @media(max-width:500px){.admin-add{grid-template-columns:1fr}}
+        .admin-input{padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem}
+        .admin-input:focus{outline:none;border-color:var(--accent)}
+        .admin-btn{padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border);background:none;color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+        .admin-btn:hover{background:var(--bg2)}.admin-btn.danger:hover{color:var(--red);border-color:var(--red)}
 
-        .gate-btn:hover {
-            background: #ddd;
-        }
+        /* Tabs */
+        .tabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:0}
+        .tab{padding:10px 18px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px}
+        .tab:hover{color:var(--text)}.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+        .tab-content{display:none}.tab-content.active{display:block;animation:fadeUp .4s ease}
 
-        .gate-error {
-            color: #D42020;
-            font-size: 0.8rem;
-            margin-top: 16px;
-            min-height: 1.2em;
-        }
+        /* Export bar */
+        .export-bar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:20px;flex-wrap:wrap}
 
-        .gate-hint {
-            margin-top: 48px;
-            color: #333;
-            font-size: 0.75rem;
-            letter-spacing: 0.04em;
-        }
-
-        /* Landmark Animation */
-        .landmark-container {
-            width: 280px;
-            height: 200px;
-            margin: 0 auto 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .landmark-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .landmark-svg path,
-        .landmark-svg line,
-        .landmark-svg circle,
-        .landmark-svg rect,
-        .landmark-svg ellipse,
-        .landmark-svg polyline,
-        .landmark-svg polygon {
-            fill: none;
-            stroke: #0047FF;
-            stroke-width: 1.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .landmark-svg .filled {
-            fill: #0047FF;
-            fill-opacity: 0.08;
-        }
-
-        /* Each landmark fades in/out in sequence */
-        .landmark-scene {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            animation: landmarkCycle 16s ease-in-out infinite;
-        }
-
-        .landmark-scene:nth-child(1) { animation-delay: 0s; }
-        .landmark-scene:nth-child(2) { animation-delay: 4s; }
-        .landmark-scene:nth-child(3) { animation-delay: 8s; }
-        .landmark-scene:nth-child(4) { animation-delay: 12s; }
-
-        @keyframes landmarkCycle {
-            0% { opacity: 0; transform: scale(0.96); }
-            5% { opacity: 1; transform: scale(1); }
-            22% { opacity: 1; transform: scale(1); }
-            27% { opacity: 0; transform: scale(1.02); }
-            100% { opacity: 0; }
-        }
-
-        .landmark-label {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            color: #0047FF;
-            opacity: 0;
-            animation: landmarkCycle 16s ease-in-out infinite;
-        }
-
-        .landmark-label:nth-of-type(1) { animation-delay: 0s; }
-        .landmark-label:nth-of-type(2) { animation-delay: 4s; }
-        .landmark-label:nth-of-type(3) { animation-delay: 8s; }
-        .landmark-label:nth-of-type(4) { animation-delay: 12s; }
-
-        /* Draw-in effect for SVG paths */
-        .landmark-scene path,
-        .landmark-scene polyline,
-        .landmark-scene line {
-            stroke-dasharray: 800;
-            stroke-dashoffset: 800;
-            animation: drawIn 2s ease forwards;
-        }
-
-        .landmark-scene:nth-child(1) path,
-        .landmark-scene:nth-child(1) polyline,
-        .landmark-scene:nth-child(1) line { animation-delay: 0.2s; }
-        .landmark-scene:nth-child(2) path,
-        .landmark-scene:nth-child(2) polyline,
-        .landmark-scene:nth-child(2) line { animation-delay: 4.2s; }
-        .landmark-scene:nth-child(3) path,
-        .landmark-scene:nth-child(3) polyline,
-        .landmark-scene:nth-child(3) line { animation-delay: 8.2s; }
-        .landmark-scene:nth-child(4) path,
-        .landmark-scene:nth-child(4) polyline,
-        .landmark-scene:nth-child(4) line { animation-delay: 12.2s; }
-
-        @keyframes drawIn {
-            to { stroke-dashoffset: 0; }
-        }
-
-        /* Content (once authenticated) */
-        .lounge-inside {
-            display: none;
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .lounge-inside.visible {
-            display: block;
-            animation: loungeReveal 0.8s ease;
-        }
-
-        @keyframes loungeReveal {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .inside-diamond {
-            width: 40px;
-            height: 40px;
-            border: 2px solid #0047FF;
-            transform: rotate(45deg);
-            margin: 0 auto 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .inside-diamond-inner {
-            width: 6px;
-            height: 6px;
-            background: #0047FF;
-        }
-
-        .inside-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 2rem;
-            color: #fff;
-            letter-spacing: -0.03em;
-            margin-bottom: 12px;
-        }
-
-        .inside-text {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.7;
-            margin-bottom: 32px;
-        }
-
-        .inside-divider {
-            width: 40px;
-            height: 2px;
-            background: #0047FF;
-            margin: 0 auto;
+        /* Responsive */
+        @media(max-width:600px){
+            .dx-row{grid-template-columns:1fr 1fr 1fr;gap:6px}
+            .breakdown-name{min-width:80px;font-size:.75rem}
+            .breakdown-detail{display:none}
+            .gap-bar-wrap{flex-direction:column;align-items:stretch}
+            .tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+            .tab{white-space:nowrap;font-size:.68rem;padding:10px 12px}
+            .score-ring-wrap{width:130px;height:130px}
+            .score-number .big{font-size:1.8rem}
         }
     </style>
 </head>
 <body>
 
-    <nav class="lounge-nav">
-        <div class="nav-inner">
-            <a href="index.html" class="nav-logo"><img src="logo.jpg" alt="IMP" class="nav-logo-img"></a>
-            <a href="index.html" class="nav-link">Back to IMP</a>
+    <nav class="lnav">
+        <div class="lnav-inner">
+            <a href="index.html" class="lnav-logo"><img src="logo.jpg" alt="IMP"></a>
+            <div class="lnav-right">
+                <button class="theme-btn" id="themeToggle" title="Toggle theme">☀</button>
+                <a href="index.html" class="lnav-link">Back to IMP</a>
+            </div>
         </div>
     </nav>
 
-    <div class="lounge-page">
-        <!-- Gate -->
-        <div class="gate-wrap" id="loungeGate">
-            <!-- Italian Landmark Morphing Animation -->
+    <!-- ========== GATE ========== -->
+    <div class="gate-page" id="gatePage">
+        <div class="gate-wrap">
             <div class="landmark-container">
-                <!-- 1. Colosseum -->
-                <div class="landmark-scene">
-                    <svg class="landmark-svg" viewBox="0 0 280 180">
-                        <ellipse cx="140" cy="150" rx="120" ry="20" class="filled"/>
-                        <path d="M30,150 L30,70 Q30,40 60,35 Q100,25 140,22 Q180,25 220,35 Q250,40 250,70 L250,150"/>
-                        <path d="M30,70 Q30,45 60,38 Q100,28 140,25 Q180,28 220,38 Q250,45 250,70"/>
-                        <path d="M50,70 L50,50 M80,70 L80,42 M110,70 L110,38 M140,70 L140,36 M170,70 L170,38 M200,70 L200,42 M230,70 L230,50"/>
-                        <path d="M50,70 Q65,60 80,70 M80,70 Q95,60 110,70 M110,70 Q125,60 140,70 M140,70 Q155,60 170,70 M170,70 Q185,60 200,70 M200,70 Q215,60 230,70"/>
-                        <line x1="35" y1="90" x2="245" y2="90"/>
-                        <path d="M45,90 L45,110 M75,90 L75,110 M105,90 L105,110 M135,90 L135,110 M165,90 L165,110 M195,90 L195,110 M225,90 L225,110"/>
-                        <path d="M45,110 Q60,100 75,110 M75,110 Q90,100 105,110 M105,110 Q120,100 135,110 M135,110 Q150,100 165,110 M165,110 Q180,100 195,110 M195,110 Q210,100 225,110"/>
-                        <line x1="32" y1="110" x2="248" y2="110"/>
-                        <path d="M40,110 L40,145 M72,110 L72,145 M104,110 L104,145 M136,110 L136,145 M168,110 L168,145 M200,110 L200,145 M232,110 L232,145"/>
-                        <path d="M40,145 Q56,130 72,145 M72,145 Q88,130 104,145 M104,145 Q120,130 136,145 M136,145 Q152,130 168,145 M168,145 Q184,130 200,145 M200,145 Q216,130 232,145"/>
-                        <path d="M250,70 L255,68 L252,60 L258,55" style="stroke-width:1; opacity:0.4;"/>
-                    </svg>
-                </div>
-                <!-- 2. Leaning Tower of Pisa -->
-                <div class="landmark-scene">
-                    <svg class="landmark-svg" viewBox="0 0 280 180">
-                        <line x1="60" y1="168" x2="220" y2="168" style="opacity:0.3;"/>
-                        <g transform="rotate(-5, 140, 168)">
-                            <ellipse cx="140" cy="165" rx="32" ry="6" class="filled"/>
-                            <rect x="110" y="145" width="60" height="20" rx="1"/>
-                            <path d="M112,145 Q120,140 128,145 M128,145 Q136,140 144,145 M144,145 Q152,140 160,145 M160,145 Q168,140 168,145"/>
-                            <rect x="112" y="125" width="56" height="20" rx="1"/>
-                            <path d="M114,125 Q122,120 130,125 M130,125 Q138,120 146,125 M146,125 Q154,120 162,125 M162,125 Q166,120 168,125"/>
-                            <rect x="114" y="105" width="52" height="20" rx="1"/>
-                            <path d="M116,105 Q124,100 132,105 M132,105 Q140,100 148,105 M148,105 Q156,100 164,105"/>
-                            <rect x="116" y="85" width="48" height="20" rx="1"/>
-                            <path d="M118,85 Q126,80 134,85 M134,85 Q142,80 150,85 M150,85 Q158,80 162,85"/>
-                            <rect x="118" y="65" width="44" height="20" rx="1"/>
-                            <path d="M120,65 Q128,60 136,65 M136,65 Q144,60 152,65 M152,65 Q158,60 160,65"/>
-                            <rect x="120" y="45" width="40" height="20" rx="1"/>
-                            <path d="M122,45 Q130,40 138,45 M138,45 Q146,40 154,45 M154,45 Q158,40 160,45"/>
-                            <ellipse cx="140" cy="38" rx="18" ry="4"/>
-                            <rect x="124" y="30" width="32" height="8" rx="1"/>
-                            <ellipse cx="140" cy="30" rx="14" ry="3"/>
-                            <line x1="128" y1="30" x2="128" y2="38"/>
-                            <line x1="134" y1="30" x2="134" y2="38"/>
-                            <line x1="140" y1="30" x2="140" y2="38"/>
-                            <line x1="146" y1="30" x2="146" y2="38"/>
-                            <line x1="152" y1="30" x2="152" y2="38"/>
-                        </g>
-                    </svg>
-                </div>
-                <!-- 3. Venice / Rialto Bridge -->
-                <div class="landmark-scene">
-                    <svg class="landmark-svg" viewBox="0 0 280 180">
-                        <path d="M0,140 Q20,138 40,140 Q60,142 80,140 Q100,138 120,140 Q140,142 160,140 Q180,138 200,140 Q220,142 240,140 Q260,138 280,140" style="stroke-width:1; opacity:0.3;"/>
-                        <path d="M0,148 Q20,146 40,148 Q60,150 80,148 Q100,146 120,148 Q140,150 160,148 Q180,146 200,148 Q220,150 240,148 Q260,146 280,148" style="stroke-width:1; opacity:0.15;"/>
-                        <path d="M40,130 Q60,125 80,110 Q100,85 140,78 Q180,85 200,110 Q220,125 240,130" class="filled"/>
-                        <path d="M60,118 Q100,82 140,72 Q180,82 220,118"/>
-                        <line x1="40" y1="130" x2="60" y2="130"/><line x1="50" y1="130" x2="65" y2="118"/>
-                        <line x1="240" y1="130" x2="220" y2="130"/><line x1="230" y1="130" x2="215" y2="118"/>
-                        <path d="M90,102 L90,88 Q115,74 140,70 Q165,74 190,88 L190,102"/>
-                        <path d="M108,98 Q116,88 124,98"/><path d="M132,94 Q140,84 148,94"/><path d="M156,98 Q164,88 172,98"/>
-                        <line x1="90" y1="102" x2="90" y2="96"/><line x1="190" y1="102" x2="190" y2="96"/>
-                        <rect x="10" y="80" width="35" height="50" style="opacity:0.4;"/><rect x="15" y="86" width="8" height="10" style="opacity:0.3;"/><rect x="28" y="86" width="8" height="10" style="opacity:0.3;"/>
-                        <rect x="235" y="75" width="35" height="55" style="opacity:0.4;"/><rect x="240" y="82" width="8" height="10" style="opacity:0.3;"/><rect x="253" y="82" width="8" height="10" style="opacity:0.3;"/>
-                        <path d="M95,148 Q105,142 130,140 Q155,140 165,142 Q170,144 168,148 Q155,150 130,150 Q105,150 95,148 Z"/>
-                        <line x1="92" y1="148" x2="82" y2="142"/><path d="M82,142 Q80,138 84,136" style="stroke-width:1;"/>
-                        <line x1="160" y1="140" x2="165" y2="118" style="stroke-width:1;"/>
-                    </svg>
-                </div>
-                <!-- 4. Florence Duomo -->
-                <div class="landmark-scene">
-                    <svg class="landmark-svg" viewBox="0 0 280 180">
-                        <rect x="80" y="110" width="120" height="58" class="filled"/>
-                        <path d="M95,110 Q95,50 140,30 Q185,50 185,110"/>
-                        <path d="M140,30 L140,110" style="stroke-width:1; opacity:0.5;"/><path d="M115,68 L115,110" style="stroke-width:1; opacity:0.3;"/><path d="M165,68 L165,110" style="stroke-width:1; opacity:0.3;"/>
-                        <rect x="134" y="18" width="12" height="12" rx="1"/><line x1="140" y1="8" x2="140" y2="18"/><circle cx="140" cy="7" r="3"/>
-                        <path d="M90,110 Q90,108 95,108 L185,108 Q190,108 190,110"/>
-                        <circle cx="115" cy="104" r="3" style="stroke-width:1;"/><circle cx="140" cy="104" r="3" style="stroke-width:1;"/><circle cx="165" cy="104" r="3" style="stroke-width:1;"/>
-                        <path d="M80,130 L200,130" style="stroke-width:1; opacity:0.3;"/>
-                        <circle cx="140" cy="140" r="8"/><circle cx="140" cy="140" r="4" style="stroke-width:1;"/>
-                        <path d="M100,168 L100,155 Q110,148 120,155 L120,168"/><path d="M130,168 L130,150 Q140,140 150,150 L150,168"/><path d="M160,168 L160,155 Q170,148 180,155 L180,168"/>
-                        <rect x="208" y="50" width="22" height="118" class="filled"/>
-                        <line x1="208" y1="70" x2="230" y2="70" style="stroke-width:1; opacity:0.3;"/><line x1="208" y1="90" x2="230" y2="90" style="stroke-width:1; opacity:0.3;"/><line x1="208" y1="110" x2="230" y2="110" style="stroke-width:1; opacity:0.3;"/><line x1="208" y1="130" x2="230" y2="130" style="stroke-width:1; opacity:0.3;"/>
-                        <path d="M208,50 L219,38 L230,50"/><path d="M214,56 Q219,50 224,56" style="stroke-width:1;"/>
-                        <rect x="214" y="72" width="10" height="6" rx="1" style="stroke-width:1; opacity:0.4;"/><rect x="214" y="92" width="10" height="6" rx="1" style="stroke-width:1; opacity:0.4;"/>
-                    </svg>
-                </div>
-                <!-- Labels -->
-                <span class="landmark-label" style="animation-delay: 0s;">Colosseo · Roma</span>
-                <span class="landmark-label" style="animation-delay: 4s;">Torre di Pisa</span>
-                <span class="landmark-label" style="animation-delay: 8s;">Ponte di Rialto · Venezia</span>
-                <span class="landmark-label" style="animation-delay: 12s;">Duomo · Firenze</span>
+                <div class="landmark-scene"><svg class="landmark-svg" viewBox="0 0 280 180"><ellipse cx="140" cy="150" rx="120" ry="20" class="filled"/><path d="M30,150 L30,70 Q30,40 60,35 Q100,25 140,22 Q180,25 220,35 Q250,40 250,70 L250,150"/><path d="M30,70 Q30,45 60,38 Q100,28 140,25 Q180,28 220,38 Q250,45 250,70"/><path d="M50,70 L50,50 M80,70 L80,42 M110,70 L110,38 M140,70 L140,36 M170,70 L170,38 M200,70 L200,42 M230,70 L230,50"/><path d="M50,70 Q65,60 80,70 M80,70 Q95,60 110,70 M110,70 Q125,60 140,70 M140,70 Q155,60 170,70 M170,70 Q185,60 200,70 M200,70 Q215,60 230,70"/><line x1="35" y1="90" x2="245" y2="90"/><path d="M45,110 Q60,100 75,110 M75,110 Q90,100 105,110 M105,110 Q120,100 135,110 M135,110 Q150,100 165,110 M165,110 Q180,100 195,110 M195,110 Q210,100 225,110"/><line x1="32" y1="110" x2="248" y2="110"/><path d="M40,145 Q56,130 72,145 M72,145 Q88,130 104,145 M104,145 Q120,130 136,145 M136,145 Q152,130 168,145 M168,145 Q184,130 200,145 M200,145 Q216,130 232,145"/></svg></div>
+                <div class="landmark-scene"><svg class="landmark-svg" viewBox="0 0 280 180"><line x1="60" y1="168" x2="220" y2="168" style="opacity:.3"/><g transform="rotate(-5,140,168)"><ellipse cx="140" cy="165" rx="32" ry="6" class="filled"/><rect x="110" y="145" width="60" height="20" rx="1"/><rect x="112" y="125" width="56" height="20" rx="1"/><rect x="114" y="105" width="52" height="20" rx="1"/><rect x="116" y="85" width="48" height="20" rx="1"/><rect x="118" y="65" width="44" height="20" rx="1"/><rect x="120" y="45" width="40" height="20" rx="1"/><ellipse cx="140" cy="38" rx="18" ry="4"/><rect x="124" y="30" width="32" height="8" rx="1"/></g></svg></div>
+                <div class="landmark-scene"><svg class="landmark-svg" viewBox="0 0 280 180"><path d="M0,140 Q40,136 80,140 Q120,144 160,140 Q200,136 240,140 Q260,142 280,140" style="stroke-width:1;opacity:.3"/><path d="M40,130 Q100,85 140,78 Q180,85 240,130" class="filled"/><path d="M60,118 Q100,82 140,72 Q180,82 220,118"/><path d="M90,102 L90,88 Q140,70 190,88 L190,102"/><path d="M95,148 Q130,138 168,148 Q130,152 95,148 Z"/></svg></div>
+                <div class="landmark-scene"><svg class="landmark-svg" viewBox="0 0 280 180"><rect x="80" y="110" width="120" height="58" class="filled"/><path d="M95,110 Q95,50 140,30 Q185,50 185,110"/><path d="M140,30 L140,110" style="stroke-width:1;opacity:.5"/><rect x="134" y="18" width="12" height="12" rx="1"/><line x1="140" y1="8" x2="140" y2="18"/><circle cx="140" cy="7" r="3"/><circle cx="140" cy="140" r="8"/><path d="M130,168 L130,150 Q140,140 150,150 L150,168"/><rect x="208" y="50" width="22" height="118" class="filled"/><path d="M208,50 L219,38 L230,50"/></svg></div>
+                <span class="landmark-label" style="animation-delay:0s">Colosseo · Roma</span>
+                <span class="landmark-label" style="animation-delay:4s">Torre di Pisa</span>
+                <span class="landmark-label" style="animation-delay:8s">Ponte di Rialto · Venezia</span>
+                <span class="landmark-label" style="animation-delay:12s">Duomo · Firenze</span>
             </div>
-
             <h1 class="gate-title">The Lounge</h1>
-            <p class="gate-sub">Members-only area. Enter your access code.</p>
-            <div class="gate-form">
-                <input type="password" id="loungePassword" placeholder="Access code" class="gate-input" autofocus>
-                <button class="gate-btn" id="loungeBtn">Enter</button>
+            <p class="gate-sub">Members-only area.</p>
+            <div class="gate-fields">
+                <input type="email" id="gateEmail" placeholder="Your email" class="gate-input">
+                <input type="password" id="gatePass" placeholder="Access code" class="gate-input">
+                <button class="gate-btn" id="gateBtn">Enter</button>
             </div>
-            <p class="gate-error" id="loungeError"></p>
-        </div>
-
-        <!-- Authenticated content -->
-        <div class="lounge-inside" id="loungeContent">
-            <div class="inside-diamond"><div class="inside-diamond-inner"></div></div>
-            <h1 class="inside-title">Welcome to The Lounge</h1>
-            <p class="inside-text">You're in. This space is being prepared for you.<br>Content coming soon.</p>
-            <div class="inside-divider"></div>
+            <p class="gate-error" id="gateError"></p>
         </div>
     </div>
 
-    <script>
-        const LOUNGE_PASSWORD = 'Mitochondria';
+    <!-- ========== APP ========== -->
+    <div class="app" id="appShell">
+        <div class="app-container">
 
-        const gate = document.getElementById('loungeGate');
-        const content = document.getElementById('loungeContent');
-        const btn = document.getElementById('loungeBtn');
-        const input = document.getElementById('loungePassword');
-        const error = document.getElementById('loungeError');
+            <div class="tabs" id="tabBar">
+                <button class="tab active" data-tab="diagnostic">Score Predictor</button>
+                <button class="tab" data-tab="results">Results</button>
+                <button class="tab" data-tab="history">History</button>
+                <button class="tab hidden" data-tab="admin" id="adminTab">Admin</button>
+            </div>
 
-        // Check if already authenticated
-        if (localStorage.getItem('imp_lounge_auth') === 'true') {
-            gate.style.display = 'none';
-            content.classList.add('visible');
+            <!-- TAB: DIAGNOSTIC INPUT -->
+            <div class="tab-content active" id="tab-diagnostic">
+                <h2 class="section-title">Score Predictor</h2>
+                <p class="section-sub">Enter your latest mock scores. We'll show you exactly where you stand, where you're leaking points, and what it'll take to close the gap.</p>
+
+                <div class="card">
+                    <div class="card-label">Target Universities</div>
+                    <div class="uni-grid" id="uniGrid"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">Mock Scores — Enter correct / wrong / blank per section</div>
+
+                    <div class="dx-section" data-section="biology">
+                        <div class="dx-section-head"><span class="dx-section-name">Biology</span><span class="dx-section-qs">23 questions</span></div>
+                        <div class="dx-row"><div class="dx-field"><label>Correct</label><input type="number" min="0" max="23" value="" placeholder="0" data-type="correct"></div><div class="dx-field"><label>Wrong</label><input type="number" min="0" max="23" value="" placeholder="0" data-type="wrong"></div><div class="dx-field"><label>Blank</label><input type="number" min="0" max="23" value="" placeholder="0" data-type="blank"></div></div>
+                    </div>
+
+                    <div class="dx-section" data-section="chemistry">
+                        <div class="dx-section-head"><span class="dx-section-name">Chemistry</span><span class="dx-section-qs">15 questions</span></div>
+                        <div class="dx-row"><div class="dx-field"><label>Correct</label><input type="number" min="0" max="15" value="" placeholder="0" data-type="correct"></div><div class="dx-field"><label>Wrong</label><input type="number" min="0" max="15" value="" placeholder="0" data-type="wrong"></div><div class="dx-field"><label>Blank</label><input type="number" min="0" max="15" value="" placeholder="0" data-type="blank"></div></div>
+                    </div>
+
+                    <div class="dx-section" data-section="physmath">
+                        <div class="dx-section-head"><span class="dx-section-name">Physics & Mathematics</span><span class="dx-section-qs">13 questions</span></div>
+                        <div class="dx-row"><div class="dx-field"><label>Correct</label><input type="number" min="0" max="13" value="" placeholder="0" data-type="correct"></div><div class="dx-field"><label>Wrong</label><input type="number" min="0" max="13" value="" placeholder="0" data-type="wrong"></div><div class="dx-field"><label>Blank</label><input type="number" min="0" max="13" value="" placeholder="0" data-type="blank"></div></div>
+                    </div>
+
+                    <div class="dx-section" data-section="logical">
+                        <div class="dx-section-head"><span class="dx-section-name">Logical Reasoning</span><span class="dx-section-qs">5 questions</span></div>
+                        <div class="dx-row"><div class="dx-field"><label>Correct</label><input type="number" min="0" max="5" value="" placeholder="0" data-type="correct"></div><div class="dx-field"><label>Wrong</label><input type="number" min="0" max="5" value="" placeholder="0" data-type="wrong"></div><div class="dx-field"><label>Blank</label><input type="number" min="0" max="5" value="" placeholder="0" data-type="blank"></div></div>
+                    </div>
+
+                    <div class="dx-section" data-section="general">
+                        <div class="dx-section-head"><span class="dx-section-name">General Knowledge</span><span class="dx-section-qs">4 questions</span></div>
+                        <div class="dx-row"><div class="dx-field"><label>Correct</label><input type="number" min="0" max="4" value="" placeholder="0" data-type="correct"></div><div class="dx-field"><label>Wrong</label><input type="number" min="0" max="4" value="" placeholder="0" data-type="wrong"></div><div class="dx-field"><label>Blank</label><input type="number" min="0" max="4" value="" placeholder="0" data-type="blank"></div></div>
+                    </div>
+
+                    <div class="dx-divider"></div>
+                    <div class="dx-total-row"><span class="dx-total-label">Predicted Total</span><span class="dx-total-val" id="liveTotal">—</span></div>
+                </div>
+
+                <button class="btn btn-accent btn-full" id="analyzeBtn">Analyze my score</button>
+            </div>
+
+            <!-- TAB: RESULTS -->
+            <div class="tab-content" id="tab-results">
+                <div id="resultsContent"></div>
+            </div>
+
+            <!-- TAB: HISTORY -->
+            <div class="tab-content" id="tab-history">
+                <h2 class="section-title">Score History</h2>
+                <p class="section-sub">Your past diagnostics. Track your progress over time.</p>
+                <div class="export-bar">
+                    <button class="btn btn-outline" id="exportCSV" style="font-size:.7rem;padding:8px 16px">Export CSV</button>
+                    <button class="btn btn-outline" id="exportJSON" style="font-size:.7rem;padding:8px 16px">Export JSON</button>
+                </div>
+                <div class="card" id="historyList"><p style="color:var(--text3);font-size:.85rem">No diagnostics yet. Run your first analysis.</p></div>
+            </div>
+
+            <!-- TAB: ADMIN -->
+            <div class="tab-content" id="tab-admin">
+                <h2 class="section-title">Admin Panel</h2>
+                <p class="section-sub">Manage student accounts.</p>
+                <div class="card">
+                    <div class="card-label">Create Account</div>
+                    <div class="admin-add">
+                        <input type="email" id="adminNewEmail" placeholder="Student email" class="admin-input">
+                        <input type="text" id="adminNewName" placeholder="Student name" class="admin-input">
+                        <button class="btn btn-accent" id="adminCreateBtn" style="font-size:.7rem;padding:10px 18px">Add</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-label">All Accounts</div>
+                    <div id="adminUserList"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+// ========== CONFIG ==========
+const PASSWORD = 'Mitochondria';
+const ADMIN_EMAIL = 'romhaparnass@gmail.com';
+const SCORING = { correct: 1.5, wrong: -0.4, blank: 0 };
+const MAX_SCORE = 90;
+
+const SECTIONS = {
+    biology:   { name: 'Biology', qs: 23, color: '#0047FF' },
+    chemistry: { name: 'Chemistry', qs: 15, color: '#3366FF' },
+    physmath:  { name: 'Physics & Math', qs: 13, color: '#5588FF' },
+    logical:   { name: 'Logical Reasoning', qs: 5, color: '#7799FF' },
+    general:   { name: 'General Knowledge', qs: 4, color: '#99AAFF' }
+};
+
+const UNIVERSITIES = [
+    { name: 'Milano (Statale)', cutoff: 57.9 },
+    { name: 'Pavia', cutoff: 54.8 },
+    { name: 'Bologna', cutoff: 51.5 },
+    { name: 'Padova', cutoff: 49.2 },
+    { name: 'Torino', cutoff: 47.5 },
+    { name: 'Roma (Sapienza)', cutoff: 44.1 },
+    { name: 'Parma', cutoff: 40.5 },
+    { name: 'Napoli (Federico II)', cutoff: 39.8 },
+    { name: 'Bari', cutoff: 37.2 },
+    { name: 'Messina', cutoff: 34.5 }
+];
+
+const WEAKNESS_MAP = {
+    biology: [
+        { topic: 'Genetics & Heredity', weight: .22, desc: 'Mendel, linkage, mutations, blood groups — the most tested area.' },
+        { topic: 'Molecular Biology', weight: .20, desc: 'DNA replication, transcription, translation, gene regulation, biotech.' },
+        { topic: 'Cell Biology', weight: .18, desc: 'Organelles, membrane transport, mitosis vs meiosis.' },
+        { topic: 'Human Anatomy & Physiology', weight: .20, desc: 'Nervous, endocrine, immune, cardiovascular, excretory systems.' },
+        { topic: 'Bioenergetics', weight: .12, desc: 'Glycolysis, Krebs, electron transport, photosynthesis, ATP.' },
+        { topic: 'Evolution & Ecology', weight: .08, desc: 'Natural selection, speciation, food chains, ecosystems.' }
+    ],
+    chemistry: [
+        { topic: 'Organic Chemistry', weight: .22, desc: 'Functional groups, nomenclature, isomerism, reaction types.' },
+        { topic: 'Stoichiometry & Reactions', weight: .18, desc: 'Balancing, mole concept, limiting reagent, yield calculations.' },
+        { topic: 'Acids, Bases & pH', weight: .16, desc: 'pH, buffers, titrations, strong vs weak acids.' },
+        { topic: 'Atomic Structure & Bonding', weight: .16, desc: 'Electron config, periodic trends, VSEPR, intermolecular forces.' },
+        { topic: 'Electrochemistry', weight: .14, desc: 'Redox, electrochemical cells, standard potentials.' },
+        { topic: 'Thermochem & Kinetics', weight: .14, desc: 'Enthalpy, entropy, Gibbs, reaction rates, activation energy.' }
+    ],
+    physmath: [
+        { topic: 'Dynamics & Energy', weight: .22, desc: 'Newton\'s laws, work-energy theorem, conservation laws.' },
+        { topic: 'Kinematics', weight: .15, desc: 'Uniform/accelerated motion, projectiles, circular motion.' },
+        { topic: 'Electrostatics & Circuits', weight: .18, desc: 'Coulomb, electric fields, Ohm\'s law, series/parallel circuits.' },
+        { topic: 'Thermodynamics', weight: .13, desc: 'Heat, specific heat, phase changes, gas laws.' },
+        { topic: 'Fluid Mechanics', weight: .10, desc: 'Pressure, Pascal, Archimedes, Bernoulli.' },
+        { topic: 'Algebra & Functions', weight: .12, desc: 'Equations, inequalities, logarithms, graphs.' },
+        { topic: 'Probability & Geometry', weight: .10, desc: 'Permutations, combinations, trig, coordinate geometry.' }
+    ],
+    logical: [
+        { topic: 'Critical Thinking', weight: .40, desc: 'Argument analysis, assumptions, conclusions, flaws.' },
+        { topic: 'Numerical Reasoning', weight: .30, desc: 'Patterns, sequences, data interpretation.' },
+        { topic: 'Spatial & Abstract', weight: .30, desc: 'Pattern recognition, shape manipulation, odd-one-out.' }
+    ],
+    general: [
+        { topic: 'History & Civics', weight: .40, desc: 'Key events, political systems, EU, Italian constitution.' },
+        { topic: 'Current Affairs', weight: .30, desc: 'Recent events, global issues, science news.' },
+        { topic: 'Literature & Culture', weight: .30, desc: 'Major authors, art movements, cultural literacy.' }
+    ]
+};
+
+// ========== STATE ==========
+let currentUser = null;
+let selectedUnis = new Set();
+
+// ========== AUTH ==========
+function getAccounts() {
+    return JSON.parse(localStorage.getItem('imp_accounts') || '{}');
+}
+function saveAccounts(accts) {
+    localStorage.setItem('imp_accounts', JSON.stringify(accts));
+}
+function getUserData(email) {
+    return JSON.parse(localStorage.getItem('imp_dx_' + email) || '{"history":[]}');
+}
+function saveUserData(email, data) {
+    localStorage.setItem('imp_dx_' + email, JSON.stringify(data));
+}
+
+document.getElementById('gateBtn').addEventListener('click', doLogin);
+document.getElementById('gatePass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('gateEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gatePass').focus(); });
+
+function doLogin() {
+    const email = document.getElementById('gateEmail').value.trim().toLowerCase();
+    const pass = document.getElementById('gatePass').value;
+    const err = document.getElementById('gateError');
+
+    if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
+    if (pass !== PASSWORD) { err.textContent = 'Incorrect access code.'; document.getElementById('gatePass').value = ''; return; }
+
+    const accts = getAccounts();
+    if (accts[email] && accts[email].blocked) { err.textContent = 'This account has been suspended.'; return; }
+
+    if (!accts[email]) {
+        accts[email] = { email, name: '', created: new Date().toISOString(), blocked: false, lastLogin: new Date().toISOString() };
+    } else {
+        accts[email].lastLogin = new Date().toISOString();
+    }
+    saveAccounts(accts);
+
+    currentUser = email;
+    localStorage.setItem('imp_lounge_user', email);
+    localStorage.setItem('imp_lounge_auth', 'true');
+    enterApp();
+}
+
+function enterApp() {
+    document.getElementById('gatePage').style.display = 'none';
+    document.getElementById('appShell').classList.add('visible');
+    if (currentUser === ADMIN_EMAIL) document.getElementById('adminTab').classList.remove('hidden');
+    buildUniGrid();
+    renderHistory();
+    if (currentUser === ADMIN_EMAIL) renderAdmin();
+    attachLiveCalc();
+}
+
+function logout() {
+    localStorage.removeItem('imp_lounge_user');
+    localStorage.removeItem('imp_lounge_auth');
+    location.reload();
+}
+
+// Auto-login
+(function() {
+    if (localStorage.getItem('imp_lounge_auth') === 'true') {
+        const saved = localStorage.getItem('imp_lounge_user');
+        if (saved) {
+            const accts = getAccounts();
+            if (accts[saved] && accts[saved].blocked) { localStorage.removeItem('imp_lounge_auth'); return; }
+            currentUser = saved;
+            enterApp();
         }
+    }
+})();
 
-        function attemptLogin() {
-            if (input.value === LOUNGE_PASSWORD) {
-                localStorage.setItem('imp_lounge_auth', 'true');
-                gate.style.display = 'none';
-                content.classList.add('visible');
-                error.textContent = '';
-            } else {
-                error.textContent = 'Incorrect access code.';
-                input.value = '';
-                input.focus();
-            }
-        }
+// ========== TABS ==========
+document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+    });
+});
 
-        btn.addEventListener('click', attemptLogin);
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                attemptLogin();
+function showTab(name) {
+    document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === name);
+    });
+    document.querySelectorAll('.tab-content').forEach(c => {
+        c.classList.toggle('active', c.id === 'tab-' + name);
+    });
+}
+
+// ========== THEME ==========
+const themeBtn = document.getElementById('themeToggle');
+function setTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? '' : 'light');
+    themeBtn.textContent = dark ? '☀' : '☾';
+    localStorage.setItem('imp_theme', dark ? 'dark' : 'light');
+}
+themeBtn.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    setTheme(!isDark);
+});
+if (localStorage.getItem('imp_theme') === 'light') setTheme(false);
+
+// ========== UNIVERSITY GRID ==========
+function buildUniGrid() {
+    const grid = document.getElementById('uniGrid');
+    grid.innerHTML = UNIVERSITIES.map(u => `
+        <label class="uni-check" data-uni="${u.name}">
+            <input type="checkbox" value="${u.name}">
+            <span class="uni-dot"></span>
+            <span>${u.name}</span>
+            <span class="uni-cutoff">${u.cutoff}</span>
+        </label>
+    `).join('');
+    grid.querySelectorAll('.uni-check').forEach(el => {
+        el.addEventListener('click', () => {
+            const name = el.dataset.uni;
+            el.classList.toggle('selected');
+            if (el.classList.contains('selected')) selectedUnis.add(name);
+            else selectedUnis.delete(name);
+        });
+    });
+}
+
+// ========== LIVE CALC ==========
+function attachLiveCalc() {
+    document.querySelectorAll('.dx-section input').forEach(inp => {
+        inp.addEventListener('input', () => {
+            const scores = readInputs();
+            if (scores) {
+                const total = calcTotal(scores);
+                document.getElementById('liveTotal').textContent = total.toFixed(1);
+                document.getElementById('liveTotal').style.color = total >= 50 ? 'var(--green)' : total >= 35 ? 'var(--orange)' : 'var(--red)';
             }
         });
-    </script>
+    });
+}
 
+function readInputs() {
+    const data = {};
+    let valid = true;
+    document.querySelectorAll('.dx-section').forEach(sec => {
+        const key = sec.dataset.section;
+        const maxQ = SECTIONS[key].qs;
+        const c = parseInt(sec.querySelector('[data-type="correct"]').value) || 0;
+        const w = parseInt(sec.querySelector('[data-type="wrong"]').value) || 0;
+        const b = parseInt(sec.querySelector('[data-type="blank"]').value) || 0;
+        if (c + w + b > maxQ) valid = false;
+        data[key] = { correct: c, wrong: w, blank: b };
+    });
+    return valid ? data : null;
+}
+
+function calcSectionScore(s) {
+    return s.correct * SCORING.correct + s.wrong * SCORING.wrong;
+}
+function calcTotal(scores) {
+    return Object.values(scores).reduce((sum, s) => sum + calcSectionScore(s), 0);
+}
+
+// ========== ANALYZE ==========
+document.getElementById('analyzeBtn').addEventListener('click', () => {
+    const scores = readInputs();
+    if (!scores) { alert('Check your numbers — total per section can\'t exceed the question count.'); return; }
+    const hasInput = Object.values(scores).some(s => s.correct + s.wrong + s.blank > 0);
+    if (!hasInput) { alert('Enter at least one section\'s scores.'); return; }
+
+    const total = calcTotal(scores);
+    const targets = selectedUnis.size > 0
+        ? UNIVERSITIES.filter(u => selectedUnis.has(u.name))
+        : UNIVERSITIES.slice(0, 3);
+
+    const result = { date: new Date().toISOString(), scores, total, targets: targets.map(t => t.name) };
+
+    // Save to history
+    const userData = getUserData(currentUser);
+    userData.history.unshift(result);
+    if (userData.history.length > 50) userData.history.pop();
+    saveUserData(currentUser, userData);
+
+    renderResults(result);
+    showTab('results');
+    renderHistory();
+});
+
+// ========== RENDER RESULTS ==========
+function renderResults(r) {
+    const total = r.total;
+    const scores = r.scores;
+    const targets = UNIVERSITIES.filter(u => r.targets.includes(u.name));
+    if (targets.length === 0) targets.push(...UNIVERSITIES.slice(0, 3));
+
+    const pct = Math.max(0, Math.min(100, (total / MAX_SCORE) * 100));
+    const percentile = estimatePercentile(total);
+    const rank = Math.round(12000 * (1 - percentile / 100));
+    const ringColor = total >= 50 ? 'var(--green)' : total >= 35 ? 'var(--orange)' : 'var(--red)';
+
+    let verdict, verdictColor;
+    if (total >= 55) { verdict = 'Strong position.'; verdictColor = 'var(--green)'; }
+    else if (total >= 45) { verdict = 'Competitive — but gaps remain.'; verdictColor = 'var(--orange)'; }
+    else if (total >= 30) { verdict = 'Work to do. The gap is closable.'; verdictColor = 'var(--orange)'; }
+    else { verdict = 'Early stage. Direction matters now.'; verdictColor = 'var(--red)'; }
+
+    // Total wrong answers & guessing cost
+    const totalWrong = Object.values(scores).reduce((s, x) => s + x.wrong, 0);
+    const guessingCost = +(totalWrong * 0.4).toFixed(1);
+    const ifBlankInstead = +(total + guessingCost).toFixed(1);
+
+    // Section breakdown
+    const sectionData = Object.entries(SECTIONS).map(([key, sec]) => {
+        const s = scores[key];
+        const score = calcSectionScore(s);
+        const maxSec = sec.qs * 1.5;
+        const pctSec = Math.max(0, (score / maxSec) * 100);
+        return { key, name: sec.name, score, max: maxSec, pct: pctSec, correct: s.correct, wrong: s.wrong, blank: s.blank, color: sec.color };
+    });
+
+    // Weaknesses
+    const weaknesses = [];
+    sectionData.forEach(sd => {
+        if (sd.pct < 60) {
+            const topics = WEAKNESS_MAP[sd.key] || [];
+            const lostPts = +(sd.max - sd.score).toFixed(1);
+            topics.forEach(t => {
+                const estLoss = +(lostPts * t.weight).toFixed(1);
+                if (estLoss >= 0.5) {
+                    weaknesses.push({
+                        section: sd.name, topic: t.topic, desc: t.desc,
+                        points: estLoss, severity: estLoss >= 4 ? 'high' : estLoss >= 2 ? 'med' : 'low'
+                    });
+                }
+            });
+        }
+    });
+    weaknesses.sort((a, b) => b.points - a.points);
+
+    const html = `
+        <div class="results">
+            <!-- Score Ring -->
+            <div class="card score-hero">
+                <div class="score-ring-wrap">
+                    <svg viewBox="0 0 140 140">
+                        <circle cx="70" cy="70" r="65" class="sr-bg"/>
+                        <circle cx="70" cy="70" r="65" class="sr-fill" id="resFill"/>
+                    </svg>
+                    <div class="score-number">
+                        <div class="big" id="resNum">0</div>
+                        <div class="of">of ${MAX_SCORE}</div>
+                    </div>
+                </div>
+                <div class="score-verdict" style="color:${verdictColor}">${verdict}</div>
+                <div class="score-percentile">Top ${(100 - percentile).toFixed(0)}% · Estimated rank ~${rank.toLocaleString()} of 12,000</div>
+            </div>
+
+            <!-- Section Breakdown -->
+            <div class="card">
+                <div class="card-label">Section Breakdown</div>
+                ${sectionData.map(s => `
+                    <div class="breakdown-row">
+                        <span class="breakdown-name">${s.name}</span>
+                        <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:0%;background:${s.pct>=60?'var(--green)':s.pct>=40?'var(--orange)':'var(--red)'}" data-width="${s.pct}"></div></div>
+                        <span class="breakdown-score" style="color:${s.pct>=60?'var(--green)':s.pct>=40?'var(--orange)':'var(--red)'}">${s.score.toFixed(1)}</span>
+                        <span class="breakdown-detail">${s.correct}✓ ${s.wrong}✗ ${s.blank}—</span>
+                    </div>
+                `).join('')}
+            </div>
+
+            <!-- University Gap -->
+            ${targets.length ? `
+            <div class="card">
+                <div class="card-label">University Gap Analysis</div>
+                ${targets.map(u => {
+                    const gap = +(u.cutoff - total).toFixed(1);
+                    const cls = gap <= 0 ? 'gap-pass' : gap <= 10 ? 'gap-close' : 'gap-far';
+                    const barMax = Math.max(u.cutoff, total) * 1.1;
+                    const youW = (total / barMax * 100).toFixed(1);
+                    const cutW = (u.cutoff / barMax * 100).toFixed(1);
+                    const msg = gap <= 0
+                        ? `You're <strong>${Math.abs(gap)} points above</strong> the cutoff. Keep it here.`
+                        : `You're <strong>${gap} points short</strong>. ${gap <= 5 ? 'Almost there — tighten your weak spots.' : gap <= 15 ? 'Closable with focused work on your weakest sections.' : 'A significant gap — but direction changes everything.'}`;
+                    return `<div class="gap-card ${cls}">
+                        <div style="display:flex;justify-content:space-between;align-items:baseline">
+                            <div class="gap-uni">${u.name}</div>
+                            <div class="gap-points" style="color:${gap<=0?'var(--green)':gap<=10?'var(--orange)':'var(--red)'}">${gap<=0?'+':'−'}${Math.abs(gap)}</div>
+                        </div>
+                        <div class="gap-bar-wrap">
+                            <div class="gap-bar-track">
+                                <div class="gap-bar-you" style="width:0%;background:${gap<=0?'var(--green)':gap<=10?'var(--orange)':'var(--red)'}" data-width="${youW}"></div>
+                                <div class="gap-bar-cutoff" style="left:${cutW}%" title="Cutoff: ${u.cutoff}"></div>
+                            </div>
+                        </div>
+                        <div class="gap-msg">${msg}</div>
+                    </div>`;
+                }).join('')}
+            </div>
+            ` : ''}
+
+            <!-- Guessing Discipline -->
+            ${totalWrong > 0 ? `
+            <div class="card">
+                <div class="card-label">Guessing Discipline</div>
+                <div class="guess-stat"><span class="guess-label">Wrong answers</span><span class="guess-val">${totalWrong}</span></div>
+                <div class="guess-stat"><span class="guess-label">Points lost to negative marking</span><span class="guess-val" style="color:var(--red)">−${guessingCost}</span></div>
+                <div class="guess-stat"><span class="guess-label">If you'd left those blank instead</span><span class="guess-val" style="color:var(--green)">${ifBlankInstead}</span></div>
+                <p style="margin-top:14px;font-size:.82rem;color:var(--text2);line-height:1.6">${guessingCost >= 5 ? 'You\'re bleeding points on guesses. Learning when to leave blank is worth more than studying another chapter.' : guessingCost >= 2 ? 'Some guessing cost. Tighten your elimination discipline on uncertain questions.' : 'Good discipline. You\'re not throwing away points on wild guesses.'}</p>
+            </div>` : ''}
+
+            <!-- Weakness Map -->
+            ${weaknesses.length ? `
+            <div class="card">
+                <div class="card-label">Where You're Losing Points</div>
+                ${weaknesses.slice(0, 8).map(w => `
+                    <div class="weak-item">
+                        <div class="weak-icon ${w.severity}">!</div>
+                        <div>
+                            <div class="weak-title">${w.section} — ${w.topic}</div>
+                            <div class="weak-desc">${w.desc}</div>
+                        </div>
+                        <div class="weak-pts" style="color:var(--${w.severity === 'high' ? 'red' : w.severity === 'med' ? 'orange' : 'green'})">~${w.points} pts</div>
+                    </div>
+                `).join('')}
+            </div>` : ''}
+
+            <!-- CTA -->
+            <div class="cta-card">
+                <h3>Here's the gap. Want to close it faster?</h3>
+                <p>You now see exactly where you stand and what's costing you points. Rom can build a study architecture around these gaps — what to focus on, how deep, what to skip.</p>
+                <a href="index.html#enroll" class="btn btn-accent">Apply for mentorship →</a>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('resultsContent').innerHTML = html;
+
+    // Animate after render
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            // Ring animation
+            const fill = document.getElementById('resFill');
+            if (fill) {
+                const circumference = 2 * Math.PI * 65;
+                const offset = circumference - (pct / 100) * circumference;
+                fill.style.stroke = ringColor;
+                fill.style.strokeDasharray = circumference;
+                fill.style.strokeDashoffset = offset;
+            }
+            // Score counter
+            const numEl = document.getElementById('resNum');
+            if (numEl) {
+                let c = 0; const target = Math.round(total * 10) / 10;
+                const step = target / 40;
+                const iv = setInterval(() => {
+                    c += step;
+                    if (c >= target) { c = target; clearInterval(iv); }
+                    numEl.textContent = c.toFixed(1);
+                }, 25);
+            }
+            // Bars
+            document.querySelectorAll('[data-width]').forEach(bar => {
+                bar.style.width = bar.dataset.width + '%';
+            });
+        }, 100);
+    });
+}
+
+function estimatePercentile(score) {
+    if (score >= 75) return 98;
+    if (score >= 65) return 92;
+    if (score >= 55) return 82;
+    if (score >= 50) return 72;
+    if (score >= 45) return 60;
+    if (score >= 40) return 48;
+    if (score >= 35) return 38;
+    if (score >= 30) return 28;
+    if (score >= 20) return 15;
+    return 5;
+}
+
+// ========== HISTORY ==========
+function renderHistory() {
+    const data = getUserData(currentUser);
+    const container = document.getElementById('historyList');
+    if (!data.history.length) {
+        container.innerHTML = '<p style="color:var(--text3);font-size:.85rem">No diagnostics yet. Run your first analysis.</p>';
+        return;
+    }
+    container.innerHTML = data.history.map((h, i) => {
+        const d = new Date(h.date);
+        const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        const color = h.total >= 50 ? 'var(--green)' : h.total >= 35 ? 'var(--orange)' : 'var(--red)';
+        return `<div class="history-item" data-idx="${i}">
+            <span class="history-date">${dateStr}</span>
+            <span class="history-score" style="color:${color}">${h.total.toFixed(1)}</span>
+            <div class="history-actions">
+                <button class="history-del" onclick="event.stopPropagation();deleteHistory(${i})">✕</button>
+            </div>
+        </div>`;
+    }).join('');
+
+    container.querySelectorAll('.history-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const idx = parseInt(el.dataset.idx);
+            renderResults(data.history[idx]);
+            showTab('results');
+        });
+    });
+}
+
+function deleteHistory(idx) {
+    if (!confirm('Delete this diagnostic?')) return;
+    const data = getUserData(currentUser);
+    data.history.splice(idx, 1);
+    saveUserData(currentUser, data);
+    renderHistory();
+}
+
+// ========== EXPORT ==========
+document.getElementById('exportCSV').addEventListener('click', () => {
+    const data = getUserData(currentUser);
+    if (!data.history.length) { alert('No data to export.'); return; }
+    let csv = 'Date,Total,Bio_C,Bio_W,Bio_B,Chem_C,Chem_W,Chem_B,Phys_C,Phys_W,Phys_B,Log_C,Log_W,Log_B,Gen_C,Gen_W,Gen_B\n';
+    data.history.forEach(h => {
+        const d = new Date(h.date).toISOString().split('T')[0];
+        const s = h.scores;
+        csv += `${d},${h.total.toFixed(1)},${s.biology.correct},${s.biology.wrong},${s.biology.blank},${s.chemistry.correct},${s.chemistry.wrong},${s.chemistry.blank},${s.physmath.correct},${s.physmath.wrong},${s.physmath.blank},${s.logical.correct},${s.logical.wrong},${s.logical.blank},${s.general.correct},${s.general.wrong},${s.general.blank}\n`;
+    });
+    download(csv, 'imp-scores-' + currentUser.split('@')[0] + '.csv', 'text/csv');
+});
+
+document.getElementById('exportJSON').addEventListener('click', () => {
+    const data = getUserData(currentUser);
+    download(JSON.stringify(data, null, 2), 'imp-data-' + currentUser.split('@')[0] + '.json', 'application/json');
+});
+
+function download(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+// ========== ADMIN ==========
+document.getElementById('adminCreateBtn').addEventListener('click', () => {
+    const email = document.getElementById('adminNewEmail').value.trim().toLowerCase();
+    const name = document.getElementById('adminNewName').value.trim();
+    if (!email || !email.includes('@')) { alert('Enter a valid email.'); return; }
+    const accts = getAccounts();
+    if (accts[email]) { alert('Account already exists.'); return; }
+    accts[email] = { email, name, created: new Date().toISOString(), blocked: false, lastLogin: null };
+    saveAccounts(accts);
+    document.getElementById('adminNewEmail').value = '';
+    document.getElementById('adminNewName').value = '';
+    renderAdmin();
+});
+
+function renderAdmin() {
+    const accts = getAccounts();
+    const list = Object.values(accts).filter(a => a.email !== ADMIN_EMAIL);
+    const container = document.getElementById('adminUserList');
+    if (!list.length) {
+        container.innerHTML = '<p style="color:var(--text3);font-size:.85rem">No student accounts yet.</p>';
+        return;
+    }
+    container.innerHTML = `<table class="admin-table"><thead><tr><th>Email</th><th>Name</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>
+        ${list.map(a => {
+            const created = new Date(a.created).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+            return `<tr>
+                <td>${a.email}</td>
+                <td>${a.name || '—'}</td>
+                <td class="${a.blocked ? 'status-blocked' : 'status-active'}">${a.blocked ? 'Blocked' : 'Active'}</td>
+                <td>${created}</td>
+                <td style="text-align:right">
+                    <button class="admin-btn" onclick="toggleBlock('${a.email}')">${a.blocked ? 'Unblock' : 'Block'}</button>
+                    <button class="admin-btn danger" onclick="deleteAccount('${a.email}')">Delete</button>
+                </td>
+            </tr>`;
+        }).join('')}
+    </tbody></table>`;
+}
+
+function toggleBlock(email) {
+    const accts = getAccounts();
+    if (accts[email]) { accts[email].blocked = !accts[email].blocked; saveAccounts(accts); renderAdmin(); }
+}
+
+function deleteAccount(email) {
+    if (!confirm('Delete account ' + email + '?')) return;
+    const accts = getAccounts();
+    delete accts[email];
+    saveAccounts(accts);
+    localStorage.removeItem('imp_dx_' + email);
+    renderAdmin();
+}
+</script>
 </body>
 </html>
