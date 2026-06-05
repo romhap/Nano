@@ -3,7 +3,23 @@
 // ============================================================
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/eVqdR9gqCcfCduw0lXgw001';
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
+// Paste the SAME Google Apps Script Web App URL you put in lounge.html (ends in /exec).
+const SIGNUP_ENDPOINT = '';
 // ============================================================
+
+// Fire-and-forget: send an applicant to the Google Sheet. Never blocks the
+// redirect to Stripe; keepalive lets it finish even as the page navigates away.
+function reportSignup(payload) {
+    if (!SIGNUP_ENDPOINT) return;
+    try {
+        fetch(SIGNUP_ENDPOINT, {
+            method: 'POST',
+            mode: 'no-cors',
+            keepalive: true,
+            body: JSON.stringify(payload)
+        }).catch(() => {});
+    } catch (e) { /* ignore */ }
+}
 
 // === Countdown Timer (7 days from first visit, stored in localStorage) ===
 function updateCountdown() {
@@ -84,6 +100,15 @@ document.getElementById('enrollForm').addEventListener('submit', function (e) {
             log.push(data);
             localStorage.setItem('imat_submissions', JSON.stringify(log));
             localStorage.setItem('imat_subscriber', JSON.stringify(data));
+
+            // Send the applicant to the Google Sheet before redirecting to Stripe
+            reportSignup({
+                source: 'application',
+                email: data.email,
+                name: data.name,
+                whatsapp: data.whatsapp,
+                user_agent: data.user_agent
+            });
 
             const paymentUrl = STRIPE_PAYMENT_LINK +
                 (STRIPE_PAYMENT_LINK.includes('?') ? '&' : '?') +

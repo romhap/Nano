@@ -378,6 +378,24 @@ const PASSWORD = 'Mitochondria';
 const SCORING = { correct: 1.5, wrong: -0.4, blank: 0 };
 const MAX_SCORE = 90;
 
+// Paste your deployed Google Apps Script Web App URL here (ends in /exec).
+// Until it's set, signups are still saved locally — they just aren't sent to you.
+const SIGNUP_ENDPOINT = '';
+
+// Fire-and-forget: send a signup/score event to the Google Sheet. Never blocks
+// the UI and never throws — if it fails, the local copy is still kept.
+function reportSignup(payload) {
+    if (!SIGNUP_ENDPOINT) return;
+    try {
+        fetch(SIGNUP_ENDPOINT, {
+            method: 'POST',
+            mode: 'no-cors',
+            keepalive: true,
+            body: JSON.stringify(payload)
+        }).catch(() => {});
+    } catch (e) { /* offline / blocked — ignore */ }
+}
+
 const SECTIONS = {
     biology:   { name: 'Biology', qs: 23, color: '#0047FF' },
     chemistry: { name: 'Chemistry', qs: 15, color: '#3366FF' },
@@ -477,12 +495,24 @@ function doLogin() {
     if (pass !== PASSWORD) { err.textContent = 'Incorrect access code.'; document.getElementById('gatePass').value = ''; return; }
 
     const accts = getAccounts();
-    if (!accts[email]) {
+    const isNew = !accts[email];
+    if (isNew) {
         accts[email] = { email, created: new Date().toISOString(), lastLogin: new Date().toISOString() };
     } else {
         accts[email].lastLogin = new Date().toISOString();
     }
     saveAccounts(accts);
+
+    // Latest score from this device's history, if any
+    const ud = getUserData(email);
+    const latest = ud.history && ud.history.length ? ud.history[0] : null;
+    reportSignup({
+        source: isNew ? 'lounge_signup' : 'lounge_login',
+        email: email,
+        score: latest ? +latest.total.toFixed(1) : '',
+        targets: latest && latest.targets ? latest.targets.join(', ') : '',
+        user_agent: navigator.userAgent
+    });
 
     currentUser = email;
     localStorage.setItem('imp_lounge_user', email);
@@ -611,6 +641,14 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
     if (userData.history.length > 50) userData.history.pop();
     saveUserData(currentUser, userData);
 
+    reportSignup({
+        source: 'lounge_score',
+        email: currentUser,
+        score: +total.toFixed(1),
+        targets: targets.map(t => t.name).join(', '),
+        user_agent: navigator.userAgent
+    });
+
     runAnalysisSequence(() => {
         renderResults(result);
         showTab('results');
@@ -644,7 +682,7 @@ function runAnalysisSequence(done) {
 
     const stepEls = overlay.querySelectorAll('.ax-step');
     const bar = overlay.querySelector('#axBar');
-    const per = 280; // ms per step
+    const per = 840; // ms per step
     let i = 0;
 
     function activate(idx) {
