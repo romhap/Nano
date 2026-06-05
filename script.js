@@ -4,7 +4,7 @@
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/eVqdR9gqCcfCduw0lXgw001';
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
 // Paste the SAME Google Apps Script Web App URL you put in lounge.html (ends in /exec).
-const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbytZ7EB1FLI5rJbr8YUCTpG8M9RdCKBLh2-gelzrqwUiY_Oeh8-KLWki6Bjg6l8PFHf/exec';
+const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyoxhFy52mZOuL1emUfIOl5fKjB1u6oTCdHx3aWmdyrccRMULSqCIXtQKNQf7lvnWDY/exec';
 // ============================================================
 
 // Fire-and-forget: send an applicant to the Google Sheet. Never blocks the
