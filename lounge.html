@@ -11,37 +11,26 @@
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
         :root{
-            --bg:#0A0A0A;--bg2:#111;--bg3:#161616;--card:#151515;
-            --text:#E8E8E8;--text2:#999;--text3:#555;
-            --border:#222;--border2:#2a2a2a;
-            --accent:#0047FF;--accent2:#3366FF;--accent-bg:rgba(0,71,255,0.08);
-            --green:#1A8754;--green-bg:rgba(26,135,84,0.1);
-            --orange:#E67E22;--orange-bg:rgba(230,126,34,0.1);
-            --red:#D42020;--red-bg:rgba(212,32,32,0.1);
-            --radius:4px;
-        }
-        [data-theme="light"]{
             --bg:#FFFFFF;--bg2:#F5F5F5;--bg3:#EEEEEE;--card:#FFFFFF;
             --text:#0A0A0A;--text2:#666;--text3:#999;
             --border:#E0E0E0;--border2:#EEEEEE;
-            --accent-bg:rgba(0,71,255,0.05);
-            --green-bg:rgba(26,135,84,0.06);--orange-bg:rgba(230,126,34,0.06);--red-bg:rgba(212,32,32,0.06);
+            --accent:#0047FF;--accent2:#3366FF;--accent-bg:rgba(0,71,255,0.05);
+            --green:#1A8754;--green-bg:rgba(26,135,84,0.06);
+            --orange:#E67E22;--orange-bg:rgba(230,126,34,0.06);
+            --red:#D42020;--red-bg:rgba(212,32,32,0.06);
+            --radius:4px;
         }
         html{scroll-behavior:smooth}
         body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased;min-height:100vh}
         h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1.15;letter-spacing:-0.03em}
 
         /* === NAV === */
-        .lnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
-        [data-theme="light"] .lnav{background:rgba(255,255,255,0.92)}
+        .lnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
         .lnav-inner{max-width:940px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center}
-        .lnav-logo img{height:44px;filter:invert(1)}
-        [data-theme="light"] .lnav-logo img{filter:none}
+        .lnav-logo img{height:44px}
         .lnav-right{display:flex;align-items:center;gap:12px}
         .lnav-link{color:var(--text2);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius);transition:all .15s}
         .lnav-link:hover{background:var(--text);color:var(--bg);border-color:var(--text)}
-        .theme-btn{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);cursor:pointer;padding:7px 10px;font-size:.85rem;transition:all .15s;line-height:1}
-        .theme-btn:hover{border-color:var(--text);color:var(--text)}
 
         /* === GATE === */
         .gate-page{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 24px 40px}
@@ -107,12 +96,12 @@
         .dx-total-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem}
 
         /* Target universities */
-        .uni-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .uni-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+        @media(max-width:700px){.uni-grid{grid-template-columns:1fr 1fr}}
         @media(max-width:500px){.uni-grid{grid-template-columns:1fr}}
         .uni-check{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s;font-size:.85rem}
         .uni-check:hover{border-color:var(--text3)}
         .uni-check.selected{border-color:var(--accent);background:var(--accent-bg)}
-        .uni-check input{display:none}
         .uni-dot{width:14px;height:14px;border:2px solid var(--border);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
         .uni-check.selected .uni-dot{border-color:var(--accent);background:var(--accent)}
         .uni-check.selected .uni-dot::after{content:'✓';color:#fff;font-size:.65rem;font-weight:700}
@@ -183,17 +172,6 @@
         .history-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.75rem;padding:4px 8px;transition:color .15s}
         .history-del:hover{color:var(--red)}
 
-        /* Admin */
-        .admin-table{width:100%;border-collapse:collapse}
-        .admin-table th{font-family:'Space Grotesk',sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-weight:600;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
-        .admin-table td{padding:12px;border-bottom:1px solid var(--border);font-size:.85rem}
-        .admin-table .status-active{color:var(--green)}.admin-table .status-blocked{color:var(--red)}
-        .admin-add{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:20px}
-        @media(max-width:500px){.admin-add{grid-template-columns:1fr}}
-        .admin-input{padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem}
-        .admin-input:focus{outline:none;border-color:var(--accent)}
-        .admin-btn{padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border);background:none;color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:all .15s}
-        .admin-btn:hover{background:var(--bg2)}.admin-btn.danger:hover{color:var(--red);border-color:var(--red)}
 
         /* Tabs */
         .tabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:0}
@@ -223,7 +201,6 @@
         <div class="lnav-inner">
             <a href="index.html" class="lnav-logo"><img src="logo.jpg" alt="IMP"></a>
             <div class="lnav-right">
-                <button class="theme-btn" id="themeToggle" title="Toggle theme">☀</button>
                 <a href="index.html" class="lnav-link">Back to IMP</a>
             </div>
         </div>
@@ -261,7 +238,6 @@
                 <button class="tab active" data-tab="diagnostic">Score Predictor</button>
                 <button class="tab" data-tab="results">Results</button>
                 <button class="tab" data-tab="history">History</button>
-                <button class="tab hidden" data-tab="admin" id="adminTab">Admin</button>
             </div>
 
             <!-- TAB: DIAGNOSTIC INPUT -->
@@ -325,23 +301,6 @@
                 <div class="card" id="historyList"><p style="color:var(--text3);font-size:.85rem">No diagnostics yet. Run your first analysis.</p></div>
             </div>
 
-            <!-- TAB: ADMIN -->
-            <div class="tab-content" id="tab-admin">
-                <h2 class="section-title">Admin Panel</h2>
-                <p class="section-sub">Manage student accounts.</p>
-                <div class="card">
-                    <div class="card-label">Create Account</div>
-                    <div class="admin-add">
-                        <input type="email" id="adminNewEmail" placeholder="Student email" class="admin-input">
-                        <input type="text" id="adminNewName" placeholder="Student name" class="admin-input">
-                        <button class="btn btn-accent" id="adminCreateBtn" style="font-size:.7rem;padding:10px 18px">Add</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-label">All Accounts</div>
-                    <div id="adminUserList"></div>
-                </div>
-            </div>
 
         </div>
     </div>
@@ -349,7 +308,6 @@
 <script>
 // ========== CONFIG ==========
 const PASSWORD = 'Mitochondria';
-const ADMIN_EMAIL = 'romhaparnass@gmail.com';
 const SCORING = { correct: 1.5, wrong: -0.4, blank: 0 };
 const MAX_SCORE = 90;
 
@@ -362,16 +320,21 @@ const SECTIONS = {
 };
 
 const UNIVERSITIES = [
-    { name: 'Milano (Statale)', cutoff: 57.9 },
-    { name: 'Pavia', cutoff: 54.8 },
-    { name: 'Bologna', cutoff: 51.5 },
-    { name: 'Padova', cutoff: 49.2 },
-    { name: 'Torino', cutoff: 47.5 },
-    { name: 'Roma (Sapienza)', cutoff: 44.1 },
-    { name: 'Parma', cutoff: 40.5 },
-    { name: 'Napoli (Federico II)', cutoff: 39.8 },
-    { name: 'Bari', cutoff: 37.2 },
-    { name: 'Messina', cutoff: 34.5 }
+    { name: 'Milano (Statale)', cutoff: 57.8 },
+    { name: 'Milano-Bicocca', cutoff: 55.4 },
+    { name: 'Pavia', cutoff: 54.6 },
+    { name: 'Bologna', cutoff: 51.3 },
+    { name: 'Padova', cutoff: 49.0 },
+    { name: 'Torino', cutoff: 47.3 },
+    { name: 'Roma (Sapienza)', cutoff: 44.2 },
+    { name: 'Roma (Tor Vergata)', cutoff: 42.5 },
+    { name: 'Parma', cutoff: 40.3 },
+    { name: 'Napoli (Federico II)', cutoff: 39.6 },
+    { name: 'Napoli (Vanvitelli)', cutoff: 37.8 },
+    { name: 'Siena', cutoff: 36.5 },
+    { name: 'Bari', cutoff: 35.8 },
+    { name: 'Catania', cutoff: 34.2 },
+    { name: 'Messina', cutoff: 33.0 }
 ];
 
 const WEAKNESS_MAP = {
@@ -443,10 +406,8 @@ function doLogin() {
     if (pass !== PASSWORD) { err.textContent = 'Incorrect access code.'; document.getElementById('gatePass').value = ''; return; }
 
     const accts = getAccounts();
-    if (accts[email] && accts[email].blocked) { err.textContent = 'This account has been suspended.'; return; }
-
     if (!accts[email]) {
-        accts[email] = { email, name: '', created: new Date().toISOString(), blocked: false, lastLogin: new Date().toISOString() };
+        accts[email] = { email, created: new Date().toISOString(), lastLogin: new Date().toISOString() };
     } else {
         accts[email].lastLogin = new Date().toISOString();
     }
@@ -461,10 +422,8 @@ function doLogin() {
 function enterApp() {
     document.getElementById('gatePage').style.display = 'none';
     document.getElementById('appShell').classList.add('visible');
-    if (currentUser === ADMIN_EMAIL) document.getElementById('adminTab').classList.remove('hidden');
     buildUniGrid();
     renderHistory();
-    if (currentUser === ADMIN_EMAIL) renderAdmin();
     attachLiveCalc();
 }
 
@@ -479,8 +438,6 @@ function logout() {
     if (localStorage.getItem('imp_lounge_auth') === 'true') {
         const saved = localStorage.getItem('imp_lounge_user');
         if (saved) {
-            const accts = getAccounts();
-            if (accts[saved] && accts[saved].blocked) { localStorage.removeItem('imp_lounge_auth'); return; }
             currentUser = saved;
             enterApp();
         }
@@ -506,29 +463,16 @@ function showTab(name) {
     });
 }
 
-// ========== THEME ==========
-const themeBtn = document.getElementById('themeToggle');
-function setTheme(dark) {
-    document.documentElement.setAttribute('data-theme', dark ? '' : 'light');
-    themeBtn.textContent = dark ? '☀' : '☾';
-    localStorage.setItem('imp_theme', dark ? 'dark' : 'light');
-}
-themeBtn.addEventListener('click', () => {
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    setTheme(!isDark);
-});
-if (localStorage.getItem('imp_theme') === 'light') setTheme(false);
 
 // ========== UNIVERSITY GRID ==========
 function buildUniGrid() {
     const grid = document.getElementById('uniGrid');
     grid.innerHTML = UNIVERSITIES.map(u => `
-        <label class="uni-check" data-uni="${u.name}">
-            <input type="checkbox" value="${u.name}">
+        <div class="uni-check" data-uni="${u.name}">
             <span class="uni-dot"></span>
             <span>${u.name}</span>
             <span class="uni-cutoff">${u.cutoff}</span>
-        </label>
+        </div>
     `).join('');
     grid.querySelectorAll('.uni-check').forEach(el => {
         el.addEventListener('click', () => {
@@ -859,58 +803,6 @@ function download(content, filename, type) {
     URL.revokeObjectURL(a.href);
 }
 
-// ========== ADMIN ==========
-document.getElementById('adminCreateBtn').addEventListener('click', () => {
-    const email = document.getElementById('adminNewEmail').value.trim().toLowerCase();
-    const name = document.getElementById('adminNewName').value.trim();
-    if (!email || !email.includes('@')) { alert('Enter a valid email.'); return; }
-    const accts = getAccounts();
-    if (accts[email]) { alert('Account already exists.'); return; }
-    accts[email] = { email, name, created: new Date().toISOString(), blocked: false, lastLogin: null };
-    saveAccounts(accts);
-    document.getElementById('adminNewEmail').value = '';
-    document.getElementById('adminNewName').value = '';
-    renderAdmin();
-});
-
-function renderAdmin() {
-    const accts = getAccounts();
-    const list = Object.values(accts).filter(a => a.email !== ADMIN_EMAIL);
-    const container = document.getElementById('adminUserList');
-    if (!list.length) {
-        container.innerHTML = '<p style="color:var(--text3);font-size:.85rem">No student accounts yet.</p>';
-        return;
-    }
-    container.innerHTML = `<table class="admin-table"><thead><tr><th>Email</th><th>Name</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>
-        ${list.map(a => {
-            const created = new Date(a.created).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-            return `<tr>
-                <td>${a.email}</td>
-                <td>${a.name || '—'}</td>
-                <td class="${a.blocked ? 'status-blocked' : 'status-active'}">${a.blocked ? 'Blocked' : 'Active'}</td>
-                <td>${created}</td>
-                <td style="text-align:right">
-                    <button class="admin-btn" onclick="toggleBlock('${a.email}')">${a.blocked ? 'Unblock' : 'Block'}</button>
-                    <button class="admin-btn danger" onclick="deleteAccount('${a.email}')">Delete</button>
-                </td>
-            </tr>`;
-        }).join('')}
-    </tbody></table>`;
-}
-
-function toggleBlock(email) {
-    const accts = getAccounts();
-    if (accts[email]) { accts[email].blocked = !accts[email].blocked; saveAccounts(accts); renderAdmin(); }
-}
-
-function deleteAccount(email) {
-    if (!confirm('Delete account ' + email + '?')) return;
-    const accts = getAccounts();
-    delete accts[email];
-    saveAccounts(accts);
-    localStorage.removeItem('imp_dx_' + email);
-    renderAdmin();
-}
 </script>
 </body>
 </html>
