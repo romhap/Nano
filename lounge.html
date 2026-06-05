@@ -157,6 +157,71 @@
         .guess-label{font-size:.85rem;color:var(--text2)}
         .guess-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem}
 
+        /* Study plan (ROI) */
+        .plan-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+        .plan-item:last-child{border-bottom:none}
+        .plan-rank{width:26px;height:26px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.75rem;color:var(--text2);flex-shrink:0}
+        .plan-item.top .plan-rank{background:var(--accent);border-color:var(--accent);color:#fff}
+        .plan-body{flex:1;min-width:0}
+        .plan-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+        .plan-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem}
+        .plan-badge{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:var(--accent-bg);border:1px solid rgba(0,71,255,.2);padding:2px 7px;border-radius:99px}
+        .plan-meta{font-size:.74rem;color:var(--text3);font-family:'Space Grotesk',sans-serif;font-weight:600}
+        .plan-roi{text-align:right;flex-shrink:0}
+        .plan-roi-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:var(--accent);line-height:1}
+        .plan-roi-lbl{font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'Space Grotesk',sans-serif;font-weight:600}
+
+        /* What-if simulator */
+        .sim-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;gap:16px;flex-wrap:wrap}
+        .sim-proj-label{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'Space Grotesk',sans-serif;font-weight:600}
+        .sim-proj-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:2rem;letter-spacing:-.03em;line-height:1;transition:color .2s}
+        .sim-proj-delta{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.82rem;color:var(--green)}
+        .sim-row{margin-bottom:16px}
+        .sim-row-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+        .sim-row-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.8rem}
+        .sim-row-val{font-size:.74rem;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-weight:600}
+        .sim-row-val b{color:var(--green)}
+        .sim-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:var(--bg3);outline:none;cursor:pointer}
+        .sim-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--card);box-shadow:0 0 0 1px var(--accent)}
+        .sim-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--card);box-shadow:0 0 0 1px var(--accent)}
+        .sim-targets{margin-top:20px;border-top:1px solid var(--border);padding-top:16px}
+        .sim-target{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:.82rem}
+        .sim-target-name{font-family:'Space Grotesk',sans-serif;font-weight:600}
+        .sim-target-state{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.78rem;display:flex;align-items:center;gap:6px}
+        .sim-target.reached .sim-target-name{color:var(--text)}
+        .sim-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+        /* Trajectory chart */
+        .traj-wrap{position:relative;width:100%}
+        .traj-svg{width:100%;height:auto;display:block;overflow:visible}
+        .traj-grid{stroke:var(--border);stroke-width:1}
+        .traj-axis-lbl{fill:var(--text3);font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600}
+        .traj-line{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+        .traj-proj{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:5 5;opacity:.55}
+        .traj-target{stroke:var(--green);stroke-width:1.5;stroke-dasharray:4 4}
+        .traj-target-lbl{fill:var(--green);font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700}
+        .traj-dot{fill:var(--accent);stroke:var(--card);stroke-width:2}
+        .traj-area{fill:var(--accent);opacity:.06}
+        .traj-callout{background:var(--accent-bg);border:1px solid rgba(0,71,255,.2);border-radius:var(--radius);padding:14px 16px;margin-top:16px;font-size:.85rem;color:var(--text2);line-height:1.5}
+        .traj-callout b{color:var(--text);font-family:'Space Grotesk',sans-serif}
+
+        /* Analysis overlay */
+        .ax-overlay{position:fixed;inset:0;z-index:200;background:rgba(255,255,255,0.96);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+        .ax-overlay.show{opacity:1}
+        .ax-box{width:100%;max-width:380px;padding:0 32px}
+        .ax-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:-.02em;margin-bottom:4px}
+        .ax-sub{font-size:.78rem;color:var(--text3);margin-bottom:24px}
+        .ax-bar-track{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:24px}
+        .ax-bar{height:100%;width:0;background:var(--accent);transition:width .3s linear}
+        .ax-step{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--text3);padding:5px 0;opacity:.35;transition:opacity .25s,color .25s}
+        .ax-step.active{opacity:1;color:var(--text)}
+        .ax-step.done{opacity:1;color:var(--text2)}
+        .ax-step-mark{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-family:'Space Grotesk',sans-serif;font-weight:700}
+        .ax-step.active .ax-step-mark{color:var(--accent)}
+        .ax-step.done .ax-step-mark{color:var(--green)}
+        .ax-spin{width:11px;height:11px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:axspin .6s linear infinite}
+        @keyframes axspin{to{transform:rotate(360deg)}}
+
         /* CTA */
         .cta-card{text-align:center;background:var(--accent-bg);border:1px solid rgba(0,71,255,.2);border-radius:var(--radius);padding:36px 28px}
         .cta-card h3{font-size:1.4rem;margin-bottom:22px}
@@ -295,6 +360,7 @@
             <div class="tab-content" id="tab-history">
                 <h2 class="section-title">Score History</h2>
                 <p class="section-sub">Your past diagnostics. Track your progress over time.</p>
+                <div id="trajContainer"></div>
                 <div class="export-bar">
                     <button class="btn btn-outline" id="exportCSV" style="font-size:.7rem;padding:8px 16px">Export CSV</button>
                     <button class="btn btn-outline" id="exportJSON" style="font-size:.7rem;padding:8px 16px">Export JSON</button>
@@ -340,41 +406,43 @@ const UNIVERSITIES = [
     { name: 'Messina', cutoff: 48.0 }
 ];
 
+// `hrs` = rough hours of focused study to meaningfully lift this topic.
+// Used to rank the study plan by return on time (points recoverable ÷ hours).
 const WEAKNESS_MAP = {
     biology: [
-        { topic: 'Genetics & Heredity', weight: .22, desc: 'Mendel, linkage, mutations, blood groups — the most tested area.' },
-        { topic: 'Molecular Biology', weight: .20, desc: 'DNA replication, transcription, translation, gene regulation, biotech.' },
-        { topic: 'Cell Biology', weight: .18, desc: 'Organelles, membrane transport, mitosis vs meiosis.' },
-        { topic: 'Human Anatomy & Physiology', weight: .20, desc: 'Nervous, endocrine, immune, cardiovascular, excretory systems.' },
-        { topic: 'Bioenergetics', weight: .12, desc: 'Glycolysis, Krebs, electron transport, photosynthesis, ATP.' },
-        { topic: 'Evolution & Ecology', weight: .08, desc: 'Natural selection, speciation, food chains, ecosystems.' }
+        { topic: 'Genetics & Heredity', weight: .22, hrs: 8, desc: 'Mendel, linkage, mutations, blood groups — the most tested area.' },
+        { topic: 'Molecular Biology', weight: .20, hrs: 7, desc: 'DNA replication, transcription, translation, gene regulation, biotech.' },
+        { topic: 'Cell Biology', weight: .18, hrs: 5, desc: 'Organelles, membrane transport, mitosis vs meiosis.' },
+        { topic: 'Human Anatomy & Physiology', weight: .20, hrs: 9, desc: 'Nervous, endocrine, immune, cardiovascular, excretory systems.' },
+        { topic: 'Bioenergetics', weight: .12, hrs: 6, desc: 'Glycolysis, Krebs, electron transport, photosynthesis, ATP.' },
+        { topic: 'Evolution & Ecology', weight: .08, hrs: 3, desc: 'Natural selection, speciation, food chains, ecosystems.' }
     ],
     chemistry: [
-        { topic: 'Organic Chemistry', weight: .22, desc: 'Functional groups, nomenclature, isomerism, reaction types.' },
-        { topic: 'Stoichiometry & Reactions', weight: .18, desc: 'Balancing, mole concept, limiting reagent, yield calculations.' },
-        { topic: 'Acids, Bases & pH', weight: .16, desc: 'pH, buffers, titrations, strong vs weak acids.' },
-        { topic: 'Atomic Structure & Bonding', weight: .16, desc: 'Electron config, periodic trends, VSEPR, intermolecular forces.' },
-        { topic: 'Electrochemistry', weight: .14, desc: 'Redox, electrochemical cells, standard potentials.' },
-        { topic: 'Thermochem & Kinetics', weight: .14, desc: 'Enthalpy, entropy, Gibbs, reaction rates, activation energy.' }
+        { topic: 'Organic Chemistry', weight: .22, hrs: 9, desc: 'Functional groups, nomenclature, isomerism, reaction types.' },
+        { topic: 'Stoichiometry & Reactions', weight: .18, hrs: 5, desc: 'Balancing, mole concept, limiting reagent, yield calculations.' },
+        { topic: 'Acids, Bases & pH', weight: .16, hrs: 4, desc: 'pH, buffers, titrations, strong vs weak acids.' },
+        { topic: 'Atomic Structure & Bonding', weight: .16, hrs: 5, desc: 'Electron config, periodic trends, VSEPR, intermolecular forces.' },
+        { topic: 'Electrochemistry', weight: .14, hrs: 5, desc: 'Redox, electrochemical cells, standard potentials.' },
+        { topic: 'Thermochem & Kinetics', weight: .14, hrs: 5, desc: 'Enthalpy, entropy, Gibbs, reaction rates, activation energy.' }
     ],
     physmath: [
-        { topic: 'Dynamics & Energy', weight: .22, desc: 'Newton\'s laws, work-energy theorem, conservation laws.' },
-        { topic: 'Kinematics', weight: .15, desc: 'Uniform/accelerated motion, projectiles, circular motion.' },
-        { topic: 'Electrostatics & Circuits', weight: .18, desc: 'Coulomb, electric fields, Ohm\'s law, series/parallel circuits.' },
-        { topic: 'Thermodynamics', weight: .13, desc: 'Heat, specific heat, phase changes, gas laws.' },
-        { topic: 'Fluid Mechanics', weight: .10, desc: 'Pressure, Pascal, Archimedes, Bernoulli.' },
-        { topic: 'Algebra & Functions', weight: .12, desc: 'Equations, inequalities, logarithms, graphs.' },
-        { topic: 'Probability & Geometry', weight: .10, desc: 'Permutations, combinations, trig, coordinate geometry.' }
+        { topic: 'Dynamics & Energy', weight: .22, hrs: 6, desc: 'Newton\'s laws, work-energy theorem, conservation laws.' },
+        { topic: 'Kinematics', weight: .15, hrs: 4, desc: 'Uniform/accelerated motion, projectiles, circular motion.' },
+        { topic: 'Electrostatics & Circuits', weight: .18, hrs: 6, desc: 'Coulomb, electric fields, Ohm\'s law, series/parallel circuits.' },
+        { topic: 'Thermodynamics', weight: .13, hrs: 4, desc: 'Heat, specific heat, phase changes, gas laws.' },
+        { topic: 'Fluid Mechanics', weight: .10, hrs: 3, desc: 'Pressure, Pascal, Archimedes, Bernoulli.' },
+        { topic: 'Algebra & Functions', weight: .12, hrs: 4, desc: 'Equations, inequalities, logarithms, graphs.' },
+        { topic: 'Probability & Geometry', weight: .10, hrs: 4, desc: 'Permutations, combinations, trig, coordinate geometry.' }
     ],
     logical: [
-        { topic: 'Logical Problems', weight: .45, desc: 'Word problems, deduction, conditions and constraints under time pressure.' },
-        { topic: 'Numerical & Data Reasoning', weight: .35, desc: 'Proportions, percentages, sequences, reading data and tables.' },
-        { topic: 'Argument Analysis', weight: .20, desc: 'Identifying assumptions, conclusions and flaws in short arguments.' }
+        { topic: 'Logical Problems', weight: .45, hrs: 4, desc: 'Word problems, deduction, conditions and constraints under time pressure.' },
+        { topic: 'Numerical & Data Reasoning', weight: .35, hrs: 4, desc: 'Proportions, percentages, sequences, reading data and tables.' },
+        { topic: 'Argument Analysis', weight: .20, hrs: 3, desc: 'Identifying assumptions, conclusions and flaws in short arguments.' }
     ],
     general: [
-        { topic: 'Reading Comprehension', weight: .45, desc: 'Extracting and inferring information from scientific, literary and news texts in English.' },
-        { topic: 'General Culture & History', weight: .35, desc: 'Placing key historical-cultural events in their time and place.' },
-        { topic: 'Institutions & Citizenship', weight: .20, desc: 'Main national and international institutions, basic legal, economic and civic concepts.' }
+        { topic: 'Reading Comprehension', weight: .45, hrs: 5, desc: 'Extracting and inferring information from scientific, literary and news texts in English.' },
+        { topic: 'General Culture & History', weight: .35, hrs: 6, desc: 'Placing key historical-cultural events in their time and place.' },
+        { topic: 'Institutions & Citizenship', weight: .20, hrs: 3, desc: 'Main national and international institutions, basic legal, economic and civic concepts.' }
     ]
 };
 
@@ -543,10 +611,69 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
     if (userData.history.length > 50) userData.history.pop();
     saveUserData(currentUser, userData);
 
-    renderResults(result);
-    showTab('results');
-    renderHistory();
+    runAnalysisSequence(() => {
+        renderResults(result);
+        showTab('results');
+        renderHistory();
+    });
 });
+
+// ========== ANALYSIS SEQUENCE (perceived computation) ==========
+function runAnalysisSequence(done) {
+    const steps = [
+        'Scoring 60 responses',
+        'Applying negative-marking model (−0.4 / wrong)',
+        'Cross-referencing ' + UNIVERSITIES.length + ' university thresholds',
+        'Mapping weaknesses to the IMAT syllabus',
+        'Ranking study moves by return on time'
+    ];
+    const overlay = document.createElement('div');
+    overlay.className = 'ax-overlay';
+    overlay.innerHTML = `
+        <div class="ax-box">
+            <div class="ax-title">Running diagnostic</div>
+            <div class="ax-sub">Analyzing your mock against live admission data</div>
+            <div class="ax-bar-track"><div class="ax-bar" id="axBar"></div></div>
+            <div id="axSteps">${steps.map((s,i)=>`
+                <div class="ax-step" data-i="${i}">
+                    <span class="ax-step-mark"></span><span>${s}</span>
+                </div>`).join('')}</div>
+        </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('show'));
+
+    const stepEls = overlay.querySelectorAll('.ax-step');
+    const bar = overlay.querySelector('#axBar');
+    const per = 280; // ms per step
+    let i = 0;
+
+    function activate(idx) {
+        const el = stepEls[idx];
+        el.classList.add('active');
+        el.querySelector('.ax-step-mark').innerHTML = '<span class="ax-spin"></span>';
+        bar.style.width = Math.round(((idx + 1) / steps.length) * 100) + '%';
+    }
+    function complete(idx) {
+        const el = stepEls[idx];
+        el.classList.remove('active'); el.classList.add('done');
+        el.querySelector('.ax-step-mark').textContent = '✓';
+    }
+
+    activate(0);
+    const iv = setInterval(() => {
+        complete(i);
+        i++;
+        if (i < steps.length) {
+            activate(i);
+        } else {
+            clearInterval(iv);
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                setTimeout(() => { overlay.remove(); done(); }, 300);
+            }, 260);
+        }
+    }, per);
+}
 
 // ========== RENDER RESULTS ==========
 function renderResults(r) {
@@ -591,13 +718,20 @@ function renderResults(r) {
                 if (estLoss >= 0.5) {
                     weaknesses.push({
                         section: sd.name, topic: t.topic, desc: t.desc,
-                        points: estLoss, severity: estLoss >= 4 ? 'high' : estLoss >= 2 ? 'med' : 'low'
+                        points: estLoss, hrs: t.hrs, roi: +(estLoss / t.hrs).toFixed(2),
+                        severity: estLoss >= 4 ? 'high' : estLoss >= 2 ? 'med' : 'low'
                     });
                 }
             });
         }
     });
     weaknesses.sort((a, b) => b.points - a.points);
+
+    // Study plan — same topics, ranked by return on time (points ÷ hours)
+    const plan = [...weaknesses].sort((a, b) => b.roi - a.roi).slice(0, 6);
+
+    // Sections with room to improve, for the what-if simulator
+    const simSections = sectionData.filter(s => s.wrong + s.blank > 0);
 
     const html = `
         <div class="results">
@@ -686,6 +820,62 @@ function renderResults(r) {
                 `).join('')}
             </div>` : ''}
 
+            <!-- Study Plan (ROI) -->
+            ${plan.length ? `
+            <div class="card">
+                <div class="card-label">Study Plan — Best Return on Time</div>
+                <p style="font-size:.82rem;color:var(--text2);line-height:1.6;margin-bottom:18px">Same gaps, re-ranked by points you recover per hour of study. Work top-down — this is the fastest path up the table.</p>
+                ${plan.map((p, i) => `
+                    <div class="plan-item ${i === 0 ? 'top' : ''}">
+                        <div class="plan-rank">${i + 1}</div>
+                        <div class="plan-body">
+                            <div class="plan-top">
+                                <span class="plan-title">${p.topic}</span>
+                                ${i === 0 ? '<span class="plan-badge">Start here</span>' : ''}
+                            </div>
+                            <div class="plan-meta">${p.section} · ~${p.points} pts on the table · ~${p.hrs}h to lift</div>
+                        </div>
+                        <div class="plan-roi">
+                            <div class="plan-roi-num">${p.roi.toFixed(2)}</div>
+                            <div class="plan-roi-lbl">pts / hr</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>` : ''}
+
+            <!-- What-If Simulator -->
+            ${simSections.length ? `
+            <div class="card">
+                <div class="card-label">What-If Simulator</div>
+                <p style="font-size:.82rem;color:var(--text2);line-height:1.6;margin-bottom:18px">Drag to convert misses into correct answers. Wrong answers are fixed first (each worth <strong>+1.9</strong>: you remove the penalty and gain the point), then blanks (<strong>+1.5</strong>). Watch which universities come into reach.</p>
+                <div class="sim-head">
+                    <div>
+                        <div class="sim-proj-label">Projected score</div>
+                        <div class="sim-proj-num" id="simNum">${total.toFixed(1)}</div>
+                    </div>
+                    <div class="sim-proj-delta" id="simDelta">+0.0 pts</div>
+                </div>
+                <div id="simRows">
+                    ${simSections.map(s => `
+                        <div class="sim-row" data-key="${s.key}" data-wrong="${s.wrong}" data-blank="${s.blank}">
+                            <div class="sim-row-head">
+                                <span class="sim-row-name">${s.name}</span>
+                                <span class="sim-row-val"><b id="simAdd-${s.key}">0</b> / ${s.wrong + s.blank} fixed</span>
+                            </div>
+                            <input type="range" class="sim-slider" min="0" max="${s.wrong + s.blank}" value="0" data-key="${s.key}">
+                        </div>
+                    `).join('')}
+                </div>
+                ${targets.length ? `<div class="sim-targets" id="simTargets">
+                    ${targets.map(u => `
+                        <div class="sim-target" data-cutoff="${u.cutoff}">
+                            <span class="sim-target-name">${u.name}</span>
+                            <span class="sim-target-state"><span class="sim-dot"></span><span class="sim-state-txt"></span></span>
+                        </div>
+                    `).join('')}
+                </div>` : ''}
+            </div>` : ''}
+
             <!-- CTA -->
             <div class="cta-card">
                 <h3>You can do it better.</h3>
@@ -723,8 +913,56 @@ function renderResults(r) {
             document.querySelectorAll('[data-width]').forEach(bar => {
                 bar.style.width = bar.dataset.width + '%';
             });
+            // What-if simulator
+            initSimulator(total);
         }, 100);
     });
+}
+
+// ========== WHAT-IF SIMULATOR ==========
+function initSimulator(baseTotal) {
+    const rows = document.querySelectorAll('#simRows .sim-slider');
+    if (!rows.length) return;
+    const numEl = document.getElementById('simNum');
+    const deltaEl = document.getElementById('simDelta');
+
+    function recompute() {
+        let gain = 0;
+        document.querySelectorAll('#simRows .sim-row').forEach(row => {
+            const wrong = +row.dataset.wrong;
+            const slider = row.querySelector('.sim-slider');
+            const k = +slider.value;
+            const fixWrong = Math.min(k, wrong);
+            const fixBlank = Math.max(0, k - wrong);
+            gain += fixWrong * 1.9 + fixBlank * 1.5;
+            row.querySelector('.sim-row-val b').textContent = k;
+        });
+        const projected = Math.min(MAX_SCORE, baseTotal + gain);
+        numEl.textContent = projected.toFixed(1);
+        numEl.style.color = projected >= 50 ? 'var(--green)' : projected >= 35 ? 'var(--orange)' : 'var(--red)';
+        deltaEl.textContent = (gain > 0 ? '+' : '') + gain.toFixed(1) + ' pts';
+
+        // Update target reach states
+        document.querySelectorAll('#simTargets .sim-target').forEach(t => {
+            const cutoff = +t.dataset.cutoff;
+            const reached = projected >= cutoff;
+            const dot = t.querySelector('.sim-dot');
+            const txt = t.querySelector('.sim-state-txt');
+            t.classList.toggle('reached', reached);
+            if (reached) {
+                dot.style.background = 'var(--green)';
+                txt.textContent = 'In reach';
+                txt.style.color = 'var(--green)';
+            } else {
+                dot.style.background = 'var(--text3)';
+                txt.textContent = '−' + (cutoff - projected).toFixed(1);
+                txt.style.color = 'var(--text3)';
+            }
+        });
+    }
+
+    rows.forEach(s => s.addEventListener('input', recompute));
+    recompute();
 }
 
 function estimatePercentile(score) {
@@ -768,6 +1006,118 @@ function renderHistory() {
             showTab('results');
         });
     });
+
+    renderTrajectory();
+}
+
+// ========== TRAJECTORY + PROJECTION ==========
+function renderTrajectory() {
+    const container = document.getElementById('trajContainer');
+    if (!container) return;
+    const data = getUserData(currentUser);
+    const hist = [...data.history].reverse(); // oldest → newest
+    if (hist.length < 2) { container.innerHTML = ''; return; }
+
+    // Target = most reachable (lowest cutoff) among the latest run's targets
+    const recent = data.history[0];
+    let targetUni = null;
+    if (recent.targets && recent.targets.length) {
+        const ts = UNIVERSITIES.filter(u => recent.targets.includes(u.name));
+        if (ts.length) targetUni = ts.reduce((a, b) => b.cutoff < a.cutoff ? b : a);
+    }
+    const target = targetUni ? targetUni.cutoff : null;
+
+    // Geometry — data sits in the left ~62%, projection extends into the right
+    const W = 320, H = 180, padL = 30, padR = 12, padT = 14, padB = 22;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const dataW = plotW * 0.62;
+    const t0 = new Date(hist[0].date).getTime();
+    const days = hist.map(h => (new Date(h.date).getTime() - t0) / 86400000);
+    const maxDay = Math.max(...days);
+    const useTime = maxDay >= 1;
+    const n = hist.length;
+    const xDom = useTime ? maxDay : (n - 1);
+    const xVal = i => useTime ? days[i] : i;
+    const X = v => padL + (v / xDom) * dataW;
+    const Y = s => padT + plotH - (Math.max(0, Math.min(90, s)) / 90) * plotH;
+
+    // Linear regression for projection
+    const xs = hist.map((h, i) => xVal(i));
+    const ys = hist.map(h => h.total);
+    const mx = xs.reduce((a, b) => a + b, 0) / n, my = ys.reduce((a, b) => a + b, 0) / n;
+    let num = 0, den = 0;
+    for (let i = 0; i < n; i++) { num += (xs[i] - mx) * (ys[i] - my); den += (xs[i] - mx) ** 2; }
+    const slope = den === 0 ? 0 : num / den;
+    const intercept = my - slope * mx;
+    const lastScore = ys[n - 1];
+
+    // Build paths
+    const pts = hist.map((h, i) => `${X(xVal(i)).toFixed(1)},${Y(h.total).toFixed(1)}`);
+    const linePath = 'M' + pts.join(' L');
+    const areaPath = `M${X(0).toFixed(1)},${(padT + plotH).toFixed(1)} L` + pts.join(' L') + ` L${X(xVal(n - 1)).toFixed(1)},${(padT + plotH).toFixed(1)} Z`;
+
+    const grid = [0, 30, 60, 90].map(v => `
+        <line class="traj-grid" x1="${padL}" y1="${Y(v).toFixed(1)}" x2="${W - padR}" y2="${Y(v).toFixed(1)}"/>
+        <text class="traj-axis-lbl" x="${padL - 6}" y="${(Y(v) + 3).toFixed(1)}" text-anchor="end">${v}</text>`).join('');
+
+    let targetSvg = '';
+    if (target != null) {
+        targetSvg = `<line class="traj-target" x1="${padL}" y1="${Y(target).toFixed(1)}" x2="${W - padR}" y2="${Y(target).toFixed(1)}"/>
+            <text class="traj-target-lbl" x="${W - padR}" y="${(Y(target) - 4).toFixed(1)}" text-anchor="end">${targetUni.name} · ${target}</text>`;
+    }
+
+    // Projection segment + callout
+    const xDomMax = xDom / 0.62; // domain value at the right edge of the plot
+    let projSvg = '', callout = '';
+    const lastX = X(xVal(n - 1)), lastY = Y(lastScore);
+    if (slope > 0.0001) {
+        let xEnd = xDomMax;
+        let crossDate = null;
+        if (target != null && lastScore < target) {
+            const xCross = (target - intercept) / slope;
+            if (xCross < xEnd) xEnd = xCross;
+            if (useTime) crossDate = new Date(t0 + xCross * 86400000);
+        }
+        const endScore = intercept + slope * xEnd;
+        const ex = X(xEnd), ey = Y(endScore);
+        projSvg = `<line class="traj-proj" x1="${lastX.toFixed(1)}" y1="${lastY.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}"/>`;
+        if (target != null && lastScore < target && xEnd < xDomMax) {
+            projSvg += `<circle cx="${ex.toFixed(1)}" cy="${ey.toFixed(1)}" r="3.5" fill="none" stroke="var(--green)" stroke-width="2"/>`;
+        }
+
+        if (target != null && lastScore >= target) {
+            callout = `You're already <b>above ${targetUni.name}'s</b> line. Hold it — don't drift.`;
+        } else if (target != null && crossDate) {
+            const perWeek = (slope * 7).toFixed(1);
+            const dStr = crossDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            callout = `At <b>+${perWeek} pts/week</b>, you cross <b>${targetUni.name} (${target})</b> around <b>${dStr}</b>. Hold the pace.`;
+        } else if (target != null) {
+            const perWeek = (slope * 7).toFixed(1);
+            callout = `Trend is up <b>+${perWeek} pts/week</b>. Log mocks on separate days to project an exact date.`;
+        } else {
+            callout = `Trend is climbing. Pick a target university to see when you'll cross its line.`;
+        }
+    } else if (slope <= 0.0001 && slope >= -0.0001) {
+        callout = `Your scores are flat. Same effort won't move the line — the gaps above show where to push.`;
+    } else {
+        callout = `Your trend is sliding. Let's reverse the slope — start with your highest-return gaps.`;
+    }
+
+    container.innerHTML = `
+        <div class="card">
+            <div class="card-label">Trajectory${target != null ? ' → ' + targetUni.name : ''}</div>
+            <div class="traj-wrap">
+                <svg class="traj-svg" viewBox="0 0 ${W} ${H}">
+                    ${grid}
+                    <path class="traj-area" d="${areaPath}"/>
+                    ${targetSvg}
+                    ${projSvg}
+                    <path class="traj-line" d="${linePath}"/>
+                    ${hist.map((h, i) => `<circle class="traj-dot" cx="${X(xVal(i)).toFixed(1)}" cy="${Y(h.total).toFixed(1)}" r="3.5"/>`).join('')}
+                </svg>
+            </div>
+            <div class="traj-callout">${callout}</div>
+        </div>`;
 }
 
 function deleteHistory(idx) {
