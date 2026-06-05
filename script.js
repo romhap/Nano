@@ -12,8 +12,8 @@ const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbytZ7EB1FLI5rJb
 function reportSignup(payload) {
     if (!SIGNUP_ENDPOINT) return;
     try {
-        navigator.sendBeacon(SIGNUP_ENDPOINT, JSON.stringify(payload));
-    } catch (e) { /* ignore */ }
+        new Image().src = SIGNUP_ENDPOINT + '?data=' + encodeURIComponent(JSON.stringify(payload));
+    } catch (e) {}
 }
 
 // === Countdown Timer (7 days from first visit, stored in localStorage) ===
