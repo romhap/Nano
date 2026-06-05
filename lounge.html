@@ -159,7 +159,7 @@
 
         /* CTA */
         .cta-card{text-align:center;background:var(--accent-bg);border:1px solid rgba(0,71,255,.2);border-radius:var(--radius);padding:36px 28px}
-        .cta-card h3{font-size:1.2rem;margin-bottom:8px}
+        .cta-card h3{font-size:1.4rem;margin-bottom:22px}
         .cta-card p{font-size:.88rem;color:var(--text2);margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6}
 
         /* History */
@@ -248,6 +248,7 @@
                 <div class="card">
                     <div class="card-label">Target Universities</div>
                     <div class="uni-grid" id="uniGrid"></div>
+                    <p style="margin-top:14px;font-size:.72rem;color:var(--text3);line-height:1.5">Numbers are approximate 2024 EU entry scores (out of 90). They move every year and fall during scrolling — use them as a realistic target, not a guarantee.</p>
                 </div>
 
                 <div class="card">
@@ -274,7 +275,7 @@
                     </div>
 
                     <div class="dx-section" data-section="general">
-                        <div class="dx-section-head"><span class="dx-section-name">General Knowledge</span><span class="dx-section-qs">4 questions</span></div>
+                        <div class="dx-section-head"><span class="dx-section-name">Reading & Gen. Knowledge</span><span class="dx-section-qs">4 questions</span></div>
                         <div class="dx-row"><div class="dx-field"><label>Correct</label><input type="number" min="0" max="4" value="" placeholder="0" data-type="correct"></div><div class="dx-field"><label>Wrong</label><input type="number" min="0" max="4" value="" placeholder="0" data-type="wrong"></div><div class="dx-field"><label>Blank</label><input type="number" min="0" max="4" value="" placeholder="0" data-type="blank"></div></div>
                     </div>
 
@@ -316,25 +317,27 @@ const SECTIONS = {
     chemistry: { name: 'Chemistry', qs: 15, color: '#3366FF' },
     physmath:  { name: 'Physics & Math', qs: 13, color: '#5588FF' },
     logical:   { name: 'Logical Reasoning', qs: 5, color: '#7799FF' },
-    general:   { name: 'General Knowledge', qs: 4, color: '#99AAFF' }
+    general:   { name: 'Reading & Gen. Knowledge', qs: 4, color: '#99AAFF' }
 };
 
+// Approximate 2024 EU-candidate entry scores. These shift each year and drop
+// during "scrolling" — treat as a realistic target, not a guarantee.
 const UNIVERSITIES = [
-    { name: 'Milano (Statale)', cutoff: 57.8 },
-    { name: 'Milano-Bicocca', cutoff: 55.4 },
-    { name: 'Pavia', cutoff: 54.6 },
-    { name: 'Bologna', cutoff: 51.3 },
-    { name: 'Padova', cutoff: 49.0 },
-    { name: 'Torino', cutoff: 47.3 },
-    { name: 'Roma (Sapienza)', cutoff: 44.2 },
-    { name: 'Roma (Tor Vergata)', cutoff: 42.5 },
-    { name: 'Parma', cutoff: 40.3 },
-    { name: 'Napoli (Federico II)', cutoff: 39.6 },
-    { name: 'Napoli (Vanvitelli)', cutoff: 37.8 },
-    { name: 'Siena', cutoff: 36.5 },
-    { name: 'Bari', cutoff: 35.8 },
-    { name: 'Catania', cutoff: 34.2 },
-    { name: 'Messina', cutoff: 33.0 }
+    { name: 'Milano (Statale)', cutoff: 66.2 },
+    { name: 'Milano-Bicocca', cutoff: 63.0 },
+    { name: 'Roma (Sapienza)', cutoff: 62.4 },
+    { name: 'Bologna', cutoff: 61.2 },
+    { name: 'Pavia', cutoff: 60.5 },
+    { name: 'Padova', cutoff: 59.8 },
+    { name: 'Roma (Tor Vergata)', cutoff: 58.5 },
+    { name: 'Torino', cutoff: 58.0 },
+    { name: 'Napoli (Federico II)', cutoff: 56.0 },
+    { name: 'Parma', cutoff: 55.0 },
+    { name: 'Siena', cutoff: 54.0 },
+    { name: 'Napoli (Vanvitelli)', cutoff: 53.5 },
+    { name: 'Bari', cutoff: 53.0 },
+    { name: 'Catania', cutoff: 50.0 },
+    { name: 'Messina', cutoff: 48.0 }
 ];
 
 const WEAKNESS_MAP = {
@@ -364,14 +367,14 @@ const WEAKNESS_MAP = {
         { topic: 'Probability & Geometry', weight: .10, desc: 'Permutations, combinations, trig, coordinate geometry.' }
     ],
     logical: [
-        { topic: 'Critical Thinking', weight: .40, desc: 'Argument analysis, assumptions, conclusions, flaws.' },
-        { topic: 'Numerical Reasoning', weight: .30, desc: 'Patterns, sequences, data interpretation.' },
-        { topic: 'Spatial & Abstract', weight: .30, desc: 'Pattern recognition, shape manipulation, odd-one-out.' }
+        { topic: 'Logical Problems', weight: .45, desc: 'Word problems, deduction, conditions and constraints under time pressure.' },
+        { topic: 'Numerical & Data Reasoning', weight: .35, desc: 'Proportions, percentages, sequences, reading data and tables.' },
+        { topic: 'Argument Analysis', weight: .20, desc: 'Identifying assumptions, conclusions and flaws in short arguments.' }
     ],
     general: [
-        { topic: 'History & Civics', weight: .40, desc: 'Key events, political systems, EU, Italian constitution.' },
-        { topic: 'Current Affairs', weight: .30, desc: 'Recent events, global issues, science news.' },
-        { topic: 'Literature & Culture', weight: .30, desc: 'Major authors, art movements, cultural literacy.' }
+        { topic: 'Reading Comprehension', weight: .45, desc: 'Extracting and inferring information from scientific, literary and news texts in English.' },
+        { topic: 'General Culture & History', weight: .35, desc: 'Placing key historical-cultural events in their time and place.' },
+        { topic: 'Institutions & Citizenship', weight: .20, desc: 'Main national and international institutions, basic legal, economic and civic concepts.' }
     ]
 };
 
@@ -685,8 +688,7 @@ function renderResults(r) {
 
             <!-- CTA -->
             <div class="cta-card">
-                <h3>Here's the gap. Want to close it faster?</h3>
-                <p>You now see exactly where you stand and what's costing you points. Rom can build a study architecture around these gaps — what to focus on, how deep, what to skip.</p>
+                <h3>You can do it better.</h3>
                 <a href="index.html#enroll" class="btn btn-accent">Apply for mentorship →</a>
             </div>
         </div>
