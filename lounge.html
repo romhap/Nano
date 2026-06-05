@@ -234,8 +234,8 @@
         .history-date{font-size:.8rem;color:var(--text2)}
         .history-score{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem}
         .history-actions{display:flex;gap:8px}
-        .history-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.75rem;padding:4px 8px;transition:color .15s}
-        .history-del:hover{color:var(--red)}
+        .history-del{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text3);cursor:pointer;font-size:.65rem;font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:5px 10px;transition:all .15s}
+        .history-del:hover{color:var(--red);border-color:var(--red)}
 
 
         /* Tabs */
@@ -292,6 +292,7 @@
                 <button class="gate-btn" id="gateBtn">Enter</button>
             </div>
             <p class="gate-error" id="gateError"></p>
+            <p style="font-size:.68rem;color:var(--text3);margin-top:20px;line-height:1.5">Your email is stored to save your progress and deliver the service.</p>
         </div>
     </div>
 
@@ -1032,7 +1033,7 @@ function renderHistory() {
             <span class="history-date">${dateStr}</span>
             <span class="history-score" style="color:${color}">${h.total.toFixed(1)}</span>
             <div class="history-actions">
-                <button class="history-del" onclick="event.stopPropagation();deleteHistory(${i})">✕</button>
+                <button class="history-del" onclick="event.stopPropagation();deleteHistory(${i})">Delete</button>
             </div>
         </div>`;
     }).join('');
@@ -1108,6 +1109,8 @@ function renderTrajectory() {
     const xDomMax = xDom / 0.62; // domain value at the right edge of the plot
     let projSvg = '', callout = '';
     const lastX = X(xVal(n - 1)), lastY = Y(lastScore);
+    const avgImprovement = +((ys[n - 1] - ys[0]) / (n - 1)).toFixed(1);
+
     if (slope > 0.0001) {
         let xEnd = xDomMax;
         let crossDate = null;
@@ -1126,19 +1129,16 @@ function renderTrajectory() {
         if (target != null && lastScore >= target) {
             callout = `You're already <b>above ${targetUni.name}'s</b> line. Hold it — don't drift.`;
         } else if (target != null && crossDate) {
-            const perWeek = (slope * 7).toFixed(1);
+            const mocksNeeded = Math.ceil((target - lastScore) / Math.max(0.1, avgImprovement));
             const dStr = crossDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-            callout = `At <b>+${perWeek} pts/week</b>, you cross <b>${targetUni.name} (${target})</b> around <b>${dStr}</b>. Hold the pace.`;
-        } else if (target != null) {
-            const perWeek = (slope * 7).toFixed(1);
-            callout = `Trend is up <b>+${perWeek} pts/week</b>. Log mocks on separate days to project an exact date.`;
+            callout = `Averaging <b>+${avgImprovement} pts/mock</b>. At this rate, ~<b>${mocksNeeded} more mocks</b> to cross <b>${targetUni.name} (${target})</b> — projected around <b>${dStr}</b>.`;
         } else {
-            callout = `Trend is climbing. Pick a target university to see when you'll cross its line.`;
+            callout = `Averaging <b>+${avgImprovement} pts/mock</b> across ${n} attempts. Pick target universities and log mocks on separate days to project a date.`;
         }
     } else if (slope <= 0.0001 && slope >= -0.0001) {
         callout = `Your scores are flat. Same effort won't move the line — the gaps above show where to push.`;
     } else {
-        callout = `Your trend is sliding. Let's reverse the slope — start with your highest-return gaps.`;
+        callout = `Averaging <b>${avgImprovement} pts/mock</b> — your trend is sliding. Let's reverse the slope — start with your highest-return gaps.`;
     }
 
     container.innerHTML = `
