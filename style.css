@@ -167,11 +167,21 @@ em {
     text-decoration: none;
     display: flex;
     align-items: center;
+    gap: 9px;
 }
 
-.nav-logo-img {
-    height: 52px;
-    width: auto;
+.brand-icon {
+    height: 30px;
+    width: 30px;
+    flex-shrink: 0;
+}
+
+.brand-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
 }
 
 .nav-links {

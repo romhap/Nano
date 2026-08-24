@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lounge — IMP</title>
+    <title>The Lounge — IMAT.club</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +27,9 @@
         /* === NAV === */
         .lnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
         .lnav-inner{max-width:940px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center}
-        .lnav-logo img{height:44px}
+        .lnav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+        .lnav-logo .brand-icon{height:26px;width:26px;flex-shrink:0}
+        .lnav-logo .brand-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-.02em;color:var(--text)}
         .lnav-right{display:flex;align-items:center;gap:12px}
         .lnav-link{color:var(--text2);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius);transition:all .15s}
         .lnav-link:hover{background:var(--text);color:var(--bg);border-color:var(--text)}
@@ -264,10 +266,17 @@
 
     <nav class="lnav">
         <div class="lnav-inner">
-            <a href="index.html" class="lnav-logo"><img src="logo.jpg" alt="IMP"></a>
+            <a href="index.html" class="lnav-logo">
+                <svg class="brand-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#0047FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#fff" stroke="#0047FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="6" y="46" width="52" height="4" rx="2" fill="#0047FF"/>
+                </svg>
+                <span class="brand-text">IMAT.club</span>
+            </a>
             <div class="lnav-right">
                 <button class="lnav-link" id="logoutBtn" style="cursor:pointer;display:none" onclick="logout()">Log out</button>
-                <a href="index.html" class="lnav-link">Back to IMP</a>
+                <a href="index.html" class="lnav-link">Back to IMAT.club</a>
             </div>
         </div>
     </nav>
@@ -288,8 +297,8 @@
             <h1 class="gate-title">The Lounge</h1>
             <p class="gate-sub">Members-only area.</p>
             <div class="gate-fields">
+                <input type="text" id="gateFirstName" placeholder="First name" class="gate-input">
                 <input type="email" id="gateEmail" placeholder="Your email" class="gate-input">
-                <input type="password" id="gatePass" placeholder="Access code" class="gate-input">
                 <button class="gate-btn" id="gateBtn">Enter</button>
             </div>
             <p class="gate-error" id="gateError"></p>
@@ -376,7 +385,6 @@
 
 <script>
 // ========== CONFIG ==========
-const PASSWORD = 'Mitochondria';
 const SCORING = { correct: 1.5, wrong: -0.4, blank: 0 };
 const MAX_SCORE = 90;
 
@@ -480,22 +488,23 @@ function saveUserData(email, data) {
 }
 
 document.getElementById('gateBtn').addEventListener('click', doLogin);
-document.getElementById('gatePass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('gateEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gatePass').focus(); });
+document.getElementById('gateEmail').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('gateFirstName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gateEmail').focus(); });
 
 function doLogin() {
+    const firstName = document.getElementById('gateFirstName').value.trim();
     const email = document.getElementById('gateEmail').value.trim().toLowerCase();
-    const pass = document.getElementById('gatePass').value;
     const err = document.getElementById('gateError');
 
+    if (!firstName) { err.textContent = 'Enter your first name.'; return; }
     if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
-    if (pass !== PASSWORD) { err.textContent = 'Incorrect access code.'; document.getElementById('gatePass').value = ''; return; }
 
     const accts = getAccounts();
     const isNew = !accts[email];
     if (isNew) {
-        accts[email] = { email, created: new Date().toISOString(), lastLogin: new Date().toISOString() };
+        accts[email] = { email, firstName, created: new Date().toISOString(), lastLogin: new Date().toISOString() };
     } else {
+        accts[email].firstName = firstName;
         accts[email].lastLogin = new Date().toISOString();
     }
     saveAccounts(accts);
@@ -506,6 +515,7 @@ function doLogin() {
     reportSignup({
         source: isNew ? 'lounge_signup' : 'lounge_login',
         email: email,
+        name: firstName,
         score: latest ? +latest.total.toFixed(1) : '',
         targets: latest && latest.targets ? latest.targets.join(', ') : '',
         user_agent: navigator.userAgent
@@ -1173,12 +1183,12 @@ document.getElementById('exportCSV').addEventListener('click', () => {
         const s = h.scores;
         csv += `${d},${h.total.toFixed(1)},${s.biology.correct},${s.biology.wrong},${s.biology.blank},${s.chemistry.correct},${s.chemistry.wrong},${s.chemistry.blank},${s.physmath.correct},${s.physmath.wrong},${s.physmath.blank},${s.logical.correct},${s.logical.wrong},${s.logical.blank},${s.general.correct},${s.general.wrong},${s.general.blank}\n`;
     });
-    download(csv, 'imp-scores-' + currentUser.split('@')[0] + '.csv', 'text/csv');
+    download(csv, 'imatclub-scores-' + currentUser.split('@')[0] + '.csv', 'text/csv');
 });
 
 document.getElementById('exportJSON').addEventListener('click', () => {
     const data = getUserData(currentUser);
-    download(JSON.stringify(data, null, 2), 'imp-data-' + currentUser.split('@')[0] + '.json', 'application/json');
+    download(JSON.stringify(data, null, 2), 'imatclub-data-' + currentUser.split('@')[0] + '.json', 'application/json');
 });
 
 function download(content, filename, type) {
