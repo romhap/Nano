@@ -197,6 +197,7 @@ function sendWebinarReminders() {
     var body = greeting + '\n\n' +
       'Your live IMAT.club webinar — "' + WEBINAR_TITLE + '" — starts ' + WEBINAR_DATE_LABEL + '.\n\n' +
       'Join here:\n' + WEBINAR_ZOOM_LINK + '\n\n' +
+      'Can\'t make it live? A recording will be sent to you afterward.\n\n' +
       'See you there.\nRom & Maya';
 
     var subject = 'Your Zoom link — starting soon';
