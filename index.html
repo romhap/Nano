@@ -33,7 +33,7 @@
                 <p class="hero-body">12,000 candidates fight for the IMAT. Only 900 enter. 92% lose — because they all follow the same path. I scored among the highest worldwide without paying for a single course. Now I take a handful of students and show them how.</p>
                 <div class="hero-cta">
                     <a href="#enroll" class="btn btn-primary">Apply for a spot</a>
-                    <span class="hero-price"><s class="price-old">€85/mo</s> <strong>€60/mo</strong></span>
+                    <span class="hero-price"><s class="price-old">€97/mo</s> <strong>€79/mo</strong></span>
                     <span class="hero-cancel">Cancel anytime. No contracts.</span>
                 </div>
             </div>
@@ -42,16 +42,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Ticker — spots left -->
-    <div class="ticker-bar">
-        <div class="ticker-inner">
-            <div class="ticker-pulse"></div>
-            <span class="ticker-text"><strong id="spotsLeft">4</strong> spots left</span>
-            <span class="ticker-sep">·</span>
-            <span class="ticker-text ticker-timer">Applications close in <strong id="countdown"></strong></span>
-        </div>
-    </div>
 
     <!-- The uncomfortable truth + comparison (merged) -->
     <section class="section section-truth">
@@ -89,7 +79,7 @@
                 </div>
                 <div class="compare-card compare-me">
                     <div class="compare-label">IMP with Rom</div>
-                    <div class="compare-price-tag"><s style="opacity:0.4; font-size:0.6em; vertical-align:middle;">€85</s> €60/month</div>
+                    <div class="compare-price-tag"><s style="opacity:0.4; font-size:0.6em; vertical-align:middle;">€97</s> €79/month</div>
                     <ul>
                         <li>Strategy built around <em>your</em> mind</li>
                         <li>I know your name, your fears, your gaps</li>
@@ -339,7 +329,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-full" id="payBtn" disabled>
-                            Continue to payment — <s>€85</s> €60/month
+                            Continue to payment — <s>€97</s> €79/month
                         </button>
                     </form>
                 </div>
@@ -419,11 +409,11 @@
 
     1. Create a Stripe account at https://stripe.com
     2. In Stripe Dashboard, go to Products → Create Product
-       - Name: "IMAT Mentorship with Rom"
-       - Price: €44.00 / month (recurring)
+       - Name: "IMAT Mentorship"
+       - Price: €79.00 / month (recurring)
     3. Create a Payment Link for that product:
        - Go to Payment Links → Create
-       - Select your €44/mo product
+       - Select your €79/mo product
        - Enable "Collect customer email" and any custom fields
        - Set success URL to: https://YOUR-DOMAIN.com/?payment=success
        - Copy the Payment Link URL
@@ -437,6 +427,28 @@
     Stripe will collect card payments and transfer to your IBAN automatically.
     ============================================================
     -->
+
+    <!-- ========== Webinar popup ========== -->
+    <div class="webinar-overlay" id="webinarOverlay">
+        <div class="webinar-modal">
+            <button class="webinar-close" id="webinarClose" aria-label="Close">✕</button>
+
+            <div class="webinar-body" id="webinarOffer">
+                <p class="webinar-eyebrow">Free live training · Zoom</p>
+                <h3 class="webinar-title">We will show you how to maximize your IMAT score in under 14 days</h3>
+                <p class="webinar-meta"><strong id="webinarSpots">50</strong> spots only · <strong>€9</strong></p>
+                <button class="btn btn-primary btn-full" id="webinarBuyBtn">Reserve my spot — €9</button>
+                <p class="webinar-small">Live on Zoom. Link sent instantly after payment.</p>
+            </div>
+
+            <div class="webinar-body webinar-success hidden" id="webinarSuccess">
+                <div class="success-check">✓</div>
+                <h3>You're registered.</h3>
+                <p id="webinarZoomText">Your Zoom link will be sent shortly. Check back on this page — it will also appear here.</p>
+                <a href="#" class="btn btn-primary btn-full hidden" id="webinarZoomLink" target="_blank" rel="noopener">Join on Zoom →</a>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

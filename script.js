@@ -5,6 +5,12 @@ const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/eVqdR9gqCcfCduw0lXgw001';
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
 // Paste the SAME Google Apps Script Web App URL you put in lounge.html (ends in /exec).
 const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxDlGG2mlN_fT3I6B81LVIXL3MaSUsGZqf9eubgDhYO-RQsp7_f5fpVUEytGkySaZ4/exec';
+// Webinar (€9, 50 spots). Paste the Stripe Payment Link once created. Set its
+// success URL in Stripe to: https://YOUR-DOMAIN.com/?webinar=success
+const WEBINAR_LINK = '';
+// Paste your Zoom join link here once the webinar is scheduled. Shown on the
+// success screen after payment (or leave empty to send it manually instead).
+const WEBINAR_ZOOM_LINK = '';
 // ============================================================
 
 // Fire-and-forget: send an applicant to the Google Sheet. Never blocks the
@@ -15,30 +21,6 @@ function reportSignup(payload) {
         new Image().src = SIGNUP_ENDPOINT + '?data=' + encodeURIComponent(JSON.stringify(payload));
     } catch (e) {}
 }
-
-// === Countdown Timer (7 days from first visit, stored in localStorage) ===
-function updateCountdown() {
-    const DURATION_MS = 7 * 24 * 60 * 60 * 1000;
-    let deadline = localStorage.getItem('imat_deadline');
-    if (!deadline) {
-        deadline = Date.now() + DURATION_MS;
-        localStorage.setItem('imat_deadline', deadline);
-    }
-    deadline = Number(deadline);
-
-    const diff = Math.max(0, deadline - Date.now());
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-    const el = document.getElementById('countdown');
-    if (el) {
-        el.textContent = `${days}D ${hours}H ${mins}M`;
-    }
-}
-
-updateCountdown();
-setInterval(updateCountdown, 60000);
 
 // === Terms toggle ===
 document.getElementById('toggleTerms').addEventListener('click', function () {
@@ -254,3 +236,61 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
     el.classList.add('fade-in');
     observer.observe(el);
 });
+
+// === Webinar popup ===
+(function() {
+    const overlay = document.getElementById('webinarOverlay');
+    if (!overlay) return;
+
+    const closeBtn = document.getElementById('webinarClose');
+    const buyBtn = document.getElementById('webinarBuyBtn');
+    const offerBox = document.getElementById('webinarOffer');
+    const successBox = document.getElementById('webinarSuccess');
+    const zoomText = document.getElementById('webinarZoomText');
+    const zoomLink = document.getElementById('webinarZoomLink');
+
+    const REGISTERED_KEY = 'imat_webinar_registered';
+    const alreadyRegistered = localStorage.getItem(REGISTERED_KEY) === 'true';
+
+    function showOverlay() {
+        overlay.classList.add('show');
+    }
+    function hideOverlay() {
+        overlay.classList.remove('show');
+    }
+
+    closeBtn.addEventListener('click', hideOverlay);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) hideOverlay();
+    });
+
+    buyBtn.addEventListener('click', () => {
+        if (WEBINAR_LINK) {
+            window.location.href = WEBINAR_LINK;
+        } else {
+            alert('Webinar payment link is being set up — check back shortly.');
+        }
+    });
+
+    // Returning from Stripe after webinar payment
+    if (window.location.search.includes('webinar=success')) {
+        localStorage.setItem(REGISTERED_KEY, 'true');
+        offerBox.classList.add('hidden');
+        successBox.classList.remove('hidden');
+        if (WEBINAR_ZOOM_LINK) {
+            zoomText.textContent = "You're confirmed for the live session. Save this link:";
+            zoomLink.href = WEBINAR_ZOOM_LINK;
+            zoomLink.classList.remove('hidden');
+        }
+        showOverlay();
+        window.history.replaceState({}, '', window.location.pathname);
+        return; // don't start the recurring popup for someone who just registered
+    }
+
+    // Someone who registered on a previous visit — never show the offer again
+    if (alreadyRegistered) return;
+
+    // Show immediately on page load, then every 30s while they stay on the page
+    showOverlay();
+    setInterval(showOverlay, 30000);
+})();
