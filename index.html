@@ -350,7 +350,13 @@
                 <!-- Step 2: Success (shown after return from Stripe) -->
                 <div class="enroll-step" id="stepSuccess">
                     <div class="success-wrap">
-                        <div class="success-check">✓</div>
+                        <div class="success-check">
+                            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                                <path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#0047FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#fff" stroke="#0047FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                                <rect x="6" y="46" width="52" height="4" rx="2" fill="#0047FF"/>
+                            </svg>
+                        </div>
                         <h3>You're in.</h3>
                         <p>Welcome. You just took the step most people never take.</p>
                         <p>Let's not waste a day. Message us on WhatsApp and we'll schedule your first call:</p>
@@ -424,7 +430,7 @@
         https://www.imat.club/success.html
       - STRIPE_PORTAL_LINK in script.js is already set (Customer Portal).
 
-    Webinar (€9 one-time):
+    Webinar (€8.99 one-time):
       - WEBINAR_LINK in script.js is a placeholder — paste the Payment
         Link once created.
       - Its success URL must be:
@@ -449,8 +455,8 @@
             <div class="webinar-body" id="webinarOffer">
                 <p class="webinar-eyebrow">Premium live training · Zoom</p>
                 <h3 class="webinar-title">We will show you how to maximize your IMAT score in under 14 days</h3>
-                <p class="webinar-meta"><strong id="webinarSpots">50</strong> spots only · <strong>€9</strong></p>
-                <button class="btn btn-primary btn-full" id="webinarBuyBtn">Reserve my spot — €9</button>
+                <p class="webinar-meta"><strong id="webinarSpots">50</strong> spots only · <strong>€8.99</strong></p>
+                <button class="btn btn-primary btn-full" id="webinarBuyBtn">Reserve my spot — €8.99</button>
                 <p class="webinar-small">Live on Zoom. Your link is shown right after payment.</p>
             </div>
         </div>

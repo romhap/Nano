@@ -14,41 +14,85 @@
     <style>
         .success-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px}
         .success-page .success-wrap{max-width:420px;width:100%}
+        .success-page .form-group{text-align:left;margin-bottom:14px}
     </style>
 </head>
 <body>
 
     <!--
     ============================================================
-    ONE THING TO FILL IN BELOW: the Zoom link.
-
-    Recommended: schedule the meeting with "Registration Required" +
-    Automatic Approval turned on, then paste the REGISTRATION page URL
-    here (not a raw join link) — Zoom emails each person who registers
-    their own personal join link automatically, no manual work for you.
-
-    Find the line below that says PASTE_YOUR_ZOOM_LINK_HERE and replace
-    it with your actual URL. Do this in TWO places: the href AND the
-    displayed text.
+    See google-sheet-signups.gs for the reminder-email setup. Nothing
+    to fill in on THIS page — the Zoom link lives only in that script
+    (WEBINAR_ZOOM_LINK), not here, since this page no longer shows it
+    directly. It's emailed 1 hour before the session instead.
     ============================================================
     -->
 
     <section class="success-page">
         <div class="success-wrap">
-            <div class="success-check">✓</div>
+            <div class="success-check">
+                <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#0047FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#fff" stroke="#0047FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="6" y="46" width="52" height="4" rx="2" fill="#0047FF"/>
+                </svg>
+            </div>
             <h3>You're registered.</h3>
             <p>Your spot for <strong>"Maximize your IMAT score in under 14 days"</strong> is confirmed.</p>
-            <a href="PASTE_YOUR_ZOOM_LINK_HERE" class="btn btn-primary btn-full" target="_blank" rel="noopener">
-                Join on Zoom →
-            </a>
-            <p class="success-small">Save this link — you'll need it to join the live session. We'll also see you there.</p>
+            <p>We'll email your Zoom link about <strong>1 hour before</strong> the session starts — enter your email below so we know where to send it:</p>
+
+            <div id="webinarForm">
+                <div class="form-group">
+                    <label for="wName">First name (optional)</label>
+                    <input type="text" id="wName" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label for="wEmail">Email</label>
+                    <input type="email" id="wEmail" required placeholder="you@email.com">
+                </div>
+                <button class="btn btn-primary btn-full" id="wSubmit">Confirm my email</button>
+                <p class="gate-error" id="wError" style="color:var(--danger);font-size:.85rem;margin-top:8px"></p>
+            </div>
+
+            <div id="webinarDone" class="hidden">
+                <p><strong>Got it.</strong> Check <span id="wConfirmedEmail"></span> about an hour before the session — the Zoom link will be there.</p>
+            </div>
+
             <p class="success-small" style="margin-top:24px"><a href="index.html" style="color:var(--text-muted)">← Back to IMAT.club</a></p>
         </div>
     </section>
 
     <script>
-        // Stops the homepage webinar popup from nagging someone who already paid
+        // Same endpoint the rest of the site already uses.
+        const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxDlGG2mlN_fT3I6B81LVIXL3MaSUsGZqf9eubgDhYO-RQsp7_f5fpVUEytGkySaZ4/exec';
+
         try { localStorage.setItem('imat_webinar_registered', 'true'); } catch (e) {}
+
+        document.getElementById('wSubmit').addEventListener('click', () => {
+            const name = document.getElementById('wName').value.trim();
+            const email = document.getElementById('wEmail').value.trim().toLowerCase();
+            const err = document.getElementById('wError');
+            const btn = document.getElementById('wSubmit');
+
+            if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
+            err.textContent = '';
+            btn.disabled = true;
+            btn.textContent = 'Confirming…';
+
+            fetch(SIGNUP_ENDPOINT + '?webinarSignup=' + encodeURIComponent(email) + '&name=' + encodeURIComponent(name))
+                .then(r => r.json())
+                .then(res => {
+                    if (!res || !res.ok) throw new Error('failed');
+                    document.getElementById('webinarForm').classList.add('hidden');
+                    document.getElementById('webinarDone').classList.remove('hidden');
+                    document.getElementById('wConfirmedEmail').textContent = email;
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Confirm my email';
+                    err.textContent = 'Couldn\'t save that — check your connection and try again.';
+                });
+        });
     </script>
 </body>
 </html>
