@@ -304,9 +304,9 @@ em {
 .hero-image {
     position: relative;
     display: flex;
-    gap: 12px;
+    gap: 14px;
     width: 100%;
-    max-width: 300px;
+    max-width: 420px;
 }
 
 .mentor-photo {
