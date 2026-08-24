@@ -12,9 +12,6 @@ const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxDlGG2mlN_fT3I
 // once created; set its success URL in Stripe to:
 // https://YOUR-DOMAIN.com/?webinar=success
 const WEBINAR_LINK = '';
-// Paste your Zoom join link here once the webinar is scheduled. Shown on the
-// success screen after payment (or leave empty to send it manually instead).
-const WEBINAR_ZOOM_LINK = '';
 // ============================================================
 
 // Fire-and-forget: send an applicant to the Google Sheet. Never blocks the
@@ -250,8 +247,6 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
     const buyBtn = document.getElementById('webinarBuyBtn');
     const offerBox = document.getElementById('webinarOffer');
     const successBox = document.getElementById('webinarSuccess');
-    const zoomText = document.getElementById('webinarZoomText');
-    const zoomLink = document.getElementById('webinarZoomLink');
 
     const REGISTERED_KEY = 'imat_webinar_registered';
     const alreadyRegistered = localStorage.getItem(REGISTERED_KEY) === 'true';
@@ -276,16 +271,15 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
         }
     });
 
-    // Returning from Stripe after webinar payment
+    // Returning from Stripe after webinar payment. The Zoom link itself is
+    // deliberately NOT shown here — a link baked into ?webinar=success would
+    // work for anyone who lands on that URL, paid or not (and this URL is
+    // guessable/shareable). Instead this points them to WhatsApp, where you
+    // send the real link personally after confirming their payment in Stripe.
     if (window.location.search.includes('webinar=success')) {
         localStorage.setItem(REGISTERED_KEY, 'true');
         offerBox.classList.add('hidden');
         successBox.classList.remove('hidden');
-        if (WEBINAR_ZOOM_LINK) {
-            zoomText.textContent = "You're confirmed for the live session. Save this link:";
-            zoomLink.href = WEBINAR_ZOOM_LINK;
-            zoomLink.classList.remove('hidden');
-        }
         showOverlay();
         window.history.replaceState({}, '', window.location.pathname);
         return; // don't start the recurring popup for someone who just registered
