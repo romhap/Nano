@@ -52,9 +52,8 @@ already use for mentorship subscribers.
 
 ## Sign-in: magic link, not passwords
 
-There is no password anywhere. A student enters their email (+ WhatsApp, once,
-on first sign-in) and gets a one-time link by email — clicking it signs them
-in. This exists specifically to close a real gap the old version had: before,
+There is no password anywhere. A student enters their email and gets a
+one-time link by email — clicking it signs them in. This exists specifically to close a real gap the old version had: before,
 "who is this user" was just whatever email string the browser sent, so anyone
 who knew a paying customer's email could type it in and get free Pro access.
 Now the server only trusts a session token issued after proving email
