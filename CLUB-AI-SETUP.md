@@ -30,20 +30,56 @@ Vercel → your project → **Settings → Environment Variables**:
 Redeploy after adding them.
 
 > `SIGNUP_ENDPOINT` is what makes accounts, trial limits and the spend cap
-> actually work. Without it the AI still answers, but **nothing is enforced** —
-> every user is treated as an unlimited trial user. Set it before launch.
+> actually work. Without it the AI still answers, but **sign-in is skipped
+> entirely** and every request is treated as an untracked dev session — this
+> is what keeps mock-mode testing possible before any of this is wired up.
+> Set it before launch.
 
 ### 2. Update the Apps Script
 Paste the current `google-sheet-signups.gs` into your Apps Script editor,
 Save, then **Deploy → Manage deployments → edit → New version → Deploy**.
 
-A new **`ClubAI`** tab appears in your sheet on the first request.
+Three new tabs appear on first use: **`ClubAI`** (accounts/spend),
+**`MagicLinks`** (sign-in tokens), **`Devices`** (sessions).
 
 ### 3. Mark paying users
 When someone subscribes via the Club AI Stripe link
 (`buy.stripe.com/fZu14nb6i3J64Y01q1gw004`), open the **ClubAI** tab, find
 their row, set **Paid** to `TRUE`. That's the only manual step — same flow you
 already use for mentorship subscribers.
+
+---
+
+## Sign-in: magic link, not passwords
+
+There is no password anywhere. A student enters their email (+ WhatsApp, once,
+on first sign-in) and gets a one-time link by email — clicking it signs them
+in. This exists specifically to close a real gap the old version had: before,
+"who is this user" was just whatever email string the browser sent, so anyone
+who knew a paying customer's email could type it in and get free Pro access.
+Now the server only trusts a session token issued after proving email
+ownership via the clicked link — a plain email claim gets nowhere.
+
+**Same-device persistence:** once verified, the browser stores that session
+token and stays signed in — no re-verifying on every visit, the way you'd
+expect from any normal app.
+
+**Device recognition + management:** each browser gets a stable, non-secret
+device ID kept in its own storage, so returning on the same device reuses the
+same device row rather than creating a new one every sign-in. The **Devices**
+button in the top bar lists every device signed in on the account, when each
+was last active, and lets you sign any of them out remotely — revoking a
+device invalidates its session immediately, even mid-conversation, and it has
+to sign in again via a fresh link.
+
+Everything is enforced **server-side** in the Apps Script (session lookup,
+expiry, single-use tokens, revocation, and — critically — you can only ever
+revoke a device that belongs to *your own* resolved account, never someone
+else's). None of it can be bypassed by editing localStorage.
+
+Magic links expire in 30 minutes, work once, and are rate-limited to one
+request per email per minute so the sign-in email can't be used to spam
+someone's inbox.
 
 ---
 

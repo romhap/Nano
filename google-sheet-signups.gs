@@ -111,9 +111,9 @@ function doGet(e) {
     var lockA = LockService.getScriptLock();
     lockA.waitLock(20000);
     try {
-      return json(aiCheck(e.parameter.aiCheck, e.parameter.whatsapp || ''));
+      return json(aiCheck(e.parameter.aiCheck)); // param is now a session token, not an email
     } catch (err) {
-      return json({ paid: false, error: String(err) });
+      return json({ valid: false, error: String(err) });
     } finally {
       lockA.releaseLock();
     }
@@ -122,7 +122,7 @@ function doGet(e) {
     var lockB = LockService.getScriptLock();
     lockB.waitLock(20000);
     try {
-      aiRecordUsage(
+      aiRecordUsage( // param is now a session token, not an email
         e.parameter.aiUsage,
         parseFloat(e.parameter.cost || '0') || 0,
         e.parameter.kind || 'freetext',
@@ -133,6 +133,50 @@ function doGet(e) {
       return json({ ok: false, error: String(err) });
     } finally {
       lockB.releaseLock();
+    }
+  }
+  if (e.parameter.magicRequest) {
+    var lockM = LockService.getScriptLock();
+    lockM.waitLock(20000);
+    try {
+      return json(requestMagicLink(e.parameter.magicRequest, e.parameter.whatsapp || ''));
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    } finally {
+      lockM.releaseLock();
+    }
+  }
+  if (e.parameter.magicVerify) {
+    var lockV = LockService.getScriptLock();
+    lockV.waitLock(20000);
+    try {
+      return json(verifyMagicLink(e.parameter.magicVerify, e.parameter.deviceId || '', e.parameter.deviceLabel || ''));
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    } finally {
+      lockV.releaseLock();
+    }
+  }
+  if (e.parameter.listDevices) {
+    var lockL = LockService.getScriptLock();
+    lockL.waitLock(20000);
+    try {
+      return json(listDevices(e.parameter.listDevices));
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    } finally {
+      lockL.releaseLock();
+    }
+  }
+  if (e.parameter.revokeDevice) {
+    var lockR = LockService.getScriptLock();
+    lockR.waitLock(20000);
+    try {
+      return json(revokeDevice(e.parameter.revokeDevice, e.parameter.targetDeviceId || ''));
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    } finally {
+      lockR.releaseLock();
     }
   }
   if (e.parameter.webinarSignup) {
@@ -342,8 +386,11 @@ function aiTruthy(v) {
   return v === true || /^(true|yes|y|1)$/i.test(String(v).trim());
 }
 
-/** Returns the caller's current entitlement + usage, creating the row if new. */
-function aiCheck(email, whatsapp) {
+/** Returns the caller's current entitlement + usage, creating the row if new.
+ *  Internal helper -- callers must already have a verified email (from a
+ *  resolved session), never a client-claimed one. See aiCheck() below for
+ *  the actual public-facing, session-authenticated entry point. */
+function aiCheckByEmail(email, whatsapp) {
   email = (email || '').toString().trim().toLowerCase();
   if (!email || email.indexOf('@') === -1) return { paid: false };
 
@@ -392,8 +439,9 @@ function aiCheck(email, whatsapp) {
   };
 }
 
-/** Adds one request's cost, bumps the daily counter, stamps feature cooldowns. */
-function aiRecordUsage(email, costUsd, kind, action) {
+/** Adds one request's cost, bumps the daily counter, stamps feature cooldowns.
+ *  Internal helper -- takes an already-verified email, same rule as above. */
+function aiRecordUsageByEmail(email, costUsd, kind, action) {
   email = (email || '').toString().trim().toLowerCase();
   if (!email) return;
 
@@ -418,4 +466,259 @@ function aiRecordUsage(email, costUsd, kind, action) {
   if (action === 'anki_check') vals[11] = now;
 
   sheet.getRange(row, 1, 1, AI_HEADERS.length).setValues([vals]);
+}
+
+/**
+ * ============================================================
+ * CLUB AI — magic-link sign-in + per-device sessions
+ * ============================================================
+ * Why this exists: without it, "who is this user" was just whatever email
+ * string the browser sent -- anyone who knew a paying customer's email
+ * could type it in and get free Pro access. This closes that gap.
+ *
+ * Two tabs:
+ *   MagicLinks -- short-lived (30 min), single-use sign-in tokens, emailed
+ *                 to the address the student typed in.
+ *   Devices    -- one row per browser that has ever signed in. Holds that
+ *                 device's current session token (the actual bearer secret
+ *                 used on every request from then on), a human-readable
+ *                 label, and a Revoked flag so a device can be signed out
+ *                 remotely from any other device on the same account.
+ *
+ * Flow:
+ *   1. Browser calls magicRequest(email, whatsapp) -> emails a link like
+ *      club-ai.html?magic=TOKEN.
+ *   2. Whichever browser opens that link calls magicVerify(token, deviceId,
+ *      deviceLabel) -> token is single-use-checked, the ClubAI account row
+ *      is created if new, and a session token is issued for that specific
+ *      device (deviceId is a random id the browser generates once and
+ *      keeps in localStorage -- it is NOT a secret, just a stable "this is
+ *      the same browser as last time" marker).
+ *   3. The browser stores the session token and sends it on every request
+ *      from then on. aiCheck()/aiRecordUsage() below resolve it server-side
+ *      -- the client can no longer just claim to be anyone by typing an
+ *      email into a request.
+ *   4. "Manage devices" calls listDevices(sessionToken) to see every device
+ *      on the account, and revokeDevice(sessionToken, targetDeviceId) to
+ *      sign one out. A revoked device's session token stops working
+ *      immediately; that browser has to sign in again via a fresh link.
+ */
+
+var MAGIC_SHEET_NAME = 'MagicLinks';
+var MAGIC_HEADERS = ['Token', 'Email', 'WhatsApp', 'Created', 'Expires', 'Used'];
+var MAGIC_LINK_TTL_MS = 30 * 60 * 1000;      // link expires 30 min after request
+var MAGIC_REQUEST_COOLDOWN_MS = 60 * 1000;   // 1 request per email per minute (anti-spam)
+
+var DEVICE_SHEET_NAME = 'Devices';
+var DEVICE_HEADERS = ['DeviceId', 'Email', 'Label', 'SessionToken', 'Created', 'LastSeen', 'Revoked'];
+
+function getMagicSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(MAGIC_SHEET_NAME) || ss.insertSheet(MAGIC_SHEET_NAME);
+  if (sheet.getLastRow() === 0) sheet.appendRow(MAGIC_HEADERS);
+  return sheet;
+}
+
+function getDeviceSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(DEVICE_SHEET_NAME) || ss.insertSheet(DEVICE_SHEET_NAME);
+  if (sheet.getLastRow() === 0) sheet.appendRow(DEVICE_HEADERS);
+  return sheet;
+}
+
+// Utilities.getUuid() is a cryptographically random RFC4122 v4 UUID (122
+// bits of entropy) -- far beyond guessable either for a 30-minute magic
+// link or a long-lived session. Session tokens use two, for margin, since
+// they don't expire on their own.
+function genMagicToken() { return Utilities.getUuid().replace(/-/g, ''); }
+function genSessionToken() { return Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, ''); }
+
+function findRowByExact(sheet, col, value) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return -1;
+  var vals = sheet.getRange(2, col, lastRow - 1, 1).getValues();
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][0] || '') === value) return i + 2;
+  }
+  return -1;
+}
+
+// Reuses the same Gmail "Send As" identity already set up for webinar
+// reminders (WEBINAR_SENDER_NAME/EMAIL above) -- one alias serves both.
+function sendFromClub(to, subject, body) {
+  if (WEBINAR_SENDER_EMAIL) {
+    try {
+      GmailApp.sendEmail(to, subject, body, { name: WEBINAR_SENDER_NAME, from: WEBINAR_SENDER_EMAIL });
+      return;
+    } catch (sendErr) { /* fall through */ }
+  }
+  MailApp.sendEmail({ to: to, subject: subject, body: body, name: WEBINAR_SENDER_NAME });
+}
+
+/** Emails a one-time sign-in link. Returns {ok:false, error:'rate_limited'}
+ *  if this email requested one in the last minute. */
+function requestMagicLink(email, whatsapp) {
+  email = (email || '').toString().trim().toLowerCase();
+  if (!isValidEmail(email)) return { ok: false, error: 'invalid_email' };
+
+  var sheet = getMagicSheet();
+  var now = new Date();
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    var rows = sheet.getRange(2, 1, lastRow - 1, MAGIC_HEADERS.length).getValues();
+    for (var i = rows.length - 1; i >= 0; i--) {
+      if (String(rows[i][1] || '').toLowerCase() === email) {
+        var created = rows[i][3] instanceof Date ? rows[i][3] : new Date(rows[i][3]);
+        if (now.getTime() - created.getTime() < MAGIC_REQUEST_COOLDOWN_MS) {
+          return { ok: false, error: 'rate_limited' };
+        }
+        break;
+      }
+    }
+  }
+
+  var token = genMagicToken();
+  var expires = new Date(now.getTime() + MAGIC_LINK_TTL_MS);
+  sheet.appendRow([token, email, sanitizeCell(whatsapp), now, expires, false]);
+
+  var link = 'https://www.imat.club/club-ai.html?magic=' + token;
+  var subject = 'Your Club AI sign-in link';
+  var body = 'Tap to sign in to Club AI:\n\n' + link +
+    '\n\nThis link works once and expires in 30 minutes. If you did not request it, you can ignore this email.';
+  sendFromClub(email, subject, body);
+
+  return { ok: true };
+}
+
+/** Consumes a magic link token and issues a session for the requesting device. */
+function verifyMagicLink(token, deviceId, deviceLabel) {
+  token = (token || '').toString().trim();
+  deviceId = sanitizeCell(deviceId);
+  if (!token) return { ok: false, error: 'missing_token' };
+  if (!deviceId) return { ok: false, error: 'missing_device' };
+
+  var sheet = getMagicSheet();
+  var row = findRowByExact(sheet, 1, token);
+  if (row === -1) return { ok: false, error: 'invalid_token' };
+
+  var vals = sheet.getRange(row, 1, 1, MAGIC_HEADERS.length).getValues()[0];
+  var email = String(vals[1] || '').toLowerCase();
+  var whatsapp = String(vals[2] || '');
+  var expires = vals[4] instanceof Date ? vals[4] : new Date(vals[4]);
+  var used = vals[5] === true;
+
+  if (used) return { ok: false, error: 'used' };
+  if (new Date().getTime() > expires.getTime()) return { ok: false, error: 'expired' };
+
+  sheet.getRange(row, 6).setValue(true); // single-use
+
+  aiCheckByEmail(email, whatsapp); // creates the ClubAI account row if new
+  var sessionToken = upsertDevice(deviceId, email, sanitizeCell(deviceLabel));
+
+  return { ok: true, sessionToken: sessionToken, email: email };
+}
+
+/** Creates or refreshes the Devices row for this deviceId, returns a fresh
+ *  session token. Re-authenticating on a known device reuses its row
+ *  (so "manage devices" shows one entry per browser, not one per login). */
+function upsertDevice(deviceId, email, label) {
+  var sheet = getDeviceSheet();
+  var row = findRowByExact(sheet, 1, deviceId);
+  var sessionToken = genSessionToken();
+  var now = new Date();
+
+  if (row === -1) {
+    sheet.appendRow([deviceId, email, label || 'Unknown device', sessionToken, now, now, false]);
+  } else {
+    var vals = sheet.getRange(row, 1, 1, DEVICE_HEADERS.length).getValues()[0];
+    vals[1] = email;
+    if (label) vals[2] = label;
+    vals[3] = sessionToken;
+    vals[5] = now;
+    vals[6] = false;
+    sheet.getRange(row, 1, 1, DEVICE_HEADERS.length).setValues([vals]);
+  }
+  return sessionToken;
+}
+
+/** Resolves a session token to {email, deviceId}, or null if missing/revoked.
+ *  Bumps LastSeen on every successful check -- this is what makes "recognize
+ *  the device" and device-list timestamps actually reflect real usage. */
+function resolveSession(sessionToken) {
+  sessionToken = (sessionToken || '').toString().trim();
+  if (!sessionToken) return null;
+  var sheet = getDeviceSheet();
+  var row = findRowByExact(sheet, 4, sessionToken);
+  if (row === -1) return null;
+  var vals = sheet.getRange(row, 1, 1, DEVICE_HEADERS.length).getValues()[0];
+  if (vals[6] === true) return null; // revoked
+  sheet.getRange(row, 6).setValue(new Date());
+  return { email: String(vals[1] || '').toLowerCase(), deviceId: String(vals[0] || '') };
+}
+
+/** Public, session-authenticated entry point -- this is what api/chat.js
+ *  actually calls. Replaces the old email-trusting aiCheck(). */
+function aiCheck(sessionToken) {
+  var session = resolveSession(sessionToken);
+  if (!session) return { valid: false };
+  var state = aiCheckByEmail(session.email, '');
+  state.valid = true;
+  state.email = session.email;
+  return state;
+}
+
+/** Session-authenticated usage recording -- replaces the old email-trusting
+ *  version. Without this, anyone could forge spend/cooldown records for an
+ *  arbitrary email by calling the endpoint directly. */
+function aiRecordUsage(sessionToken, costUsd, kind, action) {
+  var session = resolveSession(sessionToken);
+  if (!session) return;
+  aiRecordUsageByEmail(session.email, costUsd, kind, action);
+}
+
+/** All non-revoked devices on the caller's account, oldest first. Never
+ *  returns raw session tokens -- deviceId is the only identifier exposed,
+ *  and it is not a bearer credential. */
+function listDevices(sessionToken) {
+  var session = resolveSession(sessionToken);
+  if (!session) return { ok: false, error: 'invalid_session' };
+
+  var sheet = getDeviceSheet();
+  var lastRow = sheet.getLastRow();
+  var out = [];
+  if (lastRow > 1) {
+    var rows = sheet.getRange(2, 1, lastRow - 1, DEVICE_HEADERS.length).getValues();
+    for (var i = 0; i < rows.length; i++) {
+      if (String(rows[i][1] || '').toLowerCase() !== session.email) continue;
+      if (rows[i][6] === true) continue; // revoked, don't list
+      var lastSeen = rows[i][5] instanceof Date ? rows[i][5] : new Date(rows[i][5]);
+      out.push({
+        deviceId: String(rows[i][0] || ''),
+        label: String(rows[i][2] || 'Unknown device'),
+        lastSeen: lastSeen.getTime(),
+        isCurrent: String(rows[i][0] || '') === session.deviceId
+      });
+    }
+  }
+  out.sort(function (a, b) { return b.lastSeen - a.lastSeen; });
+  return { ok: true, devices: out };
+}
+
+/** Signs a device out remotely. Only works on devices belonging to the
+ *  caller's OWN account -- the caller's session proves which account that
+ *  is, so one user can never revoke another's device. */
+function revokeDevice(sessionToken, targetDeviceId) {
+  var session = resolveSession(sessionToken);
+  if (!session) return { ok: false, error: 'invalid_session' };
+
+  var sheet = getDeviceSheet();
+  var row = findRowByExact(sheet, 1, sanitizeCell(targetDeviceId));
+  if (row === -1) return { ok: false, error: 'not_found' };
+
+  var rowEmail = String(sheet.getRange(row, 2).getValue() || '').toLowerCase();
+  if (rowEmail !== session.email) return { ok: false, error: 'not_yours' };
+
+  sheet.getRange(row, 7).setValue(true); // Revoked
+  return { ok: true };
 }

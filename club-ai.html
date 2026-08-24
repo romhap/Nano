@@ -134,6 +134,27 @@
         .send svg{width:16px;height:16px}
         .disclaimer{text-align:center;font-size:.71rem;color:var(--text3);margin-top:9px}
         .hidden{display:none!important}
+
+        .linklike{background:none;border:none;color:var(--accent);cursor:pointer;font-size:inherit;font-family:inherit;padding:0;text-decoration:underline}
+        .linklike:hover{color:var(--accent2)}
+
+        /* ---------- DEVICES PANEL ---------- */
+        .devwrap{position:fixed;inset:0;z-index:90;background:rgba(26,26,24,.35);display:flex;align-items:center;justify-content:center;padding:20px}
+        .devbox{width:100%;max-width:440px;max-height:80vh;overflow-y:auto;background:var(--bg);border-radius:16px;padding:22px 22px 18px;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+        .devtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+        .devtop span{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem}
+        .devtop button{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:4px}
+        .devtop button:hover{color:var(--text)}
+        .devsub{font-size:.82rem;color:var(--text2);margin-bottom:16px}
+        .devrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--border)}
+        .devrow:first-child{border-top:none}
+        .devinfo{min-width:0}
+        .devlabel{font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:7px}
+        .devbadge{font-family:'Space Grotesk',sans-serif;font-size:.56rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-bg);border:1px solid rgba(0,71,255,.2);padding:2px 7px;border-radius:99px}
+        .devseen{font-size:.78rem;color:var(--text3);margin-top:2px}
+        .devsignout{flex-shrink:0;padding:7px 13px;background:none;border:1px solid var(--border);border-radius:8px;font-size:.78rem;color:var(--text2);cursor:pointer;font-family:'Inter',sans-serif}
+        .devsignout:hover{border-color:var(--danger);color:var(--danger)}
+        .devempty{font-size:.85rem;color:var(--text3);padding:14px 0}
         @media(max-width:600px){
             .hero h2{font-size:1.5rem}
             .col{padding:0 16px}
@@ -155,6 +176,7 @@
     <div class="top-r">
         <span class="chip hidden" id="planChip">Trial</span>
         <button class="icon-btn hidden" id="newChat" title="New chat">New chat</button>
+        <button class="icon-btn hidden" id="devBtn" title="Manage devices">Devices</button>
         <button class="icon-btn hidden" id="signOut">Sign out</button>
     </div>
 </div>
@@ -169,19 +191,48 @@
                 <rect x="6" y="46" width="52" height="4" rx="2" fill="#0047FF"/>
             </svg>
         </div>
-        <h1>Club AI</h1>
-        <p class="gate-sub">An IMAT tutor that actually knows the exam.<br>Start free — no card needed.</p>
-        <div class="field">
-            <label for="gEmail">Email</label>
-            <input type="email" id="gEmail" placeholder="you@email.com" autocomplete="email">
+
+        <!-- state 1: request the link -->
+        <div id="gateRequest">
+            <h1>Club AI</h1>
+            <p class="gate-sub">An IMAT tutor that actually knows the exam.<br>Start free — no card, no password.</p>
+            <div class="field">
+                <label for="gEmail">Email</label>
+                <input type="email" id="gEmail" placeholder="you@email.com" autocomplete="email">
+            </div>
+            <div class="field" id="gWhatsField">
+                <label for="gWhats">WhatsApp</label>
+                <input type="tel" id="gWhats" placeholder="+39 123 456 7890" autocomplete="tel">
+            </div>
+            <button class="btn-primary" id="gSend">Send me a sign-in link</button>
+            <p class="err" id="gErr"></p>
+            <p class="fineprint">We'll email a one-time link — click it to sign in, no password to remember. Trial includes 1 guided prompt and 2 free messages per day.</p>
         </div>
-        <div class="field">
-            <label for="gWhats">WhatsApp</label>
-            <input type="tel" id="gWhats" placeholder="+39 123 456 7890" autocomplete="tel">
+
+        <!-- state 2: link sent, waiting -->
+        <div id="gateSent" class="hidden">
+            <h1>Check your email</h1>
+            <p class="gate-sub">We sent a sign-in link to<br><strong id="gSentEmail"></strong></p>
+            <p class="fineprint">It works once and expires in 30 minutes. Didn't get it? Check spam, or <button class="linklike" id="gResend">send again</button>.</p>
         </div>
-        <button class="btn-primary" id="gStart">Start free</button>
-        <p class="err" id="gErr"></p>
-        <p class="fineprint">Trial includes 1 guided prompt and 2 free messages per day.</p>
+
+        <!-- state 3: verifying a clicked link -->
+        <div id="gateVerifying" class="hidden">
+            <h1>Signing you in…</h1>
+            <p class="gate-sub" id="gVerifyMsg">One moment.</p>
+        </div>
+    </div>
+</div>
+
+<!-- DEVICES PANEL -->
+<div class="devwrap hidden" id="devWrap">
+    <div class="devbox">
+        <div class="devtop">
+            <span>Devices signed in</span>
+            <button id="devClose">✕</button>
+        </div>
+        <p class="devsub">Only devices that have signed in with your email. Sign out any you don't recognize.</p>
+        <div id="devList"></div>
     </div>
 </div>
 
@@ -241,29 +292,125 @@ const ACTIONS = [
     prompt:'I want to check whether my Anki deck matches the IMAT syllabus. Explain exactly what to paste or export, then review it against the official syllabus and give me a coverage report: what is in scope, what is missing, and what is wasted effort.' }
 ];
 
-let USER = null, history = [], busy = false, started = false;
+let SESSION_TOKEN = null, history = [], busy = false, started = false;
 
 const $ = id => document.getElementById(id);
 function track(n,d){ try{ window.va && window.va('event',{name:n,data:d||{}}); }catch(e){} }
 
-/* ---------- gate ---------- */
-$('gStart').addEventListener('click', () => {
+const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyp5FoKRZ1i_-Oxy0LfFA6wD5Re7qJJEIbEu43KPG9_E_P0EIijyHoMeAFxNLvT1TTnng/exec';
+
+/* ---------- device identity -----------------------------------------------
+   deviceId is a random, non-secret marker that lets the SAME browser be
+   recognized across sign-ins (so "manage devices" shows one row per
+   browser, not a fresh one every login). It is generated once and kept in
+   localStorage. It is NOT the credential -- the session token is. */
+function getDeviceId(){
+  try {
+    let id = localStorage.getItem('clubai_device_id');
+    if (!id) {
+      id = (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2)));
+      localStorage.setItem('clubai_device_id', id);
+    }
+    return id;
+  } catch(e) { return 'no-storage-' + Math.random().toString(36).slice(2); }
+}
+function getDeviceLabel(){
+  const ua = navigator.userAgent || '';
+  let browser = 'Browser';
+  if (/Edg\//.test(ua)) browser = 'Edge';
+  else if (/OPR\//.test(ua)) browser = 'Opera';
+  else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//.test(ua)) browser = 'Firefox';
+  else if (/Safari\//.test(ua)) browser = 'Safari';
+  let os = '';
+  if (/iPhone|iPad/.test(ua)) os = 'iOS';
+  else if (/Android/.test(ua)) os = 'Android';
+  else if (/Mac OS X/.test(ua)) os = 'macOS';
+  else if (/Windows/.test(ua)) os = 'Windows';
+  else if (/Linux/.test(ua)) os = 'Linux';
+  return os ? `${browser} on ${os}` : browser;
+}
+
+function getSession(){ try { return localStorage.getItem('clubai_session') || null; } catch(e){ return null; } }
+function setSession(t){ try { localStorage.setItem('clubai_session', t); } catch(e){} }
+function clearSession(){ try { localStorage.removeItem('clubai_session'); } catch(e){} }
+
+/* ---------- gate: request link ---------- */
+let lastRequestedEmail = '';
+
+function showGateState(name){
+  ['gateRequest','gateSent','gateVerifying'].forEach(id => $(id).classList.toggle('hidden', id !== name));
+}
+
+async function sendMagicLink(){
   const email = $('gEmail').value.trim().toLowerCase();
   const whats = $('gWhats').value.trim();
-  if (!email || !email.includes('@')) { $('gErr').textContent = 'Enter a valid email.'; return; }
-  if (!whats) { $('gErr').textContent = 'Enter your WhatsApp number.'; return; }
-  USER = { email, whatsapp: whats };
-  try { localStorage.setItem('clubai_user', JSON.stringify(USER)); } catch(e){}
-  track('clubai_signup');
-  enter();
-});
-['gEmail','gWhats'].forEach(id => $(id).addEventListener('keydown', e => {
-  if (e.key === 'Enter') $('gStart').click();
-}));
+  const err = $('gErr');
+  if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
+  if (!whats) { err.textContent = 'Enter your WhatsApp number.'; return; }
+  err.textContent = '';
+  $('gSend').disabled = true; $('gSend').textContent = 'Sending…';
 
+  try {
+    const url = `${SIGNUP_ENDPOINT}?magicRequest=${encodeURIComponent(email)}&whatsapp=${encodeURIComponent(whats)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    $('gSend').disabled = false; $('gSend').textContent = 'Send me a sign-in link';
+
+    if (!data || data.ok === false) {
+      if (data && data.error === 'rate_limited') err.textContent = 'A link was just sent — check your email, or wait a minute to request another.';
+      else err.textContent = "Couldn't send that — check the email and try again.";
+      return;
+    }
+    lastRequestedEmail = email;
+    $('gSentEmail').textContent = email;
+    showGateState('gateSent');
+    track('clubai_magic_requested');
+  } catch(e) {
+    $('gSend').disabled = false; $('gSend').textContent = 'Send me a sign-in link';
+    err.textContent = "Couldn't reach Club AI — check your connection and try again.";
+  }
+}
+$('gSend').addEventListener('click', sendMagicLink);
+['gEmail','gWhats'].forEach(id => $(id).addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMagicLink();
+}));
+$('gResend').addEventListener('click', async () => {
+  $('gEmail').value = lastRequestedEmail;
+  showGateState('gateRequest');
+  await sendMagicLink();
+});
+
+/* ---------- gate: verify a clicked link ---------- */
+async function verifyMagicLink(token){
+  showGateState('gateVerifying');
+  try {
+    const url = `${SIGNUP_ENDPOINT}?magicVerify=${encodeURIComponent(token)}` +
+      `&deviceId=${encodeURIComponent(getDeviceId())}&deviceLabel=${encodeURIComponent(getDeviceLabel())}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data.ok && data.sessionToken) {
+      setSession(data.sessionToken);
+      track('clubai_signup');
+      window.history.replaceState({}, '', location.pathname);
+      enter();
+      return;
+    }
+    let msg = "That link didn't work — it may have expired or already been used.";
+    if (data && data.error === 'expired') msg = 'That link expired (links last 30 minutes). Request a new one below.';
+    if (data && data.error === 'used') msg = 'That link was already used. Request a new one below.';
+    $('gVerifyMsg').textContent = msg;
+    setTimeout(() => showGateState('gateRequest'), 2400);
+  } catch(e) {
+    $('gVerifyMsg').textContent = "Couldn't reach Club AI. Try the link again in a moment.";
+    setTimeout(() => showGateState('gateRequest'), 2400);
+  }
+}
+
+/* ---------- sign out / new chat ---------- */
 $('signOut').addEventListener('click', () => {
-  try { localStorage.removeItem('clubai_user'); } catch(e){}
-  location.reload();
+  clearSession();
+  location.href = location.pathname;
 });
 $('newChat').addEventListener('click', () => {
   history = []; started = false;
@@ -275,16 +422,92 @@ $('newChat').addEventListener('click', () => {
 });
 
 function enter(){
+  SESSION_TOKEN = getSession();
   $('gate').style.display = 'none';
   $('shell').classList.remove('hidden');
   $('planChip').classList.remove('hidden');
   $('newChat').classList.remove('hidden');
+  $('devBtn').classList.remove('hidden');
   $('signOut').classList.remove('hidden');
   $('composerWrap').classList.add('floating');
   renderSuggestions();
   $('input').focus();
 }
-(function(){ try { const u = JSON.parse(localStorage.getItem('clubai_user')||'null'); if (u && u.email) { USER = u; enter(); } } catch(e){} })();
+
+/* ---------- boot: either verify an incoming link, or resume a session ---------- */
+(function(){
+  const params = new URLSearchParams(location.search);
+  const magic = params.get('magic');
+  if (magic) { verifyMagicLink(magic); return; }
+  const existing = getSession();
+  if (existing) { SESSION_TOKEN = existing; enter(); }
+})();
+
+/* ---------- device management ---------- */
+$('devBtn').addEventListener('click', openDevices);
+$('devClose').addEventListener('click', () => $('devWrap').classList.add('hidden'));
+$('devWrap').addEventListener('click', e => { if (e.target === $('devWrap')) $('devWrap').classList.add('hidden'); });
+
+async function openDevices(){
+  $('devWrap').classList.remove('hidden');
+  $('devList').innerHTML = '<p class="devempty">Loading…</p>';
+  try {
+    const res = await fetch(`${SIGNUP_ENDPOINT}?listDevices=${encodeURIComponent(SESSION_TOKEN)}`);
+    const data = await res.json();
+    if (!data || !data.ok) { $('devList').innerHTML = '<p class="devempty">Could not load devices.</p>'; return; }
+    renderDevices(data.devices || []);
+  } catch(e) {
+    $('devList').innerHTML = '<p class="devempty">Could not load devices — check your connection.</p>';
+  }
+}
+
+function renderDevices(devices){
+  const box = $('devList');
+  if (!devices.length) { box.innerHTML = '<p class="devempty">No devices found.</p>'; return; }
+  box.innerHTML = '';
+  devices.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'devrow';
+    const info = document.createElement('div');
+    info.className = 'devinfo';
+    const label = document.createElement('div');
+    label.className = 'devlabel';
+    label.textContent = d.label;
+    if (d.isCurrent) { const b = document.createElement('span'); b.className='devbadge'; b.textContent='This device'; label.appendChild(b); }
+    const seen = document.createElement('div');
+    seen.className = 'devseen';
+    seen.textContent = 'Active ' + relativeTime(d.lastSeen);
+    info.appendChild(label); info.appendChild(seen);
+    row.appendChild(info);
+    if (!d.isCurrent) {
+      const btn = document.createElement('button');
+      btn.className = 'devsignout';
+      btn.textContent = 'Sign out';
+      btn.addEventListener('click', () => signOutDevice(d.deviceId, row));
+      row.appendChild(btn);
+    }
+    box.appendChild(row);
+  });
+}
+
+async function signOutDevice(deviceId, row){
+  try {
+    const res = await fetch(`${SIGNUP_ENDPOINT}?revokeDevice=${encodeURIComponent(SESSION_TOKEN)}&targetDeviceId=${encodeURIComponent(deviceId)}`);
+    const data = await res.json();
+    if (data && data.ok) { row.remove(); track('clubai_device_revoked'); }
+  } catch(e) {}
+}
+
+function relativeTime(ms){
+  const diff = Date.now() - ms;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'just now';
+  if (min < 60) return min + 'm ago';
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return hr + 'h ago';
+  const day = Math.floor(hr / 24);
+  return day + 'd ago';
+}
 
 /* ---------- suggestions ---------- */
 function renderSuggestions(){
@@ -433,7 +656,7 @@ async function send(text, action){
   try {
     const res = await fetch('/api/chat', {
       method:'POST', headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ email:USER.email, whatsapp:USER.whatsapp, messages:history, action:action||null })
+      body: JSON.stringify({ sessionToken:SESSION_TOKEN, messages:history, action:action||null })
     });
     const data = await res.json();
     killDots();
@@ -442,6 +665,12 @@ async function send(text, action){
       addAI(data.reply);
       history.push({ role:'assistant', content:data.reply });
       if (typeof data.paid !== 'undefined') setPlan(data.paid);
+    } else if (data.error === 'sign_in_required') {
+      // Session expired or was revoked from "manage devices" (possibly on
+      // another device) -- drop back to the gate rather than fail silently.
+      addAI(data.message || 'Your session ended. Please sign in again.');
+      clearSession();
+      setTimeout(() => location.href = location.pathname, 1400);
     } else if (data.error === 'paid_only') {
       addCard('A Pro feature', data.message || 'This one is part of Club AI Pro.', true);
       track('clubai_blocked', { reason:'paid_only' });

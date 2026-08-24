@@ -142,13 +142,17 @@ function mockReply(action) {
 }
 
 // --- Account state via the existing Google Apps Script -----------------------
+// The client sends a SESSION TOKEN, never a plain email -- the Apps Script
+// resolves it server-side against the Devices sheet. This is what actually
+// stops someone from typing in a stranger's email and getting their Pro
+// access; a plain client-claimed email has no way to prove ownership.
 const SIGNUP_ENDPOINT = process.env.SIGNUP_ENDPOINT || '';
 
-async function fetchAccount(email) {
+async function fetchAccount(sessionToken) {
   if (!SIGNUP_ENDPOINT) return null;
   try {
     const r = await fetch(
-      `${SIGNUP_ENDPOINT}?aiCheck=${encodeURIComponent(email)}`,
+      `${SIGNUP_ENDPOINT}?aiCheck=${encodeURIComponent(sessionToken)}`,
       { signal: AbortSignal.timeout(8000) }
     );
     return await r.json();
@@ -157,11 +161,11 @@ async function fetchAccount(email) {
   }
 }
 
-async function recordUsage(email, costUsd, kind, action) {
+async function recordUsage(sessionToken, costUsd, kind, action) {
   if (!SIGNUP_ENDPOINT) return;
   try {
     await fetch(
-      `${SIGNUP_ENDPOINT}?aiUsage=${encodeURIComponent(email)}` +
+      `${SIGNUP_ENDPOINT}?aiUsage=${encodeURIComponent(sessionToken)}` +
         `&cost=${costUsd.toFixed(6)}&kind=${encodeURIComponent(kind)}` +
         `&action=${encodeURIComponent(action || '')}`,
       { signal: AbortSignal.timeout(8000) }
@@ -178,20 +182,35 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, messages, action } = req.body || {};
+  const { sessionToken, messages, action } = req.body || {};
 
-  if (!email || !String(email).includes('@')) {
-    return res.status(400).json({ error: 'A valid email is required.' });
+  if (!sessionToken || typeof sessionToken !== 'string') {
+    return res.status(401).json({ error: 'sign_in_required', message: 'Please sign in to Club AI.' });
   }
   if (!Array.isArray(messages) || !messages.length) {
     return res.status(400).json({ error: 'No message provided.' });
   }
 
-  const cleanEmail = String(email).trim().toLowerCase();
   const isDefaultButton = !!action;
 
   // ---- Account + entitlement ----------------------------------------------
-  const account = await fetchAccount(cleanEmail);
+  // account.email below is the SERVER's resolution of the session token, not
+  // anything the client asserted -- this is the actual fix for the
+  // impersonation gap. If the token is missing/expired/revoked, account is
+  // either null or {valid:false} and we bounce back to sign-in.
+  //
+  // Exception: if SIGNUP_ENDPOINT itself isn't configured yet (fresh setup,
+  // still testing locally), there's no account backend to check against at
+  // all -- fall back to an untracked dev session rather than hard-locking
+  // the whole app before Rom has wired anything up. Once SIGNUP_ENDPOINT is
+  // set, this fallback is unreachable and a bad session is always a real 401.
+  const account = await fetchAccount(sessionToken);
+  if (SIGNUP_ENDPOINT && (!account || account.valid === false)) {
+    return res.status(401).json({
+      error: 'sign_in_required',
+      message: 'Your session has expired or was signed out on this device. Please sign in again.'
+    });
+  }
   const isPaid = !!(account && account.paid);
 
   if (!isPaid && PAID_ONLY_ACTIONS.includes(action)) {
@@ -254,7 +273,7 @@ export default async function handler(req, res) {
   // ---- Mock mode -----------------------------------------------------------
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    await recordUsage(cleanEmail, 0, isDefaultButton ? 'button' : 'freetext', action);
+    await recordUsage(sessionToken, 0, isDefaultButton ? 'button' : 'freetext', action);
     return res.status(200).json({
       reply: mockReply(action),
       mock: true,
@@ -290,7 +309,7 @@ export default async function handler(req, res) {
       (usage.input_tokens || 0) * PRICE_IN_PER_TOKEN +
       (usage.output_tokens || 0) * PRICE_OUT_PER_TOKEN;
 
-    await recordUsage(cleanEmail, costUsd, isDefaultButton ? 'button' : 'freetext', action);
+    await recordUsage(sessionToken, costUsd, isDefaultButton ? 'button' : 'freetext', action);
 
     return res.status(200).json({ reply, paid: isPaid });
   } catch (err) {
