@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//IMAT.club//Webinar//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:imatclub-webinar-20260904@imat.club
+DTSTAMP:20260824T120000Z
+DTSTART:20260904T110000Z
+DTEND:20260904T123000Z
+SUMMARY:IMAT.club Webinar: Maximize your IMAT score in under 14 days
+DESCRIPTION:Live webinar with Rom & Maya. Your Zoom link will be emailed to you 1 hour before the session starts.
+END:VEVENT
+END:VCALENDAR

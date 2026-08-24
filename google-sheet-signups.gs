@@ -140,7 +140,9 @@ function json(obj) {
  *     rows get emailed.
  */
 
-var WEBINAR_ZOOM_LINK = 'PASTE_YOUR_ZOOM_LINK_HERE';
+var WEBINAR_ZOOM_LINK = 'https://unipd.zoom.us/j/81414142293?pwd=SwdULyYers3tv08Eb7of4z4Uix9PaI.1';
+var WEBINAR_MEETING_ID = '814 1414 2293';
+var WEBINAR_PASSCODE = '286595';
 var WEBINAR_TITLE = 'Maximize your IMAT score in under 14 days';
 var WEBINAR_DATE_LABEL = 'September 4 at 1PM Italy time'; // shown in the reminder email
 
@@ -197,6 +199,8 @@ function sendWebinarReminders() {
     var body = greeting + '\n\n' +
       'Your live IMAT.club webinar — "' + WEBINAR_TITLE + '" — starts ' + WEBINAR_DATE_LABEL + '.\n\n' +
       'Join here:\n' + WEBINAR_ZOOM_LINK + '\n\n' +
+      'Meeting ID: ' + WEBINAR_MEETING_ID + '\n' +
+      'Passcode: ' + WEBINAR_PASSCODE + '\n\n' +
       'Can\'t make it live? A recording will be sent to you afterward.\n\n' +
       'See you there.\nRom & Maya';
 
