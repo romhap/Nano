@@ -299,7 +299,7 @@ if (cancelPortalLink) cancelPortalLink.addEventListener('click', () => track('ca
     // confirmation and WhatsApp link cleanly, don't cover it with a popup
     if (window.location.search.includes('payment=success')) return;
 
-    // Show immediately on page load, then every 30s while they stay on the page
+    // Show immediately on page load, then every 45s while they stay on the page
     showOverlay();
-    setInterval(showOverlay, 30000);
+    setInterval(showOverlay, 45000);
 })();
