@@ -10,7 +10,8 @@ const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxDlGG2mlN_fT3I
 // Stripe's "Limit the number of payments" on this Payment Link, or it
 // becomes a real cap and contradicts the intent. Paste the Payment Link
 // once created; set its success URL in Stripe to:
-// https://YOUR-DOMAIN.com/?webinar=success
+// https://www.imat.club/webinar-success.html
+// (then fill in the Zoom link inside webinar-success.html itself)
 const WEBINAR_LINK = '';
 // ============================================================
 
@@ -245,11 +246,10 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
 
     const closeBtn = document.getElementById('webinarClose');
     const buyBtn = document.getElementById('webinarBuyBtn');
-    const offerBox = document.getElementById('webinarOffer');
-    const successBox = document.getElementById('webinarSuccess');
 
-    const REGISTERED_KEY = 'imat_webinar_registered';
-    const alreadyRegistered = localStorage.getItem(REGISTERED_KEY) === 'true';
+    // Set by webinar-success.html once someone actually completes payment —
+    // stops nagging them with the offer again on future visits.
+    const alreadyRegistered = localStorage.getItem('imat_webinar_registered') === 'true';
 
     function showOverlay() {
         overlay.classList.add('show');
@@ -271,21 +271,6 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
         }
     });
 
-    // Returning from Stripe after webinar payment. The Zoom link itself is
-    // deliberately NOT shown here — a link baked into ?webinar=success would
-    // work for anyone who lands on that URL, paid or not (and this URL is
-    // guessable/shareable). Instead this points them to WhatsApp, where you
-    // send the real link personally after confirming their payment in Stripe.
-    if (window.location.search.includes('webinar=success')) {
-        localStorage.setItem(REGISTERED_KEY, 'true');
-        offerBox.classList.add('hidden');
-        successBox.classList.remove('hidden');
-        showOverlay();
-        window.history.replaceState({}, '', window.location.pathname);
-        return; // don't start the recurring popup for someone who just registered
-    }
-
-    // Someone who registered on a previous visit — never show the offer again
     if (alreadyRegistered) return;
 
     // Someone who just finished the €79/mo checkout — let them see their

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're registered — IMAT.club Webinar</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .success-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px}
+        .success-page .success-wrap{max-width:420px;width:100%}
+    </style>
+</head>
+<body>
+
+    <!--
+    ============================================================
+    ONE THING TO FILL IN BELOW: the Zoom link.
+
+    Recommended: schedule the meeting with "Registration Required" +
+    Automatic Approval turned on, then paste the REGISTRATION page URL
+    here (not a raw join link) — Zoom emails each person who registers
+    their own personal join link automatically, no manual work for you.
+
+    Find the line below that says PASTE_YOUR_ZOOM_LINK_HERE and replace
+    it with your actual URL. Do this in TWO places: the href AND the
+    displayed text.
+    ============================================================
+    -->
+
+    <section class="success-page">
+        <div class="success-wrap">
+            <div class="success-check">✓</div>
+            <h3>You're registered.</h3>
+            <p>Your spot for <strong>"Maximize your IMAT score in under 14 days"</strong> is confirmed.</p>
+            <a href="PASTE_YOUR_ZOOM_LINK_HERE" class="btn btn-primary btn-full" target="_blank" rel="noopener">
+                Join on Zoom →
+            </a>
+            <p class="success-small">Save this link — you'll need it to join the live session. We'll also see you there.</p>
+            <p class="success-small" style="margin-top:24px"><a href="index.html" style="color:var(--text-muted)">← Back to IMAT.club</a></p>
+        </div>
+    </section>
+
+    <script>
+        // Stops the homepage webinar popup from nagging someone who already paid
+        try { localStorage.setItem('imat_webinar_registered', 'true'); } catch (e) {}
+    </script>
+</body>
+</html>

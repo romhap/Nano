@@ -416,41 +416,28 @@
 
     <!--
     ============================================================
-    STRIPE SETUP INSTRUCTIONS
+    STRIPE SETUP — current state
     ============================================================
-    To enable payments, you need to:
+    Mentorship (€79/mo subscription):
+      - STRIPE_PAYMENT_LINK in script.js is already set.
+      - Success URL on that Payment Link must be:
+        https://www.imat.club/success.html
+      - STRIPE_PORTAL_LINK in script.js is already set (Customer Portal).
 
-    1. Create a Stripe account at https://stripe.com
-    2. In Stripe Dashboard, go to Products → Create Product
-       - Name: "IMAT Mentorship"
-       - Price: €79.00 / month (recurring)
-    3. Create a Payment Link for that product:
-       - Go to Payment Links → Create
-       - Select your €79/mo product
-       - Enable "Collect customer email" and any custom fields
-       - Set success URL to: https://imat.club/?payment=success
-       - Copy the Payment Link URL
-    4. Replace the STRIPE_PAYMENT_LINK value in script.js with your link
-    5. For subscription management, go to Settings → Customer Portal
-       - Enable it and copy the portal link
-       - Replace STRIPE_PORTAL_LINK in script.js
+    Webinar (€9 one-time):
+      - WEBINAR_LINK in script.js is a placeholder — paste the Payment
+        Link once created.
+      - Its success URL must be:
+        https://www.imat.club/webinar-success.html
+      - webinar-success.html itself needs the Zoom link pasted in
+        (look for PASTE_YOUR_ZOOM_LINK_HERE in that file).
+
+    Both success pages are dedicated static files, not query-string
+    detection on the homepage — this sidesteps a bug where ?payment=success
+    was being stripped before the page could read it.
 
     Your IBAN (EE257777000143102704, BIC: LHVBEE22) should be added
     as your payout bank account in Stripe Dashboard → Settings → Payouts.
-    Stripe will collect card payments and transfer to your IBAN automatically.
-
-    MOVING TO imat.club:
-    The ?payment=success handling below is pure client-side JS keyed off the
-    URL, so it already works on any domain — no code change needed. Two
-    things only YOU can do in the dashboards:
-    1. Vercel: Project → Settings → Domains → Add "imat.club" (and point
-       its DNS at Vercel per the instructions Vercel shows you).
-    2. Stripe: open your existing €79/mo Payment Link → Edit → update the
-       "After payment" success URL from whatever it is now to
-       https://imat.club/?payment=success (and do the same for the
-       webinar's Payment Link once you create it, using ?webinar=success).
-    Until both are done, the old nano-six-wheat.vercel.app URL keeps
-    working exactly as before — nothing breaks during the switch.
     ============================================================
     -->
 
@@ -464,14 +451,7 @@
                 <h3 class="webinar-title">We will show you how to maximize your IMAT score in under 14 days</h3>
                 <p class="webinar-meta"><strong id="webinarSpots">50</strong> spots only · <strong>€9</strong></p>
                 <button class="btn btn-primary btn-full" id="webinarBuyBtn">Reserve my spot — €9</button>
-                <p class="webinar-small">Live on Zoom. We'll send your personal link on WhatsApp.</p>
-            </div>
-
-            <div class="webinar-body webinar-success hidden" id="webinarSuccess">
-                <div class="success-check">✓</div>
-                <h3>You're registered.</h3>
-                <p>To keep the Zoom link from being passed around, we send it personally to each attendee on WhatsApp — not posted publicly. Message us and we'll confirm your spot:</p>
-                <a href="https://wa.me/393514466587?text=Hey%20Rom%20%26%20Maya%2C%20I%20just%20paid%20for%20the%20IMAT%20webinar%20%E2%80%94%20please%20send%20me%20the%20Zoom%20link!" class="btn btn-primary btn-full" target="_blank" rel="noopener">Message us on WhatsApp →</a>
+                <p class="webinar-small">Live on Zoom. Your link is shown right after payment.</p>
             </div>
         </div>
     </div>
