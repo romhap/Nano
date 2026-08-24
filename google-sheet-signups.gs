@@ -24,14 +24,42 @@ var SHEET_NAME = 'Signups';
 var HEADERS = ['Email', 'Name', 'WhatsApp', 'First Seen', 'Last Seen',
                'Events', 'Latest Score', 'Target Universities', 'Last Source', 'User Agent'];
 
+// --- Input hardening -----------------------------------------------------
+// This endpoint is public (anyone can call it, by design -- the site's own
+// pages need to reach it with no login). Two things are worth guarding
+// against on the way in: (1) Sheets "formula injection" -- a cell whose text
+// starts with =, +, -, or @ can be interpreted as a formula when the sheet
+// is opened, which is a known abuse vector for any public form that writes
+// into a spreadsheet; (2) unbounded string length, so a malicious or buggy
+// caller can't bloat every cell with megabytes of junk.
+var MAX_FIELD_LENGTH = 300;
+var EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function sanitizeCell(v) {
+  var s = (v == null ? '' : String(v)).slice(0, MAX_FIELD_LENGTH);
+  if (/^[=+\-@]/.test(s)) s = "'" + s; // neutralize potential formula
+  return s;
+}
+
+function isValidEmail(email) {
+  return EMAIL_PATTERN.test(email) && email.length <= MAX_FIELD_LENGTH;
+}
+
 function processData(d) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
   if (sheet.getLastRow() === 0) sheet.appendRow(HEADERS);
 
   var email = (d.email || '').toString().trim().toLowerCase();
-  if (!email) return;
+  if (!isValidEmail(email)) return;
   var now = new Date();
+
+  var name = sanitizeCell(d.name);
+  var whatsapp = sanitizeCell(d.whatsapp);
+  var targets = sanitizeCell(d.targets);
+  var source = sanitizeCell(d.source);
+  var userAgent = sanitizeCell(d.user_agent);
+  var score = (d.score != null && d.score !== '' && !isNaN(d.score)) ? Number(d.score) : '';
 
   var lastRow = sheet.getLastRow();
   var rowIndex = -1;
@@ -47,19 +75,19 @@ function processData(d) {
 
   if (rowIndex === -1) {
     sheet.appendRow([
-      email, d.name || '', d.whatsapp || '', now, now, 1,
-      (d.score != null ? d.score : ''), d.targets || '', d.source || '', d.user_agent || ''
+      email, name, whatsapp, now, now, 1,
+      score, targets, source, userAgent
     ]);
   } else {
     var row = sheet.getRange(rowIndex, 1, 1, HEADERS.length).getValues()[0];
-    if (!row[1] && d.name) row[1] = d.name;
-    if (!row[2] && d.whatsapp) row[2] = d.whatsapp;
+    if (!row[1] && name) row[1] = name;
+    if (!row[2] && whatsapp) row[2] = whatsapp;
     row[4] = now;
     row[5] = (parseInt(row[5], 10) || 0) + 1;
-    if (d.score != null && d.score !== '') row[6] = d.score;
-    if (d.targets) row[7] = d.targets;
-    if (d.source) row[8] = d.source;
-    if (d.user_agent) row[9] = d.user_agent;
+    if (score !== '') row[6] = score;
+    if (targets) row[7] = targets;
+    if (source) row[8] = source;
+    if (userAgent) row[9] = userAgent;
     sheet.getRange(rowIndex, 1, 1, HEADERS.length).setValues([row]);
   }
 }
@@ -169,7 +197,7 @@ function getWebinarSheet() {
 
 function addWebinarAttendee(email, name) {
   email = (email || '').toString().trim().toLowerCase();
-  if (!email) return;
+  if (!isValidEmail(email)) return;
   var sheet = getWebinarSheet();
   var lastRow = sheet.getLastRow();
   if (lastRow > 1) {
@@ -178,7 +206,7 @@ function addWebinarAttendee(email, name) {
       if ((emails[i][0] || '').toString().trim().toLowerCase() === email) return; // already logged
     }
   }
-  sheet.appendRow([email, name || '', new Date(), false]);
+  sheet.appendRow([email, sanitizeCell(name), new Date(), false]);
 }
 
 function sendWebinarReminders() {

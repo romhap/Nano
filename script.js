@@ -23,6 +23,13 @@ function reportSignup(payload) {
     } catch (e) {}
 }
 
+// Vercel Web Analytics custom event -- see the <head> script tags for setup.
+// Requires a Vercel Pro/Enterprise plan for custom events to show up; safe
+// no-op otherwise (va() just queues quietly if the plan doesn't support it).
+function track(name, data) {
+    try { window.va && window.va('event', { name: name, data: data || {} }); } catch (e) {}
+}
+
 // === Terms toggle ===
 document.getElementById('toggleTerms').addEventListener('click', function () {
     const box = document.getElementById('termsBox');
@@ -30,6 +37,7 @@ document.getElementById('toggleTerms').addEventListener('click', function () {
     this.textContent = box.classList.contains('open')
         ? 'Hide Terms & Conditions ↑'
         : 'Read Terms & Conditions ↓';
+    if (box.classList.contains('open')) track('terms_opened');
 });
 
 // === Both checkboxes must be checked to enable button ===
@@ -87,6 +95,7 @@ document.getElementById('enrollForm').addEventListener('submit', function (e) {
                 whatsapp: data.whatsapp,
                 user_agent: data.user_agent
             });
+            track('enroll_submit');
 
             const paymentUrl = STRIPE_PAYMENT_LINK +
                 (STRIPE_PAYMENT_LINK.includes('?') ? '&' : '?') +
@@ -138,6 +147,7 @@ if (window.location.search.includes('payment=success')) {
 
             // Short delay then advance
             setTimeout(() => {
+                track('quiz_step', { step: current + 1, of: total });
                 current++;
                 if (current < total) {
                     // Show next question
@@ -162,6 +172,7 @@ if (window.location.search.includes('payment=success')) {
         counter.style.display = 'none';
         document.getElementById('quizQuestions').style.display = 'none';
         resultBox.style.display = 'block';
+        track('quiz_completed', { pct: pct });
 
         // Determine color and message
         let color, title, text;
@@ -208,6 +219,7 @@ if (window.location.search.includes('payment=success')) {
 
         // Continue button reveals enrollment form
         document.getElementById('quizContinueBtn').addEventListener('click', function() {
+            track('quiz_continue_click', { pct: pct });
             quizBox.style.display = 'none';
             enrollBox.style.display = 'block';
             enrollBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -238,6 +250,10 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
     observer.observe(el);
 });
 
+// === Cancel-flow tracking ===
+const cancelPortalLink = document.getElementById('cancelPortalLink');
+if (cancelPortalLink) cancelPortalLink.addEventListener('click', () => track('cancel_portal_click'));
+
 // === Webinar popup ===
 (function() {
     const overlay = document.getElementById('webinarOverlay');
@@ -252,12 +268,15 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
     // Set by webinar-success.html once someone actually completes payment —
     // stops nagging them with the offer again on future visits.
     const alreadyRegistered = localStorage.getItem('imat_webinar_registered') === 'true';
+    let trackedShow = false;
 
     function showOverlay() {
         overlay.classList.add('show');
+        if (!trackedShow) { trackedShow = true; track('webinar_popup_shown'); }
     }
     function hideOverlay() {
         overlay.classList.remove('show');
+        track('webinar_popup_close');
     }
 
     closeBtn.addEventListener('click', hideOverlay);
@@ -266,6 +285,7 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
     });
 
     buyBtn.addEventListener('click', () => {
+        track('webinar_buy_click');
         if (WEBINAR_LINK) {
             window.location.href = WEBINAR_LINK;
         } else {

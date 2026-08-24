@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+    <script defer src="/_vercel/insights/script.js"></script>
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
         :root{
@@ -402,6 +404,11 @@ function reportSignup(payload) {
     } catch (e) {}
 }
 
+// Vercel Web Analytics custom event -- see the <head> script tags for setup.
+function track(name, data) {
+    try { window.va && window.va('event', { name: name, data: data || {} }); } catch (e) {}
+}
+
 const SECTIONS = {
     biology:   { name: 'Biology', qs: 23, color: '#0047FF' },
     chemistry: { name: 'Chemistry', qs: 15, color: '#3366FF' },
@@ -526,6 +533,7 @@ function completeLogin(firstName, email) {
         targets: latest && latest.targets ? latest.targets.join(', ') : '',
         user_agent: navigator.userAgent
     });
+    track(isNew ? 'lounge_signup' : 'lounge_login');
 
     currentUser = email;
     localStorage.setItem('imp_lounge_user', email);
@@ -646,6 +654,8 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
     const targets = selectedUnis.size > 0
         ? UNIVERSITIES.filter(u => selectedUnis.has(u.name))
         : UNIVERSITIES.slice(0, 3);
+
+    track('lounge_analyze_click', { total: +total.toFixed(1) });
 
     const result = { date: new Date().toISOString(), scores, total, targets: targets.map(t => t.name) };
 
