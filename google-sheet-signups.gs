@@ -142,7 +142,7 @@ function json(obj) {
 
 var WEBINAR_ZOOM_LINK = 'PASTE_YOUR_ZOOM_LINK_HERE';
 var WEBINAR_TITLE = 'Maximize your IMAT score in under 14 days';
-var WEBINAR_DATE_LABEL = 'today at [TIME] CET'; // shown in the reminder email
+var WEBINAR_DATE_LABEL = 'September 4 at 1PM Italy time'; // shown in the reminder email
 
 // Custom sender name WITHOUT changing your Google Account's real name.
 // One-time setup in Gmail (same account this script runs from):
@@ -152,8 +152,8 @@ var WEBINAR_DATE_LABEL = 'today at [TIME] CET'; // shown in the reminder email
 //   No verification needed since you already own that address.
 // Until you've done that AND filled in WEBINAR_SENDER_EMAIL below, this
 // automatically falls back to sending under your account's real name.
-var WEBINAR_SENDER_NAME = 'Rom · IMAT.club';
-var WEBINAR_SENDER_EMAIL = ''; // e.g. 'romhaparnass@gmail.com'
+var WEBINAR_SENDER_NAME = 'Rom from IMAT.club';
+var WEBINAR_SENDER_EMAIL = 'romhaparnass+imatclub@gmail.com';
 
 var WEBINAR_SHEET_NAME = 'WebinarAttendees';
 var WEBINAR_HEADERS = ['Email', 'Name', 'Purchased At', 'Reminded'];

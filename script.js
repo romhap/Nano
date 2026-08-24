@@ -15,7 +15,7 @@ const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyp5FoKRZ1i_-Ox
 const WEBINAR_LINK = 'https://book.stripe.com/28E3cvb6i1AY0HKd8Jgw003';
 // Shown in the popup's date pill. Update this before each session, e.g.
 // '📅 Saturday, Aug 30 · 6PM CET'. Leave as-is if no date is set yet.
-const WEBINAR_DATE_TEXT = '';
+const WEBINAR_DATE_TEXT = '📅 September 4 · 1PM Italy time';
 // ============================================================
 
 // Fire-and-forget: send an applicant to the Google Sheet. Never blocks the
