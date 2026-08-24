@@ -191,7 +191,8 @@ function sendWebinarReminders() {
     MailApp.sendEmail({
       to: email,
       subject: 'Your Zoom link — starting soon',
-      body: body
+      body: body,
+      name: 'Rom · IMAT.club'
     });
 
     sheet.getRange(i + 2, 4).setValue(true); // mark Reminded
