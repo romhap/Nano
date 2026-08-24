@@ -12,7 +12,7 @@ const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxDlGG2mlN_fT3I
 // once created; set its success URL in Stripe to:
 // https://www.imat.club/webinar-success.html
 // (then fill in the Zoom link inside webinar-success.html itself)
-const WEBINAR_LINK = '';
+const WEBINAR_LINK = 'https://book.stripe.com/28E3cvb6i1AY0HKd8Jgw003';
 // Shown in the popup's date pill. Update this before each session, e.g.
 // '📅 Saturday, Aug 30 · 6PM CET'. Leave as-is if no date is set yet.
 const WEBINAR_DATE_TEXT = '';
