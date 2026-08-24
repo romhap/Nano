@@ -4,7 +4,7 @@
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/7sY7sLdeqdjGaik1q1gw002';
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
 // Paste the SAME Google Apps Script Web App URL you put in lounge.html (ends in /exec).
-const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxDlGG2mlN_fT3I6B81LVIXL3MaSUsGZqf9eubgDhYO-RQsp7_f5fpVUEytGkySaZ4/exec';
+const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyp5FoKRZ1i_-Oxy0LfFA6wD5Re7qJJEIbEu43KPG9_E_P0EIijyHoMeAFxNLvT1TTnng/exec';
 // Webinar (€8.99, "50 spots" is scarcity copy only — nothing in this codebase
 // counts or caps signups against that number, by design. Do NOT enable
 // Stripe's "Limit the number of payments" on this Payment Link, or it
