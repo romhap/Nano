@@ -1,7 +1,7 @@
 // ============================================================
 // CONFIGURATION
 // ============================================================
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/eVqdR9gqCcfCduw0lXgw001';
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/7sY7sLdeqdjGaik1q1gw002';
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
 // Paste the SAME Google Apps Script Web App URL you put in lounge.html (ends in /exec).
 const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxDlGG2mlN_fT3I6B81LVIXL3MaSUsGZqf9eubgDhYO-RQsp7_f5fpVUEytGkySaZ4/exec';
