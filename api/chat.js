@@ -37,6 +37,11 @@ const FREE_FREETEXT_PER_DAY = 2;
 // Features that cost far more than a normal message, so they're paid-only.
 const PAID_ONLY_ACTIONS = ['mock_exam', 'anki_check'];
 
+// ...and even for paid users they're rate-limited, since a full 60-question
+// exam is ~6x the cost of a normal reply.
+const MOCK_EXAMS_PER_DAY = 1;
+const ANKI_COOLDOWN_HOURS = 3;
+
 // --- Exam facts the model must not improvise --------------------------------
 // IMPORTANT: the model has a training cutoff and cannot know current-cycle
 // deadlines. Fill these in yourself before promoting the "key dates" button,
@@ -152,12 +157,13 @@ async function fetchAccount(email) {
   }
 }
 
-async function recordUsage(email, costUsd, kind) {
+async function recordUsage(email, costUsd, kind, action) {
   if (!SIGNUP_ENDPOINT) return;
   try {
     await fetch(
       `${SIGNUP_ENDPOINT}?aiUsage=${encodeURIComponent(email)}` +
-        `&cost=${costUsd.toFixed(6)}&kind=${encodeURIComponent(kind)}`,
+        `&cost=${costUsd.toFixed(6)}&kind=${encodeURIComponent(kind)}` +
+        `&action=${encodeURIComponent(action || '')}`,
       { signal: AbortSignal.timeout(8000) }
     );
   } catch (e) {
@@ -219,10 +225,36 @@ export default async function handler(req, res) {
     });
   }
 
+  // Per-feature cooldowns — these apply to paid users too.
+  if (isPaid && account && action === 'mock_exam' && MOCK_EXAMS_PER_DAY > 0) {
+    if (account.lastMockExamDay && account.today &&
+        account.lastMockExamDay === account.today) {
+      return res.status(429).json({
+        error: 'cooldown',
+        message: "You've already generated a full mock exam today. A fresh one unlocks tomorrow — sitting one properly is worth more than generating another."
+      });
+    }
+  }
+
+  if (isPaid && account && action === 'anki_check' && account.lastAnkiCheck) {
+    const elapsedMs = Date.now() - account.lastAnkiCheck;
+    const cooldownMs = ANKI_COOLDOWN_HOURS * 60 * 60 * 1000;
+    if (elapsedMs < cooldownMs) {
+      const mins = Math.ceil((cooldownMs - elapsedMs) / 60000);
+      const wait = mins >= 60
+        ? `${Math.floor(mins / 60)}h ${mins % 60}m`
+        : `${mins}m`;
+      return res.status(429).json({
+        error: 'cooldown',
+        message: `Deck checks are limited to one every ${ANKI_COOLDOWN_HOURS} hours. Next one in ${wait}.`
+      });
+    }
+  }
+
   // ---- Mock mode -----------------------------------------------------------
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    await recordUsage(cleanEmail, 0, isDefaultButton ? 'button' : 'freetext');
+    await recordUsage(cleanEmail, 0, isDefaultButton ? 'button' : 'freetext', action);
     return res.status(200).json({
       reply: mockReply(action),
       mock: true,
@@ -258,7 +290,7 @@ export default async function handler(req, res) {
       (usage.input_tokens || 0) * PRICE_IN_PER_TOKEN +
       (usage.output_tokens || 0) * PRICE_OUT_PER_TOKEN;
 
-    await recordUsage(cleanEmail, costUsd, isDefaultButton ? 'button' : 'freetext');
+    await recordUsage(cleanEmail, costUsd, isDefaultButton ? 'button' : 'freetext', action);
 
     return res.status(200).json({ reply, paid: isPaid });
   } catch (err) {

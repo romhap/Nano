@@ -51,13 +51,17 @@ already use for mentorship subscribers.
 
 | | Trial | Pro |
 |---|---|---|
-| Guided buttons | 1 / day | unlimited¹ |
+| Guided prompts | 1 / day | unlimited¹ |
 | Free-typed messages | 2 / day | unlimited¹ |
-| Full mock exam | locked | ✓ |
-| Anki deck check | locked | ✓ |
+| Full mock exam | locked | **1 / day** |
+| Anki deck check | locked | **1 per 3 hours** |
 
-¹ Capped by a **$16/month spend ceiling** (≈ €15). Daily counters and the
-monthly total reset themselves — nothing to clear by hand.
+¹ Capped by a **$16/month spend ceiling** (≈ €15). Daily counters, the
+monthly total and both cooldowns reset themselves — nothing to clear by hand.
+
+Mock exams and deck checks are rate-limited even on Pro because a full
+60-question exam costs roughly 6x a normal reply. Both limits are enforced
+server-side, so clearing browser storage doesn't bypass them.
 
 ---
 
@@ -125,7 +129,6 @@ explainer, university preview, key dates, syllabus, Anki check (Pro).
 
 Four added on top:
 
-- **⚡ Rapid 5-question drill** — a topic picker into a mini quiz
 - **♟️ Exam-day strategy** — timing and when guessing beats the −0.4 penalty
 - **✍️ Mark my reasoning** — student pastes their working, gets marked like
   an examiner. This is the one that most feels like real mentorship.
@@ -133,6 +136,11 @@ Four added on top:
 
 Others worth considering later: "Compare two universities side by side",
 "Build me a 14-day plan", "Turn this into Anki cards".
+
+The interface follows the same shape as Claude/Gemini: a centred greeting
+with the composer in the middle, which collapses to a bottom bar once the
+first message is sent. Suggestion chips instead of a button wall, message
+bubbles for the student, clean full-width answers, and a "New chat" reset.
 
 ---
 

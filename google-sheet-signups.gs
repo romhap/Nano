@@ -125,7 +125,8 @@ function doGet(e) {
       aiRecordUsage(
         e.parameter.aiUsage,
         parseFloat(e.parameter.cost || '0') || 0,
-        e.parameter.kind || 'freetext'
+        e.parameter.kind || 'freetext',
+        e.parameter.action || ''
       );
       return json({ ok: true });
     } catch (err) {
@@ -300,12 +301,23 @@ function sendWebinarReminders() {
 
 var AI_SHEET_NAME = 'ClubAI';
 var AI_HEADERS = ['Email', 'WhatsApp', 'Paid', 'Spent USD (month)', 'Month',
-                  'Buttons Today', 'Freetext Today', 'Day', 'First Seen', 'Last Seen'];
+                  'Buttons Today', 'Freetext Today', 'Day', 'First Seen', 'Last Seen',
+                  'Last Mock Exam Day', 'Last Anki Check'];
 
 function getAiSheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(AI_SHEET_NAME) || ss.insertSheet(AI_SHEET_NAME);
-  if (sheet.getLastRow() === 0) sheet.appendRow(AI_HEADERS);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(AI_HEADERS);
+  } else {
+    // Migration: extend the header row in place if newer columns were added
+    // after this sheet was first created. Existing data is untouched.
+    var existing = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    if (existing.length < AI_HEADERS.length) {
+      sheet.getRange(1, existing.length + 1, 1, AI_HEADERS.length - existing.length)
+        .setValues([AI_HEADERS.slice(existing.length)]);
+    }
+  }
   return sheet;
 }
 
@@ -342,8 +354,9 @@ function aiCheck(email, whatsapp) {
   var row = aiFindRow(sheet, email);
 
   if (row === -1) {
-    sheet.appendRow([email, whatsapp || '', false, 0, mKey, 0, 0, dKey, now, now]);
-    return { paid: false, spentUsd: 0, dayButtons: 0, dayFreetext: 0, isNew: true };
+    sheet.appendRow([email, whatsapp || '', false, 0, mKey, 0, 0, dKey, now, now, '', '']);
+    return { paid: false, spentUsd: 0, dayButtons: 0, dayFreetext: 0,
+             lastMockExamDay: '', lastAnkiCheck: 0, isNew: true };
   }
 
   var vals = sheet.getRange(row, 1, 1, AI_HEADERS.length).getValues()[0];
@@ -361,11 +374,26 @@ function aiCheck(email, whatsapp) {
   vals[9] = now;
   sheet.getRange(row, 1, 1, AI_HEADERS.length).setValues([vals]);
 
-  return { paid: paid, spentUsd: spent, dayButtons: buttons, dayFreetext: freetext };
+  // Per-feature cooldowns (paid users). Anki timestamp goes out as epoch ms
+  // so the serverless side can compare it without timezone ambiguity.
+  var ankiRaw = vals[11];
+  var ankiMs = 0;
+  if (ankiRaw instanceof Date) ankiMs = ankiRaw.getTime();
+  else if (ankiRaw) ankiMs = new Date(ankiRaw).getTime() || 0;
+
+  return {
+    paid: paid,
+    spentUsd: spent,
+    dayButtons: buttons,
+    dayFreetext: freetext,
+    lastMockExamDay: String(vals[10] || ''),
+    lastAnkiCheck: ankiMs,
+    today: dKey
+  };
 }
 
-/** Adds one request's cost and bumps the right daily counter. */
-function aiRecordUsage(email, costUsd, kind) {
+/** Adds one request's cost, bumps the daily counter, stamps feature cooldowns. */
+function aiRecordUsage(email, costUsd, kind, action) {
   email = (email || '').toString().trim().toLowerCase();
   if (!email) return;
 
@@ -385,6 +413,9 @@ function aiRecordUsage(email, costUsd, kind) {
   if (kind === 'button') vals[5] = (parseInt(vals[5], 10) || 0) + 1;
   else vals[6] = (parseInt(vals[6], 10) || 0) + 1;
   vals[9] = now;
+
+  if (action === 'mock_exam') vals[10] = dKey;
+  if (action === 'anki_check') vals[11] = now;
 
   sheet.getRange(row, 1, 1, AI_HEADERS.length).setValues([vals]);
 }
