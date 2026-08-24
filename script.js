@@ -13,6 +13,9 @@ const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxDlGG2mlN_fT3I
 // https://www.imat.club/webinar-success.html
 // (then fill in the Zoom link inside webinar-success.html itself)
 const WEBINAR_LINK = '';
+// Shown in the popup's date pill. Update this before each session, e.g.
+// '📅 Saturday, Aug 30 · 6PM CET'. Leave as-is if no date is set yet.
+const WEBINAR_DATE_TEXT = '';
 // ============================================================
 
 // Fire-and-forget: send an applicant to the Google Sheet. Never blocks the
@@ -246,6 +249,9 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
 
     const closeBtn = document.getElementById('webinarClose');
     const buyBtn = document.getElementById('webinarBuyBtn');
+    const dateText = document.getElementById('webinarDateText');
+
+    if (dateText && WEBINAR_DATE_TEXT) dateText.textContent = WEBINAR_DATE_TEXT;
 
     // Set by webinar-success.html once someone actually completes payment —
     // stops nagging them with the offer again on future visits.
