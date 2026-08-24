@@ -290,6 +290,10 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
     // Someone who registered on a previous visit — never show the offer again
     if (alreadyRegistered) return;
 
+    // Someone who just finished the €79/mo checkout — let them see their
+    // confirmation and WhatsApp link cleanly, don't cover it with a popup
+    if (window.location.search.includes('payment=success')) return;
+
     // Show immediately on page load, then every 30s while they stay on the page
     showOverlay();
     setInterval(showOverlay, 30000);
