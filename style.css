@@ -293,11 +293,13 @@ em {
 
 .hero-image {
     position: relative;
+    display: flex;
+    gap: 12px;
+    max-width: 300px;
 }
 
-.rom-photo {
+.mentor-photo {
     width: 100%;
-    max-width: 300px;
     border-radius: var(--radius);
     object-fit: cover;
     aspect-ratio: 3/4;
@@ -1215,16 +1217,12 @@ footer {
 
     .hero-image {
         order: 1;
+        max-width: 260px;
+        margin: 0 auto;
     }
 
     .hero-text {
         order: 0;
-    }
-
-    .rom-photo {
-        max-width: 200px;
-        margin: 0 auto;
-        display: block;
     }
 
     .truth-stats {

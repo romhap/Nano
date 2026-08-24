@@ -166,16 +166,16 @@ if (window.location.search.includes('payment=success')) {
         let color, title, text;
         if (pct >= 72) {
             color = 'green';
-            title = 'Rom would take you on.';
-            text = 'You\'re the type of candidate Rom looks for — independent, hungry, and ready to be directed. He doesn\'t work with many. If a spot is open, this is your chance to claim it.';
+            title = 'Rom & Maya would take you on.';
+            text = 'You\'re the type of candidate they look for — independent, hungry, and ready to be directed. They don\'t work with many. If a spot is open, this is your chance to claim it.';
         } else if (pct >= 45) {
             color = 'orange';
-            title = 'Rom might consider you.';
-            text = 'You have potential, but Rom only invests time in candidates who are ready to show up and execute. If you\'re willing to commit and shift your approach, apply — he\'ll review your profile.';
+            title = 'Rom & Maya might consider you.';
+            text = 'You have potential, but they only invest time in candidates who are ready to show up and execute. If you\'re willing to commit and shift your approach, apply — they\'ll review your profile.';
         } else {
             color = 'red';
-            title = 'Not what Rom is looking for — yet.';
-            text = 'Rom works with self-driven candidates who need direction, not full lessons. This isn\'t a course. But if something changes and you\'re ready to work differently — the application stays open.';
+            title = 'Not what Rom & Maya are looking for — yet.';
+            text = 'They work with self-driven candidates who need direction, not full lessons. This isn\'t a course. But if something changes and you\'re ready to work differently — the application stays open.';
         }
 
         // Animate score ring
