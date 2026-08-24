@@ -107,6 +107,33 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  if (e.parameter.aiCheck) {
+    var lockA = LockService.getScriptLock();
+    lockA.waitLock(20000);
+    try {
+      return json(aiCheck(e.parameter.aiCheck, e.parameter.whatsapp || ''));
+    } catch (err) {
+      return json({ paid: false, error: String(err) });
+    } finally {
+      lockA.releaseLock();
+    }
+  }
+  if (e.parameter.aiUsage) {
+    var lockB = LockService.getScriptLock();
+    lockB.waitLock(20000);
+    try {
+      aiRecordUsage(
+        e.parameter.aiUsage,
+        parseFloat(e.parameter.cost || '0') || 0,
+        e.parameter.kind || 'freetext'
+      );
+      return json({ ok: true });
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    } finally {
+      lockB.releaseLock();
+    }
+  }
   if (e.parameter.webinarSignup) {
     var lock = LockService.getScriptLock();
     lock.waitLock(20000);
@@ -253,4 +280,111 @@ function sendWebinarReminders() {
   }
 
   Logger.log('Sent ' + sentCount + ' webinar reminder(s).');
+}
+
+/**
+ * ============================================================
+ * CLUB AI — accounts, trial limits and spend tracking
+ * ============================================================
+ * Lives in its own "ClubAI" tab, separate from Signups and
+ * WebinarAttendees.
+ *
+ * The "Paid" column is the switch: set it to TRUE when someone
+ * subscribes via the Club AI Stripe link, FALSE (or blank) for
+ * trial users. Nothing sets it automatically — same manual flow
+ * you already use for new subscribers.
+ *
+ * Day and month counters reset themselves, so you never need to
+ * clear them by hand.
+ */
+
+var AI_SHEET_NAME = 'ClubAI';
+var AI_HEADERS = ['Email', 'WhatsApp', 'Paid', 'Spent USD (month)', 'Month',
+                  'Buttons Today', 'Freetext Today', 'Day', 'First Seen', 'Last Seen'];
+
+function getAiSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(AI_SHEET_NAME) || ss.insertSheet(AI_SHEET_NAME);
+  if (sheet.getLastRow() === 0) sheet.appendRow(AI_HEADERS);
+  return sheet;
+}
+
+function aiMonthKey(d) {
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+}
+function aiDayKey(d) {
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function aiFindRow(sheet, email) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return -1;
+  var emails = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  for (var i = 0; i < emails.length; i++) {
+    if ((emails[i][0] || '').toString().trim().toLowerCase() === email) return i + 2;
+  }
+  return -1;
+}
+
+function aiTruthy(v) {
+  return v === true || /^(true|yes|y|1)$/i.test(String(v).trim());
+}
+
+/** Returns the caller's current entitlement + usage, creating the row if new. */
+function aiCheck(email, whatsapp) {
+  email = (email || '').toString().trim().toLowerCase();
+  if (!email || email.indexOf('@') === -1) return { paid: false };
+
+  var sheet = getAiSheet();
+  var now = new Date();
+  var mKey = aiMonthKey(now);
+  var dKey = aiDayKey(now);
+  var row = aiFindRow(sheet, email);
+
+  if (row === -1) {
+    sheet.appendRow([email, whatsapp || '', false, 0, mKey, 0, 0, dKey, now, now]);
+    return { paid: false, spentUsd: 0, dayButtons: 0, dayFreetext: 0, isNew: true };
+  }
+
+  var vals = sheet.getRange(row, 1, 1, AI_HEADERS.length).getValues()[0];
+  var paid = aiTruthy(vals[2]);
+  var spent = parseFloat(vals[3]) || 0;
+  var storedMonth = String(vals[4] || '');
+  var buttons = parseInt(vals[5], 10) || 0;
+  var freetext = parseInt(vals[6], 10) || 0;
+  var storedDay = String(vals[7] || '');
+
+  // Self-resetting counters
+  if (storedMonth !== mKey) { spent = 0; vals[3] = 0; vals[4] = mKey; }
+  if (storedDay !== dKey) { buttons = 0; freetext = 0; vals[5] = 0; vals[6] = 0; vals[7] = dKey; }
+  if (!vals[1] && whatsapp) vals[1] = whatsapp;
+  vals[9] = now;
+  sheet.getRange(row, 1, 1, AI_HEADERS.length).setValues([vals]);
+
+  return { paid: paid, spentUsd: spent, dayButtons: buttons, dayFreetext: freetext };
+}
+
+/** Adds one request's cost and bumps the right daily counter. */
+function aiRecordUsage(email, costUsd, kind) {
+  email = (email || '').toString().trim().toLowerCase();
+  if (!email) return;
+
+  var sheet = getAiSheet();
+  var row = aiFindRow(sheet, email);
+  if (row === -1) return;
+
+  var now = new Date();
+  var vals = sheet.getRange(row, 1, 1, AI_HEADERS.length).getValues()[0];
+  var mKey = aiMonthKey(now);
+  var dKey = aiDayKey(now);
+
+  if (String(vals[4] || '') !== mKey) { vals[3] = 0; vals[4] = mKey; }
+  if (String(vals[7] || '') !== dKey) { vals[5] = 0; vals[6] = 0; vals[7] = dKey; }
+
+  vals[3] = (parseFloat(vals[3]) || 0) + (parseFloat(costUsd) || 0);
+  if (kind === 'button') vals[5] = (parseInt(vals[5], 10) || 0) + 1;
+  else vals[6] = (parseInt(vals[6], 10) || 0) + 1;
+  vals[9] = now;
+
+  sheet.getRange(row, 1, 1, AI_HEADERS.length).setValues([vals]);
 }

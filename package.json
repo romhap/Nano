@@ -1,0 +1,9 @@
+{
+  "name": "imat-club",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IMAT.club — mentorship site, lounge, and Club AI",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.120.0"
+  }
+}
