@@ -229,7 +229,7 @@ em {
 }
 
 .hero-inner {
-    max-width: 940px;
+    max-width: 1120px;
     margin: 0 auto;
     padding: 0 32px;
     display: grid;
@@ -306,7 +306,7 @@ em {
     display: flex;
     gap: 14px;
     width: 100%;
-    max-width: 420px;
+    max-width: 500px;
 }
 
 .mentor-photo {
