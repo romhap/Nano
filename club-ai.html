@@ -176,6 +176,7 @@
     <div class="top-r">
         <span class="chip hidden" id="planChip">Trial</span>
         <button class="icon-btn hidden" id="newChat" title="New chat">New chat</button>
+        <button class="icon-btn hidden" id="histBtn" title="Chat history">History</button>
         <button class="icon-btn hidden" id="devBtn" title="Manage devices">Devices</button>
         <button class="icon-btn hidden" id="signOut">Sign out</button>
     </div>
@@ -232,6 +233,18 @@
     </div>
 </div>
 
+<!-- HISTORY PANEL -->
+<div class="devwrap hidden" id="histWrap">
+    <div class="devbox">
+        <div class="devtop">
+            <span>Chat history</span>
+            <button id="histClose">✕</button>
+        </div>
+        <p class="devsub">Saved on this device only. Reopening a chat is just for your reference — it's never fed into a new conversation.</p>
+        <div id="histList"></div>
+    </div>
+</div>
+
 <!-- APP -->
 <div class="shell hidden" id="shell">
     <div class="scroll" id="scroll">
@@ -252,7 +265,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                 </button>
             </div>
-            <p class="disclaimer">Club AI can make mistakes. Verify dates on universitaly.it.</p>
+            <p class="disclaimer">Club AI can make mistakes.</p>
         </div>
     </div>
 </div>
@@ -288,7 +301,7 @@ const ACTIONS = [
     prompt:'I want to check whether my Anki deck matches the IMAT syllabus. Explain exactly what to paste or export, then review it against the official syllabus and give me a coverage report: what is in scope, what is missing, and what is wasted effort.' }
 ];
 
-let SESSION_TOKEN = null, history = [], busy = false, started = false;
+let SESSION_TOKEN = null, history = [], busy = false, started = false, currentChatId = null, EMAIL = '';
 
 const $ = id => document.getElementById(id);
 function track(n,d){ try{ window.va && window.va('event',{name:n,data:d||{}}); }catch(e){} }
@@ -330,6 +343,14 @@ function getDeviceLabel(){
 function getSession(){ try { return localStorage.getItem('clubai_session') || null; } catch(e){ return null; } }
 function setSession(t){ try { localStorage.setItem('clubai_session', t); } catch(e){} }
 function clearSession(){ try { localStorage.removeItem('clubai_session'); } catch(e){} }
+
+// Used only to scope saved chat history to the signed-in account (so a
+// shared browser never mixes one person's saved chats into another's list).
+// Never sent anywhere except back to storage on this device.
+function getEmail(){ try { return localStorage.getItem('clubai_email') || ''; } catch(e){ return ''; } }
+function setEmail(e){ try { localStorage.setItem('clubai_email', e); } catch(e){} }
+function clearEmail(){ try { localStorage.removeItem('clubai_email'); } catch(e){} }
+function genId(){ return (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2))); }
 
 /* ---------- gate: request link ---------- */
 let lastRequestedEmail = '';
@@ -385,6 +406,7 @@ async function verifyMagicLink(token){
     const data = await res.json();
     if (data && data.ok && data.sessionToken) {
       setSession(data.sessionToken);
+      if (data.email) setEmail(data.email);
       track('clubai_signup');
       window.history.replaceState({}, '', location.pathname);
       enter();
@@ -404,23 +426,29 @@ async function verifyMagicLink(token){
 /* ---------- sign out / new chat ---------- */
 $('signOut').addEventListener('click', () => {
   clearSession();
+  clearEmail();
   location.href = location.pathname;
 });
-$('newChat').addEventListener('click', () => {
-  history = []; started = false;
+function resetToHero(){
+  history = []; started = false; currentChatId = null;
   $('thread').innerHTML = '';
   $('thread').classList.remove('on');
   $('hero').classList.remove('hidden');
   $('composerWrap').classList.add('floating');
+}
+$('newChat').addEventListener('click', () => {
+  resetToHero();
   $('input').focus();
 });
 
 function enter(){
   SESSION_TOKEN = getSession();
+  EMAIL = getEmail();
   $('gate').style.display = 'none';
   $('shell').classList.remove('hidden');
   $('planChip').classList.remove('hidden');
   $('newChat').classList.remove('hidden');
+  $('histBtn').classList.remove('hidden');
   $('devBtn').classList.remove('hidden');
   $('signOut').classList.remove('hidden');
   $('composerWrap').classList.add('floating');
@@ -501,6 +529,91 @@ function relativeTime(ms){
   if (hr < 24) return hr + 'h ago';
   const day = Math.floor(hr / 24);
   return day + 'd ago';
+}
+
+/* ---------- chat history ----------------------------------------------
+   Purely client-side, for the human to browse/reopen past conversations.
+   Saved chats are NEVER read back into a new conversation's context -- a
+   loaded chat replaces the active thread for continuing THAT chat, and
+   "New chat" always starts with a genuinely empty history. Keeps Club AI
+   sterile: the model itself never learns anything across conversations. */
+function chatsKey(){ return 'clubai_chats_' + (EMAIL || 'unknown'); }
+function getChats(){
+  try { return JSON.parse(localStorage.getItem(chatsKey()) || '[]'); } catch(e){ return []; }
+}
+function saveChats(chats){
+  try { localStorage.setItem(chatsKey(), JSON.stringify(chats)); } catch(e){}
+}
+
+function persistCurrentChat(){
+  if (!EMAIL) return; // no resolved account (e.g. mock/dev session) -- nothing to scope storage to
+  if (!currentChatId) currentChatId = genId();
+  let title = (history.find(m => m.role === 'user') || {}).content || 'New chat';
+  title = title.length > 60 ? title.slice(0, 60) + '…' : title;
+  const chats = getChats();
+  const idx = chats.findIndex(c => c.id === currentChatId);
+  const entry = { id: currentChatId, title, updated: Date.now(), messages: history.slice(-40) };
+  if (idx >= 0) chats[idx] = entry; else chats.unshift(entry);
+  saveChats(chats.slice(0, 50));
+}
+
+$('histBtn').addEventListener('click', openHistory);
+$('histClose').addEventListener('click', () => $('histWrap').classList.add('hidden'));
+$('histWrap').addEventListener('click', e => { if (e.target === $('histWrap')) $('histWrap').classList.add('hidden'); });
+
+function openHistory(){
+  $('histWrap').classList.remove('hidden');
+  renderHistoryList();
+}
+
+function renderHistoryList(){
+  const box = $('histList');
+  const chats = getChats().sort((a, b) => b.updated - a.updated);
+  if (!chats.length) { box.innerHTML = '<p class="devempty">No saved conversations yet.</p>'; return; }
+  box.innerHTML = '';
+  chats.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'devrow';
+    const info = document.createElement('div');
+    info.className = 'devinfo';
+    info.style.cursor = 'pointer';
+    const label = document.createElement('div');
+    label.className = 'devlabel';
+    label.textContent = c.title || 'New chat';
+    if (c.id === currentChatId) { const b = document.createElement('span'); b.className = 'devbadge'; b.textContent = 'Current'; label.appendChild(b); }
+    const seen = document.createElement('div');
+    seen.className = 'devseen';
+    seen.textContent = 'Updated ' + relativeTime(c.updated);
+    info.appendChild(label); info.appendChild(seen);
+    info.addEventListener('click', () => loadChat(c.id));
+    row.appendChild(info);
+    const btn = document.createElement('button');
+    btn.className = 'devsignout';
+    btn.textContent = 'Delete';
+    btn.addEventListener('click', e => { e.stopPropagation(); deleteChatEntry(c.id); });
+    row.appendChild(btn);
+    box.appendChild(row);
+  });
+}
+
+function deleteChatEntry(id){
+  saveChats(getChats().filter(c => c.id !== id));
+  renderHistoryList();
+}
+
+function loadChat(id){
+  const chat = getChats().find(c => c.id === id);
+  if (!chat) return;
+  resetToHero();
+  currentChatId = chat.id;
+  history = chat.messages.slice();
+  chat.messages.forEach(m => {
+    if (m.role === 'user') addUser(m.content);
+    else addAI(m.content);
+  });
+  $('histWrap').classList.add('hidden');
+  toBottom();
+  $('input').focus();
 }
 
 /* ---------- suggestions ---------- */
@@ -659,6 +772,7 @@ async function send(text, action){
       addAI(data.reply);
       history.push({ role:'assistant', content:data.reply });
       if (typeof data.paid !== 'undefined') setPlan(data.paid);
+      persistCurrentChat();
     } else if (data.error === 'sign_in_required') {
       // Session expired or was revoked from "manage devices" (possibly on
       // another device) -- drop back to the gate rather than fail silently.

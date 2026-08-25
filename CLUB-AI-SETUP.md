@@ -82,6 +82,28 @@ someone's inbox.
 
 ---
 
+## Chat history
+
+The **History** button in the top bar lists past conversations (title = the
+first message, plus a "last updated" time) so a student can reopen one to
+keep reading or continue it. Click a conversation to reload it into the
+thread; delete any entry you don't want kept.
+
+This is purely a client-side convenience — saved chats live in that
+browser's `localStorage`, scoped to the signed-in email so a shared device
+never mixes one person's history into another's list. It is **not** synced
+across devices and it does not touch the Apps Script sheet at all.
+
+Important: this does **not** break the "sterile AI" property. Reopening a
+saved chat only replaces what's shown in the active thread and what gets
+sent to the model *if you keep chatting in it* (same rolling 6-message
+window as any other conversation) — past conversations are never merged
+into each other, and "New chat" always starts from a genuinely empty
+history. The model itself still has no memory across conversations and
+nothing is stored server-side about what was discussed.
+
+---
+
 ## Limits, as built
 
 | | Trial | Pro |
