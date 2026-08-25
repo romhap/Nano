@@ -35,7 +35,8 @@
         .top-brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:var(--text)}
         .top-brand span{color:var(--accent)}
         .top-r{display:flex;align-items:center;gap:8px}
-        .chip{font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:4px 10px;border-radius:99px;border:1px solid var(--border);color:var(--text3);background:var(--bg)}
+        .chip{font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:4px 10px;border-radius:99px;border:1px solid var(--border);color:var(--text3);background:var(--bg);cursor:pointer}
+        .chip:hover{border-color:var(--accent);color:var(--accent)}
         .chip.pro{background:var(--accent-bg);border-color:rgba(0,71,255,.22);color:var(--accent)}
         .icon-btn{background:none;border:none;color:var(--text3);cursor:pointer;padding:7px 9px;border-radius:8px;font-size:.75rem;font-family:'Inter',sans-serif}
         .icon-btn:hover{background:var(--surface);color:var(--text)}
@@ -273,6 +274,10 @@
 <script>
 const MARK = '<svg viewBox="0 0 64 64" fill="none"><path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#0047FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#fff" stroke="#0047FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="46" width="52" height="4" rx="2" fill="#0047FF"/></svg>';
 const PRO_LINK = 'https://buy.stripe.com/fZu14nb6i3J64Y01q1gw004';
+// Same Stripe billing portal the main site uses -- it's account-wide (keyed
+// by customer, not by product), so it works for managing a Club AI Pro
+// subscription too.
+const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
 
 const TOPICS = {
   'Biology': ['Genetics & Heredity','Molecular Biology','Cell Biology','Human Anatomy & Physiology','Bioenergetics','Evolution & Ecology'],
@@ -749,7 +754,20 @@ function setPlan(paid){
   const c = $('planChip');
   c.textContent = paid ? 'Pro' : 'Trial';
   c.classList.toggle('pro', !!paid);
+  c.title = paid ? 'Manage your subscription' : 'Upgrade to Club AI Pro';
 }
+
+$('planChip').addEventListener('click', () => {
+  if ($('planChip').classList.contains('pro')) {
+    track('clubai_portal_click');
+    window.location.href = STRIPE_PORTAL_LINK;
+    return;
+  }
+  track('clubai_upgrade_click', { from: 'plan_chip' });
+  let url = PRO_LINK;
+  if (EMAIL) url += (PRO_LINK.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(EMAIL);
+  window.location.href = url;
+});
 
 /* ---------- send ---------- */
 async function send(text, action){
