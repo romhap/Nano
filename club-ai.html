@@ -550,8 +550,24 @@ function saveChats(chats){
   try { localStorage.setItem(chatsKey(), JSON.stringify(chats)); } catch(e){}
 }
 
-function persistCurrentChat(){
-  if (!EMAIL) return; // no resolved account (e.g. mock/dev session) -- nothing to scope storage to
+// EMAIL is only known client-side from the moment a magic link is verified
+// in THIS browser. A session created before that (or before this feature
+// shipped) has no cached email, so ask the server to resolve it from the
+// session token -- same lookup api/chat.js already does server-side.
+async function ensureEmail(){
+  if (EMAIL) return EMAIL;
+  if (!SESSION_TOKEN) return '';
+  try {
+    const res = await fetch(`${SIGNUP_ENDPOINT}?aiCheck=${encodeURIComponent(SESSION_TOKEN)}`);
+    const data = await res.json();
+    if (data && data.valid && data.email) { EMAIL = data.email; setEmail(EMAIL); }
+  } catch(e) {}
+  return EMAIL;
+}
+
+async function persistCurrentChat(){
+  await ensureEmail();
+  if (!EMAIL) return; // still unresolved (e.g. offline, or a mock/dev session) -- nothing to scope storage to
   if (!currentChatId) currentChatId = genId();
   let title = (history.find(m => m.role === 'user') || {}).content || 'New chat';
   title = title.length > 60 ? title.slice(0, 60) + '…' : title;
@@ -566,8 +582,10 @@ $('histBtn').addEventListener('click', openHistory);
 $('histClose').addEventListener('click', () => $('histWrap').classList.add('hidden'));
 $('histWrap').addEventListener('click', e => { if (e.target === $('histWrap')) $('histWrap').classList.add('hidden'); });
 
-function openHistory(){
+async function openHistory(){
   $('histWrap').classList.remove('hidden');
+  $('histList').innerHTML = '<p class="devempty">Loading…</p>';
+  await ensureEmail();
   renderHistoryList();
 }
 
@@ -790,7 +808,7 @@ async function send(text, action){
       addAI(data.reply);
       history.push({ role:'assistant', content:data.reply });
       if (typeof data.paid !== 'undefined') setPlan(data.paid);
-      persistCurrentChat();
+      await persistCurrentChat();
     } else if (data.error === 'sign_in_required') {
       // Session expired or was revoked from "manage devices" (possibly on
       // another device) -- drop back to the gate rather than fail silently.
