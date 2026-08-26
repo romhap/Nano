@@ -243,7 +243,7 @@ function json(obj) {
 var WEBINAR_ZOOM_LINK = 'https://unipd.zoom.us/j/81414142293?pwd=SwdULyYers3tv08Eb7of4z4Uix9PaI.1';
 var WEBINAR_MEETING_ID = '814 1414 2293';
 var WEBINAR_PASSCODE = '286595';
-var WEBINAR_TITLE = 'Maximize your IMAT score in under 14 days';
+var WEBINAR_TITLE = 'From Maybe to Mastery — Everything You Need to Pass the IMAT';
 var WEBINAR_DATE_LABEL = 'September 4 at 1PM Italy time'; // shown in the reminder email
 
 // Custom sender name WITHOUT changing your Google Account's real name.
