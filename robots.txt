@@ -1,0 +1,36 @@
+# IMAT.club — crawl rules
+# General crawlers and AI-assistant crawlers are both welcome across the
+# public site. club-ai.html, success pages, and webinar-success stay out of
+# the sitemap on purpose (utility/stealth pages), but nothing here blocks
+# them for a crawler that already has the URL.
+
+User-agent: *
+Allow: /
+
+# Explicitly welcome the major AI-answer crawlers (some default to
+# disallowed on other sites; we want IMAT.club surfaced in AI engines too).
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://www.imat.club/sitemap.xml
