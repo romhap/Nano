@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
     <script defer src="/_vercel/insights/script.js"></script>
 
@@ -99,11 +99,50 @@
     </div>
 </section>
 
+<section class="articles-filterbar">
+    <div class="container">
+        <div class="filterbar-topics" id="topicFilters">
+            <button class="filter-pill active" data-topic="all">All topics</button>
+            <button class="filter-pill" data-topic="Strategy">Strategy</button>
+            <button class="filter-pill" data-topic="Past Papers">Past Papers</button>
+            <button class="filter-pill" data-topic="Mindset">Mindset</button>
+            <button class="filter-pill" data-topic="Syllabus">Syllabus</button>
+            <button class="filter-pill" data-topic="Universities">Universities</button>
+            <button class="filter-pill" data-topic="Study Planner">Study Planner</button>
+            <button class="filter-pill" data-topic="Resources">Resources</button>
+            <button class="filter-pill" data-topic="Application Process">Application Process</button>
+            <button class="filter-pill" data-topic="Biology">Biology</button>
+            <button class="filter-pill" data-topic="Chemistry">Chemistry</button>
+            <button class="filter-pill" data-topic="Physics & Maths">Physics & Maths</button>
+            <button class="filter-pill" data-topic="Logic">Logic</button>
+            <button class="filter-pill" data-topic="Life As A Student">Life As A Student</button>
+            <button class="filter-pill" data-topic="Reading">Reading</button>
+            <button class="filter-pill" data-topic="Study Technique">Study Technique</button>
+            <button class="filter-pill" data-topic="Comparison">Comparison</button>
+            <button class="filter-pill" data-topic="Retaking">Retaking</button>
+            <button class="filter-pill" data-topic="Test Day">Test Day</button>
+            <button class="filter-pill" data-topic="Mock Exams">Mock Exams</button>
+        </div>
+        <div class="filterbar-row">
+            <div class="filterbar-group" id="authorFilters">
+                <button class="filter-pill active" data-author="all">Both authors</button>
+                <button class="filter-pill" data-author="Rom">Rom</button>
+                <button class="filter-pill" data-author="Maya">Maya</button>
+            </div>
+            <select id="sortSelect" class="filter-select" aria-label="Sort articles">
+                <option value="date-desc">Newest first</option>
+                <option value="date-asc">Oldest first</option>
+            </select>
+        </div>
+        <p class="filterbar-empty hidden" id="filterEmpty">No articles match these filters. Try clearing one.</p>
+    </div>
+</section>
+
 <section class="section" style="padding-top:0">
     <div class="container">
         <div class="articles-grid">
 
-            <a href="articles/new-imat-medicine-seats-this-year.html" class="article-card article-card-wide">
+            <a href="articles/new-imat-medicine-seats-this-year.html" class="article-card article-card-wide" data-tag="Universities" data-author="Maya" data-date="2026-08-26">
                 <p class="article-tag">Universities</p>
                 <h3>New Medicine Seats Just Opened in Italy - Here's What That Means for You</h3>
                 <p>Florence just launched its first English-taught Medicine and Surgery programme, and the roster of IMAT-accessible universities keeps growing. Here's what a brand-new option actually means for your ranking.</p>
@@ -116,7 +155,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-imposter-syndrome.html" class="article-card">
+            <a href="articles/imat-imposter-syndrome.html" class="article-card" data-tag="Mindset" data-author="Rom" data-date="2026-08-26">
                 <p class="article-tag">Mindset</p>
                 <h3>Nobody Feels Ready for the IMAT - Here's What That Actually Means</h3>
                 <p>Almost every candidate we've spoken to, including the highest scorers, felt genuinely unready right up to test day.</p>
@@ -129,7 +168,7 @@
                 </div>
             </a>
 
-            <a href="articles/how-to-review-imat-mock-exam.html" class="article-card">
+            <a href="articles/how-to-review-imat-mock-exam.html" class="article-card" data-tag="Mock Exams" data-author="Maya" data-date="2026-08-25">
                 <p class="article-tag">Mock Exams</p>
                 <h3>How to Actually Review a Mock Exam (Most People Waste This Part)</h3>
                 <p>A concrete process for turning wrong answers into next week's study plan.</p>
@@ -142,7 +181,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-admission-myths.html" class="article-card">
+            <a href="articles/imat-admission-myths.html" class="article-card" data-tag="Mindset" data-author="Maya" data-date="2026-08-24">
                 <p class="article-tag">Mindset</p>
                 <h3>The Biggest Myth About Who Gets Into Italian Medical School</h3>
                 <p>Candidates talk themselves out of applying for reasons that don't actually predict the outcome.</p>
@@ -155,7 +194,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-medicine-vs-dentistry.html" class="article-card">
+            <a href="articles/imat-medicine-vs-dentistry.html" class="article-card" data-tag="Universities" data-author="Rom" data-date="2026-08-23">
                 <p class="article-tag">Universities</p>
                 <h3>Medicine or Dentistry? What the IMAT Actually Lets You Choose</h3>
                 <p>The same admissions round covers both. Most candidates never actually weigh the choice.</p>
@@ -168,7 +207,7 @@
                 </div>
             </a>
 
-            <a href="articles/active-recall-vs-rereading-imat.html" class="article-card">
+            <a href="articles/active-recall-vs-rereading-imat.html" class="article-card" data-tag="Study Technique" data-author="Maya" data-date="2026-08-22">
                 <p class="article-tag">Study Technique</p>
                 <h3>The Study Method Difference Between Passing and Almost Passing</h3>
                 <p>Active recall versus passive re-reading, and why the gap is bigger than people think.</p>
@@ -181,7 +220,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-data-interpretation-skill.html" class="article-card">
+            <a href="articles/imat-data-interpretation-skill.html" class="article-card" data-tag="Strategy" data-author="Rom" data-date="2026-08-21">
                 <p class="article-tag">Strategy</p>
                 <h3>The Skill That Quietly Appears in Every Section of the IMAT</h3>
                 <p>Tables and given data show up everywhere. It's rarely studied as its own skill.</p>
@@ -194,7 +233,7 @@
                 </div>
             </a>
 
-            <a href="articles/english-level-needed-for-imat.html" class="article-card">
+            <a href="articles/english-level-needed-for-imat.html" class="article-card" data-tag="Mindset" data-author="Maya" data-date="2026-08-20">
                 <p class="article-tag">Mindset</p>
                 <h3>Is Your English Good Enough for the IMAT? Here's the Real Bar</h3>
                 <p>The actual English level the exam requires isn't as high as most candidates fear.</p>
@@ -207,7 +246,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-test-day-what-to-expect.html" class="article-card">
+            <a href="articles/imat-test-day-what-to-expect.html" class="article-card" data-tag="Test Day" data-author="Rom" data-date="2026-08-19">
                 <p class="article-tag">Test Day</p>
                 <h3>What Actually Happens on IMAT Test Day</h3>
                 <p>A walk-through of the logistics, and the part nobody prepares for.</p>
@@ -220,7 +259,7 @@
                 </div>
             </a>
 
-            <a href="articles/realistic-imat-study-week.html" class="article-card">
+            <a href="articles/realistic-imat-study-week.html" class="article-card" data-tag="Study Planner" data-author="Maya" data-date="2026-08-18">
                 <p class="article-tag">Study Planner</p>
                 <h3>What a Realistic IMAT Study Week Actually Looks Like</h3>
                 <p>A concrete weekly structure, not just a total-hours target.</p>
@@ -233,7 +272,7 @@
                 </div>
             </a>
 
-            <a href="articles/dont-study-alone-for-imat.html" class="article-card">
+            <a href="articles/dont-study-alone-for-imat.html" class="article-card" data-tag="Study Technique" data-author="Rom" data-date="2026-08-17">
                 <p class="article-tag">Study Technique</p>
                 <h3>Studying Alone for the IMAT Is a Mistake - Here's Why</h3>
                 <p>The isolation itself is quietly working against you.</p>
@@ -246,7 +285,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-retake-strategy.html" class="article-card">
+            <a href="articles/imat-retake-strategy.html" class="article-card" data-tag="Retaking" data-author="Maya" data-date="2026-08-16">
                 <p class="article-tag">Retaking</p>
                 <h3>Didn't Get In? Here's What Actually Changes for Your Retake</h3>
                 <p>What genuinely needs to change for a retake to go differently.</p>
@@ -259,7 +298,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-vs-ucat-bmat.html" class="article-card">
+            <a href="articles/imat-vs-ucat-bmat.html" class="article-card" data-tag="Comparison" data-author="Rom" data-date="2026-08-15">
                 <p class="article-tag">Comparison</p>
                 <h3>How the IMAT Actually Compares to UCAT and BMAT</h3>
                 <p>Some prep transfers. Some of it will actively mislead you.</p>
@@ -272,7 +311,7 @@
                 </div>
             </a>
 
-            <a href="articles/how-to-do-imat-mock-exams-right.html" class="article-card">
+            <a href="articles/how-to-do-imat-mock-exams-right.html" class="article-card" data-tag="Mock Exams" data-author="Maya" data-date="2026-08-14">
                 <p class="article-tag">Mock Exams</p>
                 <h3>You're Probably Doing Mock Exams Wrong</h3>
                 <p>The real value is in the review, not the score.</p>
@@ -285,7 +324,7 @@
                 </div>
             </a>
 
-            <a href="articles/anki-for-imat-not-enough.html" class="article-card">
+            <a href="articles/anki-for-imat-not-enough.html" class="article-card" data-tag="Study Technique" data-author="Rom" data-date="2026-08-13">
                 <p class="article-tag">Study Technique</p>
                 <h3>Why Anki Alone Won't Get You Into Medical School</h3>
                 <p>What spaced repetition is actually good for, and what it can't do.</p>
@@ -298,7 +337,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-reading-section-explained.html" class="article-card">
+            <a href="articles/imat-reading-section-explained.html" class="article-card" data-tag="Reading" data-author="Maya" data-date="2026-08-12">
                 <p class="article-tag">Reading</p>
                 <h3>The Reading Section Isn't About English Fluency - Here's What It Actually Tests</h3>
                 <p>Native speakers don't automatically ace this section either.</p>
@@ -311,7 +350,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-burnout-how-to-avoid-it.html" class="article-card">
+            <a href="articles/imat-burnout-how-to-avoid-it.html" class="article-card" data-tag="Mindset" data-author="Rom" data-date="2026-08-11">
                 <p class="article-tag">Mindset</p>
                 <h3>The IMAT Burns People Out Before Test Day - Here's How to Not Let It</h3>
                 <p>A single exam that decides your career path creates a specific kind of pressure.</p>
@@ -324,7 +363,7 @@
                 </div>
             </a>
 
-            <a href="articles/life-after-passing-the-imat.html" class="article-card">
+            <a href="articles/life-after-passing-the-imat.html" class="article-card" data-tag="Life As A Student" data-author="Maya" data-date="2026-08-10">
                 <p class="article-tag">Life As A Student</p>
                 <h3>What Nobody Tells You About Life After You Pass the IMAT</h3>
                 <p>Getting in isn't the finish line. Here's what actually happens once you do.</p>
@@ -337,7 +376,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-logic-section-most-ignored.html" class="article-card">
+            <a href="articles/imat-logic-section-most-ignored.html" class="article-card" data-tag="Logic" data-author="Rom" data-date="2026-08-09">
                 <p class="article-tag">Logic</p>
                 <h3>The IMAT Section Most People Completely Ignore - And Shouldn't</h3>
                 <p>Only 5 of 60 questions, so almost nobody trains it - which makes it some of the highest-ROI prep time on the exam.</p>
@@ -350,7 +389,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-physics-maths-time-strategy.html" class="article-card">
+            <a href="articles/imat-physics-maths-time-strategy.html" class="article-card" data-tag="Physics & Maths" data-author="Maya" data-date="2026-08-08">
                 <p class="article-tag">Physics & Maths</p>
                 <h3>Physics & Maths Is Only 13 Questions - Here's How to Not Waste Time On It</h3>
                 <p>Study hours should track question-count weight, not personal comfort. Most candidates get this backwards.</p>
@@ -363,7 +402,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-chemistry-section-explained.html" class="article-card">
+            <a href="articles/imat-chemistry-section-explained.html" class="article-card" data-tag="Chemistry" data-author="Rom" data-date="2026-08-07">
                 <p class="article-tag">Chemistry</p>
                 <h3>The Chemistry Section Scares Everyone. Here's Why It Shouldn't.</h3>
                 <p>15 of 60 questions, and most of them are far more mechanical than the reputation suggests.</p>
@@ -376,7 +415,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-biology-topics-every-year.html" class="article-card">
+            <a href="articles/imat-biology-topics-every-year.html" class="article-card" data-tag="Biology" data-author="Maya" data-date="2026-08-06">
                 <p class="article-tag">Biology</p>
                 <h3>The Biology Topics That Show Up on the IMAT Every Single Year</h3>
                 <p>Biology is 23 of 60 questions - worth knowing exactly what repeats.</p>
@@ -389,7 +428,7 @@
                 </div>
             </a>
 
-            <a href="articles/no-science-background-needed-imat.html" class="article-card">
+            <a href="articles/no-science-background-needed-imat.html" class="article-card" data-tag="Mindset" data-author="Rom" data-date="2026-08-05">
                 <p class="article-tag">Mindset</p>
                 <h3>You Don't Need a Science Background to Ace the IMAT</h3>
                 <p>What actually predicts success isn't your school transcript.</p>
@@ -402,7 +441,7 @@
                 </div>
             </a>
 
-            <a href="articles/eu-non-eu-imat-process-explained.html" class="article-card">
+            <a href="articles/eu-non-eu-imat-process-explained.html" class="article-card" data-tag="Application Process" data-author="Maya" data-date="2026-08-04">
                 <p class="article-tag">Application Process</p>
                 <h3>Nobody Explains the EU vs Non-EU IMAT Process Properly - So Here It Is</h3>
                 <p>Same exam, completely different application track - and non-EU deadlines usually come first.</p>
@@ -415,7 +454,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-books-arent-enough.html" class="article-card">
+            <a href="articles/imat-books-arent-enough.html" class="article-card" data-tag="Resources" data-author="Rom" data-date="2026-08-03">
                 <p class="article-tag">Resources</p>
                 <h3>The Book Everyone Recommends for the IMAT (And Why It's Not Enough)</h3>
                 <p>A good textbook is necessary. It is not sufficient. Here's what actually separates the two.</p>
@@ -428,7 +467,7 @@
                 </div>
             </a>
 
-            <a href="articles/how-many-months-to-prepare-imat.html" class="article-card">
+            <a href="articles/how-many-months-to-prepare-imat.html" class="article-card" data-tag="Study Planner" data-author="Maya" data-date="2026-08-02">
                 <p class="article-tag">Study Planner</p>
                 <h3>How Many Months You Actually Need to Prepare for the IMAT</h3>
                 <p>There's no universal answer - but there's an honest way to find yours.</p>
@@ -441,7 +480,7 @@
                 </div>
             </a>
 
-            <a href="articles/which-university-imat.html" class="article-card">
+            <a href="articles/which-university-imat.html" class="article-card" data-tag="Universities" data-author="Rom" data-date="2026-08-01">
                 <p class="article-tag">Universities</p>
                 <h3>Which Italian University Should You Actually Apply To?</h3>
                 <p>How the ranking system really works, and the mistake that quietly costs people a seat.</p>
@@ -454,7 +493,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-syllabus-explained.html" class="article-card">
+            <a href="articles/imat-syllabus-explained.html" class="article-card" data-tag="Syllabus" data-author="Maya" data-date="2026-07-31">
                 <p class="article-tag">Syllabus</p>
                 <h3>The IMAT Syllabus Is a Mess - Here's How to Actually Use It</h3>
                 <p>The official decree tells you what's covered. It doesn't tell you what matters.</p>
@@ -467,7 +506,7 @@
                 </div>
             </a>
 
-            <a href="articles/why-92-percent-fail-the-imat.html" class="article-card">
+            <a href="articles/why-92-percent-fail-the-imat.html" class="article-card" data-tag="Mindset" data-author="Rom" data-date="2026-07-30">
                 <p class="article-tag">Mindset</p>
                 <h3>Why 92% of IMAT Candidates Fail (And It's Not What You Think)</h3>
                 <p>12,000 people sit the IMAT every year. About 900 get a seat. Most who fail aren't short on knowledge.</p>
@@ -480,7 +519,7 @@
                 </div>
             </a>
 
-            <a href="articles/read-every-past-imat-paper.html" class="article-card">
+            <a href="articles/read-every-past-imat-paper.html" class="article-card" data-tag="Past Papers" data-author="Maya" data-date="2026-07-28">
                 <p class="article-tag">Past Papers</p>
                 <h3>I Read Every Past IMAT Paper So You Don't Have To</h3>
                 <p>What years of real exams actually reveal about the format and the question style.</p>
@@ -493,7 +532,7 @@
                 </div>
             </a>
 
-            <a href="articles/imat-scoring-trick-nobody-tells-you.html" class="article-card">
+            <a href="articles/imat-scoring-trick-nobody-tells-you.html" class="article-card" data-tag="Strategy" data-author="Rom" data-date="2026-07-26">
                 <p class="article-tag">Strategy</p>
                 <h3>The IMAT Scoring Trick Nobody Tells You About</h3>
                 <p>The +1.5/-0.4/0 formula punishes blind guessing but rewards elimination.</p>
@@ -524,6 +563,64 @@
         </div>
     </div>
 </footer>
+
+<script>
+(function () {
+    var grid = document.querySelector('.articles-grid');
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.article-card'));
+    var topicButtons = document.querySelectorAll('#topicFilters .filter-pill');
+    var authorButtons = document.querySelectorAll('#authorFilters .filter-pill');
+    var sortSelect = document.getElementById('sortSelect');
+    var emptyMsg = document.getElementById('filterEmpty');
+
+    var state = { topic: 'all', author: 'all', sort: 'date-desc' };
+
+    function apply() {
+        cards.sort(function (a, b) {
+            var diff = new Date(a.dataset.date) - new Date(b.dataset.date);
+            return state.sort === 'date-asc' ? diff : -diff;
+        });
+        cards.forEach(function (card) { grid.appendChild(card); });
+
+        var isDefault = state.topic === 'all' && state.author === 'all' && state.sort === 'date-desc';
+        var visibleCount = 0;
+
+        cards.forEach(function (card, i) {
+            var topicMatch = state.topic === 'all' || card.dataset.tag === state.topic;
+            var authorMatch = state.author === 'all' || card.dataset.author === state.author;
+            var shown = topicMatch && authorMatch;
+            card.classList.toggle('hidden', !shown);
+            card.classList.toggle('article-card-wide', shown && isDefault && i === 0);
+            if (shown) visibleCount++;
+        });
+
+        emptyMsg.classList.toggle('hidden', visibleCount > 0);
+    }
+
+    topicButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            topicButtons.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            state.topic = btn.dataset.topic;
+            apply();
+        });
+    });
+
+    authorButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            authorButtons.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            state.author = btn.dataset.author;
+            apply();
+        });
+    });
+
+    sortSelect.addEventListener('change', function () {
+        state.sort = sortSelect.value;
+        apply();
+    });
+})();
+</script>
 
 </body>
 </html>
