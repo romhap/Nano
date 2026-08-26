@@ -134,6 +134,7 @@
         .send:disabled{opacity:.3;cursor:not-allowed}
         .send svg{width:16px;height:16px}
         .disclaimer{text-align:center;font-size:.71rem;color:var(--text3);margin-top:9px}
+        .usage-line{text-align:center;font-size:.68rem;color:var(--text3);margin-top:3px}
         .hidden{display:none!important}
 
         .linklike{background:none;border:none;color:var(--accent);cursor:pointer;font-size:inherit;font-family:inherit;padding:0;text-decoration:underline}
@@ -204,7 +205,7 @@
             </div>
             <button class="btn-primary" id="gSend">Send me a sign-in link</button>
             <p class="err" id="gErr"></p>
-            <p class="fineprint">We'll email a one-time link — click it to sign in, no password to remember. Trial includes 1 guided prompt and 2 free messages per day.</p>
+            <p class="fineprint">We'll email a one-time link — click it to sign in, no password to remember. Trial includes daily practice questions, uni previews, explanations and more — plus 2 free-typed messages a day.</p>
         </div>
 
         <!-- state 2: link sent, waiting -->
@@ -267,9 +268,11 @@
                 </button>
             </div>
             <p class="disclaimer">Club AI can make mistakes.</p>
+            <p class="usage-line hidden" id="usageLine"></p>
         </div>
     </div>
 </div>
+<input type="file" id="examFileInput" accept=".pdf,.txt,.md" class="hidden">
 
 <script>
 const MARK = '<svg viewBox="0 0 64 64" fill="none"><path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#0047FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#fff" stroke="#0047FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="46" width="52" height="4" rx="2" fill="#0047FF"/></svg>';
@@ -286,13 +289,14 @@ const TOPICS = {
   'Logic & Reading': ['Logical Problems','Numerical & Data Reasoning','Argument Analysis','Reading Comprehension','General Culture & History','Institutions & Citizenship']
 };
 
-const UNIS = ['Milano (Statale)','Milano-Bicocca','Roma (Sapienza)','Bologna','Pavia','Padova','Roma (Tor Vergata)','Torino','Napoli (Federico II)','Parma','Siena','Napoli (Vanvitelli)','Bari','Catania','Messina'];
+const UNIS = ['Milano (Statale)','Milano-Bicocca','Roma (Sapienza)','Bologna','Pavia','Padova','Roma (Tor Vergata)','Torino','Napoli (Federico II)','Parma','Siena','Napoli (Vanvitelli)','Bari','Catania','Messina','Cagliari','Firenze (Florence)'];
 
 const ACTIONS = [
   { id:'mock_question',ico:'🎯', label:'Practice question', picker:'topic' },
   { id:'explain',      ico:'💡', label:'Explain a topic',    picker:'topic' },
   { id:'mock_exam',    ico:'📝', label:'Full mock exam', pro:true,
     prompt:'Generate a complete IMAT practice exam in the current format: 60 questions across all five sections in the correct proportions, five options each (A-E). Number them and group by section. Put the full answer key at the very end.' },
+  { id:'upgrade_exam', ico:'⬆️', label:'Upgrade old exam', pro:true, picker:'upload' },
   { id:'university',   ico:'🏛️', label:'University preview',  picker:'uni' },
   { id:'strategy',     ico:'♟️', label:'Exam-day strategy',
     prompt:'Give me a sharp exam-day strategy for the IMAT: how to allocate 100 minutes across the sections, when guessing is mathematically worth it given the -0.4 penalty, and what order to attempt sections in.' },
@@ -300,8 +304,9 @@ const ACTIONS = [
     prompt:'I want you to mark my reasoning on a question. I will paste the question and my working. Critique it like an examiner: what was right, where the logic broke, and what to do differently. Ask me to paste it now.' },
   { id:'key_dates',    ico:'📅', label:'Key dates',
     prompt:'What are the key IMAT dates and deadlines I need to know — registration windows for EU and non-EU candidates, the exam date, and when results come out?' },
-  { id:'syllabus',     ico:'📚', label:'Syllabus',
+  { id:'syllabus',     ico:'📚', label:'Syllabus', pro:true,
     prompt:'Walk me through the official IMAT syllabus: what each section covers, how many questions each carries, and which topics carry the most weight.' },
+  { id:'subtopics',    ico:'🧩', label:'Break a topic into subtopics', pro:true, picker:'topicOnly' },
   { id:'anki_check',   ico:'🗂️', label:'Check my Anki deck', pro:true,
     prompt:'I want to check whether my Anki deck matches the IMAT syllabus. Explain exactly what to paste or export, then review it against the official syllabus and give me a coverage report: what is in scope, what is missing, and what is wasted effort.' }
 ];
@@ -632,6 +637,7 @@ function loadChat(id){
   history = chat.messages.slice();
   chat.messages.forEach(m => {
     if (m.role === 'user') addUser(m.content);
+    else if (m.action === 'mock_question') addAIQuestion(m.content);
     else addAI(m.content);
   });
   $('histWrap').classList.add('hidden');
@@ -652,6 +658,8 @@ function renderSuggestions(){
     b.addEventListener('click', () => {
       if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => send(topicPrompt(a,t), a.id));
       else if (a.picker === 'uni') openPicker('Which university?', { '': UNIS }, u => send(uniPrompt(u), a.id));
+      else if (a.picker === 'topicOnly') openPicker('Which topic?', { '': Object.keys(TOPICS) }, t => send(subtopicsPrompt(t), a.id));
+      else if (a.picker === 'upload') openUpgradeExamPicker();
       else send(a.prompt, a.id);
     });
     box.appendChild(b);
@@ -660,8 +668,11 @@ function renderSuggestions(){
 function topicTitle(a){ return a.id === 'explain' ? 'Which topic should I explain?' : 'Pick a topic'; }
 function topicPrompt(a, topic){
   if (a.id === 'mock_question')
-    return 'Generate one IMAT multiple-choice question in the current exam format on the topic of: ' + topic + '. Five options (A-E). After the question, give the answer and a one-line reason each distractor fails.';
-  return 'I am preparing for the IMAT and want to master it. Explain this topic sharply and at exam depth: ' + topic + '. If it is too broad to cover well, tell me which sub-topic to narrow to.';
+    return 'Generate one IMAT multiple-choice question in the current exam format on the topic of: ' + topic + '. Five options (A-E). Output ONLY the question and its five options first. Then on its own line write exactly "///ANSWER///" as a delimiter, then give the correct answer letter and a one-line reason each distractor fails. Do not reveal the answer before the delimiter.';
+  return 'I am studying for the IMAT exam (MCQ exam to enter medschool in Italy), I want to master and excel this exam, so for the syllabus-topic I give you, explain it sharply and at exam depth: ' + topic + '. If it is too broad to cover well, tell me which sub-topic to narrow to instead.';
+}
+function subtopicsPrompt(topic){
+  return 'I am studying for the IMAT exam, the syllabus is very vague, so for this topic of the syllabus I give you, make a clear list of all the subtopics I must learn: ' + topic + '.';
 }
 function uniPrompt(uni){
   return 'Give me a full IMAT-focused preview of ' + uni + ': how competitive it is, roughly what score has been needed recently, how many seats there are for EU and non-EU candidates, what the city and the course are like, and anything an applicant should weigh before ranking it. Flag clearly anything you are not certain is current.';
@@ -746,6 +757,29 @@ function addAI(text){
   const b = document.createElement('div'); b.className = 'ai-body'; b.innerHTML = md(text);
   t.appendChild(m); t.appendChild(b); $('thread').appendChild(t); toBottom();
 }
+// Practice questions: the question renders immediately, the answer stays
+// hidden behind a "Reveal answer" button rather than showing both at once.
+const QUESTION_DELIM = /\n*\/\/\/ANSWER\/\/\/\n*/;
+function addAIQuestion(text){
+  const parts = text.split(QUESTION_DELIM);
+  const q = parts[0];
+  const answer = parts.slice(1).join('\n').trim();
+  const t = document.createElement('div'); t.className = 'turn ai';
+  const m = document.createElement('div'); m.className = 'ai-mark'; m.innerHTML = MARK;
+  const b = document.createElement('div'); b.className = 'ai-body'; b.innerHTML = md(q);
+  t.appendChild(m); t.appendChild(b); $('thread').appendChild(t);
+  if (answer) {
+    const btn = document.createElement('button');
+    btn.className = 'linklike'; btn.style.display = 'block'; btn.style.marginTop = '8px';
+    btn.textContent = 'Reveal answer';
+    const ansBox = document.createElement('div');
+    ansBox.className = 'hidden'; ansBox.style.marginTop = '10px';
+    ansBox.innerHTML = md(answer);
+    btn.addEventListener('click', () => { ansBox.classList.remove('hidden'); btn.remove(); toBottom(); });
+    b.appendChild(btn); b.appendChild(ansBox);
+  }
+  toBottom();
+}
 function addDots(){
   const t = document.createElement('div'); t.className = 'turn ai'; t.id = 'dots';
   t.innerHTML = '<div class="ai-mark">' + MARK + '</div><div class="ai-body"><span class="dots"><i></i><i></i><i></i></span></div>';
@@ -775,6 +809,25 @@ function setPlan(paid){
   c.title = paid ? 'Manage your subscription' : 'Upgrade to Club AI Pro';
 }
 
+// Pro's budget is split across the days of the month so no single day can
+// blow the whole month's allowance. This just surfaces that running % --
+// the actual cap is enforced server-side regardless of what's shown here.
+let warnedDay = false, warnedMonth = false;
+function setUsage(usage){
+  const line = $('usageLine');
+  if (!usage) { line.classList.add('hidden'); return; }
+  line.classList.remove('hidden');
+  line.textContent = `Today: ${usage.dayPct}% of daily budget · This month: ${usage.monthPct}%`;
+  if (usage.dayPct >= 80 && !warnedDay) {
+    warnedDay = true;
+    addCard('Heads up', `You've used ${usage.dayPct}% of today's Club AI budget. It refills tomorrow.`, false);
+  }
+  if (usage.monthPct >= 80 && !warnedMonth) {
+    warnedMonth = true;
+    addCard('Heads up', `You've used ${usage.monthPct}% of this month's Club AI allowance. It resets on the 1st.`, false);
+  }
+}
+
 $('planChip').addEventListener('click', () => {
   if ($('planChip').classList.contains('pro')) {
     track('clubai_portal_click');
@@ -788,6 +841,43 @@ $('planChip').addEventListener('click', () => {
 });
 
 /* ---------- send ---------- */
+
+// Shared by both normal send() and the file-upload flow below, since both
+// hit the same /api/chat contract and need the same error handling.
+async function handleChatResponse(res, data, action){
+  if (res.ok) {
+    if (action === 'mock_question') addAIQuestion(data.reply);
+    else addAI(data.reply);
+    history.push({ role:'assistant', content:data.reply, action: action || null });
+    if (typeof data.paid !== 'undefined') setPlan(data.paid);
+    setUsage(data.usage);
+    await persistCurrentChat();
+  } else if (data.error === 'sign_in_required') {
+    // Session expired or was revoked from "manage devices" (possibly on
+    // another device) -- drop back to the gate rather than fail silently.
+    addAI(data.message || 'Your session ended. Please sign in again.');
+    clearSession();
+    setTimeout(() => location.href = location.pathname, 1400);
+  } else if (data.error === 'paid_only') {
+    addCard('A Pro feature', data.message || 'This one is part of Club AI Pro.', true);
+    track('clubai_blocked', { reason:'paid_only' });
+  } else if (data.error === 'trial_limit') {
+    addCard('Daily trial limit reached', data.message || 'Resets tomorrow.', true);
+    track('clubai_blocked', { reason:'trial_limit' });
+  } else if (data.error === 'budget_reached') {
+    addCard('Monthly allowance used', data.message || 'Resets on the 1st.', false);
+    track('clubai_blocked', { reason:'budget' });
+  } else if (data.error === 'daily_limit') {
+    addCard('Today\'s budget used', data.message || 'Refills tomorrow.', false);
+    track('clubai_blocked', { reason:'daily_limit' });
+  } else if (data.error === 'cooldown') {
+    addCard('Not just yet', data.message || 'Try again shortly.', false);
+    track('clubai_blocked', { reason:'cooldown', action: action || '' });
+  } else {
+    addAI(data.message || 'Something went wrong. Try again in a moment.');
+  }
+}
+
 async function send(text, action){
   if (busy || !text) return;
   busy = true; $('send').disabled = true;
@@ -803,38 +893,86 @@ async function send(text, action){
     });
     const data = await res.json();
     killDots();
-
-    if (res.ok) {
-      addAI(data.reply);
-      history.push({ role:'assistant', content:data.reply });
-      if (typeof data.paid !== 'undefined') setPlan(data.paid);
-      await persistCurrentChat();
-    } else if (data.error === 'sign_in_required') {
-      // Session expired or was revoked from "manage devices" (possibly on
-      // another device) -- drop back to the gate rather than fail silently.
-      addAI(data.message || 'Your session ended. Please sign in again.');
-      clearSession();
-      setTimeout(() => location.href = location.pathname, 1400);
-    } else if (data.error === 'paid_only') {
-      addCard('A Pro feature', data.message || 'This one is part of Club AI Pro.', true);
-      track('clubai_blocked', { reason:'paid_only' });
-    } else if (data.error === 'trial_limit') {
-      addCard('Daily trial limit reached', data.message || 'Resets tomorrow.', true);
-      track('clubai_blocked', { reason:'trial_limit' });
-    } else if (data.error === 'budget_reached') {
-      addCard('Monthly allowance used', data.message || 'Resets on the 1st.', false);
-      track('clubai_blocked', { reason:'budget' });
-    } else if (data.error === 'cooldown') {
-      addCard('Not just yet', data.message || 'Try again shortly.', false);
-      track('clubai_blocked', { reason:'cooldown', action: action || '' });
-    } else {
-      addAI(data.message || 'Something went wrong. Try again in a moment.');
-    }
+    await handleChatResponse(res, data, action);
   } catch (e) {
     killDots();
     addAI("Couldn't reach Club AI — check your connection and try again.");
   }
   busy = false; $('send').disabled = false; $('input').focus();
+}
+
+/* ---------- upgrade old exam (file upload) ---------- */
+const MAX_EXAM_FILE_BYTES = 4 * 1024 * 1024; // Vercel serverless functions cap request bodies around 4.5MB
+
+function openUpgradeExamPicker(){
+  $('examFileInput').click();
+}
+
+function readFileAsBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const idx = result.indexOf(',');
+      resolve(idx >= 0 ? result.slice(idx + 1) : result);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+function readFileAsText(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
+$('examFileInput').addEventListener('change', async (e) => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = ''; // allow picking the same file again later
+  if (f) await handleExamUpload(f);
+});
+
+async function handleExamUpload(file){
+  if (busy) return;
+  closePicker();
+  if (file.size > MAX_EXAM_FILE_BYTES) {
+    beginThread();
+    addAI("That file is too large (4MB max). Try a smaller PDF, or paste the exam as plain text instead.");
+    return;
+  }
+  busy = true; $('send').disabled = true;
+
+  const shownText = `[Uploaded: ${file.name}] Upgrade this old IMAT exam to the new format.`;
+  addUser(shownText);
+  // The raw file is sent once below and never kept in `history` -- it would
+  // bloat localStorage and there's no need to resend it on later messages.
+  history.push({ role:'user', content: shownText });
+  addDots();
+  track('clubai_message', { action: 'upgrade_exam' });
+
+  try {
+    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    const fileData = isPdf ? await readFileAsBase64(file) : await readFileAsText(file);
+    const res = await fetch('/api/chat', {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        sessionToken: SESSION_TOKEN,
+        messages: [{ role:'user', content:'Upgrade this old IMAT exam to exactly match the new IMAT format, matching both question style and quantity per topic.' }],
+        action: 'upgrade_exam',
+        file: { data: fileData, mediaType: isPdf ? 'application/pdf' : 'text/plain', name: file.name }
+      })
+    });
+    const data = await res.json();
+    killDots();
+    await handleChatResponse(res, data, 'upgrade_exam');
+  } catch (e) {
+    killDots();
+    addAI("Couldn't reach Club AI — check your connection and try again.");
+  }
+  busy = false; $('send').disabled = false;
 }
 
 const input = $('input');

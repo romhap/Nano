@@ -23,40 +23,65 @@ const MONTHLY_BUDGET_USD = 16;
 
 // Output is 5x the price of input, so this is the single biggest cost lever.
 const MAX_TOKENS = 800;
-const MAX_TOKENS_MOCK_EXAM = 4000; // a full 60-question exam genuinely needs room
+const MAX_TOKENS_HEAVY = 4000; // full exams / exam upgrades genuinely need the room
 
 // Only the last N messages are sent back to the model. History is resent in
 // full on every request, so an uncapped conversation is what silently makes a
 // chat app expensive. 6 = 3 exchanges of context.
 const HISTORY_WINDOW = 6;
 
-// --- Free trial limits ------------------------------------------------------
-const FREE_DEFAULT_BUTTONS_PER_DAY = 1;
+// --- Free trial: one guided use per day, PER ACTION -------------------------
+// Each of these six is its own daily allowance (not a shared pool) — a
+// student can use all six once each in the same day if they want.
+const FREE_ACTION_CAPS = {
+  mock_question: 1,
+  university: 1,
+  explain: 1,
+  strategy: 1,
+  mark_answer: 1,
+  key_dates: 1
+};
+const FREE_ACTION_LABELS = {
+  mock_question: 'practice question',
+  university: 'university preview',
+  explain: 'topic explanation',
+  strategy: 'exam-day strategy',
+  mark_answer: 'reasoning check',
+  key_dates: 'key dates lookup'
+};
 const FREE_FREETEXT_PER_DAY = 2;
 
-// Features that cost far more than a normal message, so they're paid-only.
-const PAID_ONLY_ACTIONS = ['mock_exam', 'anki_check'];
+// Features expensive enough (or valuable enough) to require Pro outright.
+const PAID_ONLY_ACTIONS = ['syllabus', 'subtopics', 'mock_exam', 'anki_check', 'upgrade_exam'];
 
-// ...and even for paid users they're rate-limited, since a full 60-question
-// exam is ~6x the cost of a normal reply.
-const MOCK_EXAMS_PER_DAY = 1;
-const ANKI_COOLDOWN_HOURS = 3;
+// ...and even for Pro users, the three heaviest ones share a cooldown — a
+// full exam (generated or upgraded) or a deck check costs far more than a
+// normal reply.
+const HEAVY_ACTIONS = ['mock_exam', 'anki_check', 'upgrade_exam'];
+const HEAVY_COOLDOWN_HOURS = 5;
+const HEAVY_ACTION_LABELS = {
+  mock_exam: 'a full mock exam',
+  anki_check: 'an Anki deck check',
+  upgrade_exam: 'an exam upgrade'
+};
 
 // --- Exam facts the model must not improvise --------------------------------
-// IMPORTANT: the model has a training cutoff and cannot know current-cycle
-// deadlines. Fill these in yourself before promoting the "key dates" button,
-// and update them each cycle. While left empty, the model is instructed to
-// refuse to guess and to send students to universitaly.it instead.
+// Filled in from a live lookup on 26 Aug 2026. Re-check and update every
+// cycle — a wrong deadline could make a student miss a real one. While any
+// field below is blank, the model is instructed to refuse to guess it.
 const KEY_DATES = {
-  exam_date: '',          // e.g. 'Tuesday 15 September 2026'
-  eu_deadline: '',        // e.g. 'registration closes 30 July 2026'
-  non_eu_deadline: '',    // e.g. 'apply to your chosen university by 15 May 2026'
-  results_date: '',       // e.g. 'early October 2026'
+  exam_date: 'Tuesday 29 September 2026, at Italian universities and international centres',
+  eu_deadline: 'exam registration on Universitaly is open 26 August – 9 September 2026, 3:00 PM Italy time (hard deadline, no exceptions) — this covers EU candidates and non-EU candidates already resident in Italy',
+  non_eu_deadline: "the non-EU (visa-required) pre-enrolment window for THIS cycle already closed — it ran roughly April/May through 30 June 2026. If a student still needs a study visa and missed it, tell them to contact their target university directly about late slots rather than assuming they're locked out; next cycle's window typically reopens in spring",
+  results_date: 'anonymous rankings (by code, not name) 8 October 2026; individual scores 19 October 2026; full national ranking with names 26 October 2026 on Universitaly',
   source_url: 'https://www.universitaly.it'
 };
 
 const SYLLABUS_URL =
   'https://www.entermedschool.com/cdn-assets/wp-content/uploads/2023/10/Decreto-Ministeriale-n.-1133-Allegato-A-1.pdf';
+
+const KEY_DATES_DISCLAIMER =
+  '⚠️ Always verify against universitaly.it and your target university — dates can shift and this is not a substitute for official confirmation.';
 
 function keyDatesBlock() {
   const filled = Object.entries(KEY_DATES)
@@ -69,7 +94,7 @@ can make a student miss a real deadline. Say you don't have the confirmed dates
 for this cycle and send them to ${KEY_DATES.source_url} and their target
 university's own page.`;
   }
-  return `KEY DATES (confirmed, safe to state):\n${filled.join('\n')}\nSource: ${KEY_DATES.source_url}\nIf asked about a date NOT in this list, say you don't have it confirmed and point to ${KEY_DATES.source_url}.`;
+  return `KEY DATES (confirmed, safe to state):\n${filled.join('\n')}\nSource: ${KEY_DATES.source_url}\nIf asked about a date NOT in this list, say you don't have it confirmed and point to ${KEY_DATES.source_url}.\nEnd every answer that states a key date with exactly this line on its own: "${KEY_DATES_DISCLAIMER}"`;
 }
 
 const SYSTEM_PROMPT = `You are Club AI, the IMAT tutor built by IMAT.club for students preparing for the IMAT (International Medical Admissions Test) — the entrance exam for English-taught medicine degrees at Italian public universities.
@@ -84,6 +109,13 @@ WHEN WRITING QUESTIONS:
 - Match the real IMAT register: concise stems, plausible distractors, no trick wording.
 - Exactly 5 options (A-E). Give the correct answer and a one-line reason each distractor is wrong.
 - Calibrate to real IMAT difficulty — not olympiad-hard, not textbook-trivial.
+
+WHEN ASKED TO UPGRADE/CONVERT AN OLD EXAM TO THE NEW FORMAT (an uploaded document may be attached to the request):
+- Rewrite it to match the current format above exactly: same total question count and per-section proportions as listed, 5 options each, current-style scoring.
+- Preserve the underlying topics/knowledge being tested where reasonable, but rewrite stems and distractors to match real IMAT phrasing rather than copying the old exam's wording verbatim.
+- If the upload is unreadable, too short to work from, or clearly isn't an exam, say so plainly instead of inventing content.
+
+UNIVERSITIES: the University of Cagliari (Sardinia) and the University of Florence both opened new English-taught Medicine and Surgery programmes accessible via IMAT very recently. You may not have reliable training data on them (seat counts, competitiveness, past cutoffs) — say so plainly rather than guessing specifics for these two. Padua and the other long-established IMAT universities are unaffected.
 
 ${keyDatesBlock()}
 
@@ -126,9 +158,13 @@ B. Water leaves the cell; the cell shrinks
 C. Solute enters the cell down its gradient
 D. No net movement occurs
 E. The cell actively pumps water inward using ATP
-
+///ANSWER///
 **Answer: B**
 The solution is hypertonic, so water moves out by osmosis. A reverses the gradient. C is blocked by the stated permeability. D would require isotonicity. E is not a real mechanism — water moves passively.`,
+
+  upgrade_exam: `**[MOCK MODE — no API key set, this is a canned sample]**
+
+Add \`ANTHROPIC_API_KEY\` in Vercel to actually upgrade an uploaded exam — in mock mode there's nothing to analyze yet.`,
 
   default: `**[MOCK MODE — no API key set]**
 
@@ -175,6 +211,11 @@ async function recordUsage(sessionToken, costUsd, kind, action) {
   }
 }
 
+function daysInCurrentMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+}
+
 // ---------------------------------------------------------------------------
 
 export default async function handler(req, res) {
@@ -182,7 +223,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { sessionToken, messages, action } = req.body || {};
+  const { sessionToken, messages, action, file } = req.body || {};
 
   if (!sessionToken || typeof sessionToken !== 'string') {
     return res.status(401).json({ error: 'sign_in_required', message: 'Please sign in to Club AI.' });
@@ -221,15 +262,17 @@ export default async function handler(req, res) {
   }
 
   if (!isPaid && account) {
-    const usedButtons = account.dayButtons || 0;
-    const usedFree = account.dayFreetext || 0;
-    if (isDefaultButton && usedButtons >= FREE_DEFAULT_BUTTONS_PER_DAY) {
-      return res.status(429).json({
-        error: 'trial_limit',
-        message: `Your free trial includes ${FREE_DEFAULT_BUTTONS_PER_DAY} guided question per day. Resets tomorrow.`
-      });
-    }
-    if (!isDefaultButton && usedFree >= FREE_FREETEXT_PER_DAY) {
+    if (isDefaultButton) {
+      const cap = FREE_ACTION_CAPS[action];
+      const used = (account.actionsToday && account.actionsToday[action]) || 0;
+      if (cap && used >= cap) {
+        const label = FREE_ACTION_LABELS[action] || 'guided prompt';
+        return res.status(429).json({
+          error: 'trial_limit',
+          message: `Your free trial includes ${cap} ${label} per day. Resets tomorrow — or upgrade to Club AI Pro for unlimited access.`
+        });
+      }
+    } else if ((account.dayFreetext || 0) >= FREE_FREETEXT_PER_DAY) {
       return res.status(429).json({
         error: 'trial_limit',
         message: `Your free trial includes ${FREE_FREETEXT_PER_DAY} free messages per day. Resets tomorrow.`
@@ -237,47 +280,53 @@ export default async function handler(req, res) {
     }
   }
 
-  if (isPaid && account && (account.spentUsd || 0) >= MONTHLY_BUDGET_USD) {
-    return res.status(429).json({
-      error: 'budget_reached',
-      message: "You've used this month's Club AI allowance. It resets on the 1st."
-    });
-  }
+  const dailyBudget = MONTHLY_BUDGET_USD / daysInCurrentMonth();
 
-  // Per-feature cooldowns — these apply to paid users too.
-  if (isPaid && account && action === 'mock_exam' && MOCK_EXAMS_PER_DAY > 0) {
-    if (account.lastMockExamDay && account.today &&
-        account.lastMockExamDay === account.today) {
+  if (isPaid && account) {
+    if ((account.spentUsd || 0) >= MONTHLY_BUDGET_USD) {
       return res.status(429).json({
-        error: 'cooldown',
-        message: "You've already generated a full mock exam today. A fresh one unlocks tomorrow — sitting one properly is worth more than generating another."
+        error: 'budget_reached',
+        message: "You've used this month's Club AI allowance. It resets on the 1st."
+      });
+    }
+    if ((account.spentUsdToday || 0) >= dailyBudget) {
+      return res.status(429).json({
+        error: 'daily_limit',
+        message: "You've used today's share of your Club AI budget. It refills tomorrow — spreading it out keeps everyone's Pro access fast and unlimited-feeling all month."
       });
     }
   }
 
-  if (isPaid && account && action === 'anki_check' && account.lastAnkiCheck) {
-    const elapsedMs = Date.now() - account.lastAnkiCheck;
-    const cooldownMs = ANKI_COOLDOWN_HOURS * 60 * 60 * 1000;
-    if (elapsedMs < cooldownMs) {
-      const mins = Math.ceil((cooldownMs - elapsedMs) / 60000);
-      const wait = mins >= 60
-        ? `${Math.floor(mins / 60)}h ${mins % 60}m`
-        : `${mins}m`;
-      return res.status(429).json({
-        error: 'cooldown',
-        message: `Deck checks are limited to one every ${ANKI_COOLDOWN_HOURS} hours. Next one in ${wait}.`
-      });
+  // Heavy-feature cooldown — Pro only (free users are already blocked above
+  // by PAID_ONLY_ACTIONS since all three heavy actions are paid-only).
+  if (isPaid && account && HEAVY_ACTIONS.includes(action)) {
+    const lastTs = (account.heavyActions && account.heavyActions[action]) || 0;
+    if (lastTs) {
+      const elapsedMs = Date.now() - lastTs;
+      const cooldownMs = HEAVY_COOLDOWN_HOURS * 60 * 60 * 1000;
+      if (elapsedMs < cooldownMs) {
+        const mins = Math.ceil((cooldownMs - elapsedMs) / 60000);
+        const wait = mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`;
+        const label = HEAVY_ACTION_LABELS[action] || 'this';
+        return res.status(429).json({
+          error: 'cooldown',
+          message: `${label[0].toUpperCase()}${label.slice(1)} is limited to one every ${HEAVY_COOLDOWN_HOURS} hours. Next one in ${wait}.`
+        });
+      }
     }
   }
+
+  const kind = !isDefaultButton ? 'freetext' : (HEAVY_ACTIONS.includes(action) ? 'heavy' : 'action');
 
   // ---- Mock mode -----------------------------------------------------------
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    await recordUsage(sessionToken, 0, isDefaultButton ? 'button' : 'freetext', action);
+    await recordUsage(sessionToken, 0, kind, action);
     return res.status(200).json({
       reply: mockReply(action),
       mock: true,
-      paid: isPaid
+      paid: isPaid,
+      usage: isPaid ? { dayPct: 0, monthPct: 0 } : undefined
     });
   }
 
@@ -292,9 +341,29 @@ export default async function handler(req, res) {
       content: m.content
     }));
 
+    // "Upgrade old exam" attaches a document to the last user turn instead of
+    // relying on plain text. PDFs go in as a native document block; anything
+    // else (student pasted/uploaded plain text) is just appended as text.
+    if (action === 'upgrade_exam' && file && file.data) {
+      const last = trimmed[trimmed.length - 1];
+      if (last && last.role === 'user') {
+        const promptText = typeof last.content === 'string' && last.content
+          ? last.content
+          : 'Upgrade this old IMAT exam to exactly match the new IMAT format.';
+        if ((file.mediaType || '').includes('pdf')) {
+          last.content = [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file.data } },
+            { type: 'text', text: promptText }
+          ];
+        } else {
+          last.content = `${promptText}\n\n--- UPLOADED EXAM (${file.name || 'file'}) ---\n${file.data}`;
+        }
+      }
+    }
+
     const response = await client.messages.create({
       model: MODEL,
-      max_tokens: action === 'mock_exam' ? MAX_TOKENS_MOCK_EXAM : MAX_TOKENS,
+      max_tokens: HEAVY_ACTIONS.includes(action) ? MAX_TOKENS_HEAVY : MAX_TOKENS,
       system: SYSTEM_PROMPT,
       messages: trimmed
     });
@@ -309,9 +378,19 @@ export default async function handler(req, res) {
       (usage.input_tokens || 0) * PRICE_IN_PER_TOKEN +
       (usage.output_tokens || 0) * PRICE_OUT_PER_TOKEN;
 
-    await recordUsage(sessionToken, costUsd, isDefaultButton ? 'button' : 'freetext', action);
+    await recordUsage(sessionToken, costUsd, kind, action);
 
-    return res.status(200).json({ reply, paid: isPaid });
+    let usagePct;
+    if (isPaid && account) {
+      const newToday = (account.spentUsdToday || 0) + costUsd;
+      const newMonth = (account.spentUsd || 0) + costUsd;
+      usagePct = {
+        dayPct: Math.min(100, Math.round((newToday / dailyBudget) * 100)),
+        monthPct: Math.min(100, Math.round((newMonth / MONTHLY_BUDGET_USD) * 100))
+      };
+    }
+
+    return res.status(200).json({ reply, paid: isPaid, usage: usagePct });
   } catch (err) {
     console.error('Club AI error:', err && err.message);
     return res.status(500).json({

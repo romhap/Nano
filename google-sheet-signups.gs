@@ -341,12 +341,23 @@ function sendWebinarReminders() {
  *
  * Day and month counters reset themselves, so you never need to
  * clear them by hand.
+ *
+ * NOTE: this schema changed shape (Buttons Today -> Actions Today,
+ * Last Mock Exam Day -> Last Heavy Action, + Spent USD (day)). If a
+ * ClubAI tab already exists from before this change, delete it —
+ * it'll be recreated fresh on the next request. Safe to do since this
+ * is still pre-launch (no real paying users depend on the old columns).
  */
 
 var AI_SHEET_NAME = 'ClubAI';
+// 'Actions Today' and 'Last Heavy Action' are small JSON objects (not one
+// column per action) so adding/removing a free action or a heavy feature
+// later never requires another header migration:
+//   Actions Today     = {"mock_question":1,"university":0,...}  (free daily caps)
+//   Last Heavy Action = {"mock_exam":1699999999999,...}         (Pro 5hr cooldowns)
 var AI_HEADERS = ['Email', 'WhatsApp', 'Paid', 'Spent USD (month)', 'Month',
-                  'Buttons Today', 'Freetext Today', 'Day', 'First Seen', 'Last Seen',
-                  'Last Mock Exam Day', 'Last Anki Check'];
+                  'Actions Today', 'Freetext Today', 'Day', 'First Seen', 'Last Seen',
+                  'Last Heavy Action', 'Spent USD (day)'];
 
 function getAiSheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -386,6 +397,14 @@ function aiTruthy(v) {
   return v === true || /^(true|yes|y|1)$/i.test(String(v).trim());
 }
 
+function aiParseJson(v) {
+  if (!v) return {};
+  try {
+    var parsed = JSON.parse(v);
+    return (parsed && typeof parsed === 'object') ? parsed : {};
+  } catch (e) { return {}; }
+}
+
 /** Returns the caller's current entitlement + usage, creating the row if new.
  *  Internal helper -- callers must already have a verified email (from a
  *  resolved session), never a client-claimed one. See aiCheck() below for
@@ -401,46 +420,50 @@ function aiCheckByEmail(email, whatsapp) {
   var row = aiFindRow(sheet, email);
 
   if (row === -1) {
-    sheet.appendRow([email, whatsapp || '', false, 0, mKey, 0, 0, dKey, now, now, '', '']);
-    return { paid: false, spentUsd: 0, dayButtons: 0, dayFreetext: 0,
-             lastMockExamDay: '', lastAnkiCheck: 0, isNew: true };
+    sheet.appendRow([email, whatsapp || '', false, 0, mKey, '{}', 0, dKey, now, now, '{}', 0]);
+    return { paid: false, spentUsd: 0, spentUsdToday: 0, actionsToday: {}, dayFreetext: 0,
+             heavyActions: {}, today: dKey, isNew: true };
   }
 
   var vals = sheet.getRange(row, 1, 1, AI_HEADERS.length).getValues()[0];
   var paid = aiTruthy(vals[2]);
   var spent = parseFloat(vals[3]) || 0;
   var storedMonth = String(vals[4] || '');
-  var buttons = parseInt(vals[5], 10) || 0;
+  var actionsToday = aiParseJson(vals[5]);
   var freetext = parseInt(vals[6], 10) || 0;
   var storedDay = String(vals[7] || '');
+  var spentToday = parseFloat(vals[11]) || 0;
 
   // Self-resetting counters
   if (storedMonth !== mKey) { spent = 0; vals[3] = 0; vals[4] = mKey; }
-  if (storedDay !== dKey) { buttons = 0; freetext = 0; vals[5] = 0; vals[6] = 0; vals[7] = dKey; }
+  if (storedDay !== dKey) {
+    actionsToday = {}; freetext = 0; spentToday = 0;
+    vals[5] = '{}'; vals[6] = 0; vals[7] = dKey; vals[11] = 0;
+  }
   if (!vals[1] && whatsapp) vals[1] = whatsapp;
   vals[9] = now;
   sheet.getRange(row, 1, 1, AI_HEADERS.length).setValues([vals]);
 
-  // Per-feature cooldowns (paid users). Anki timestamp goes out as epoch ms
-  // so the serverless side can compare it without timezone ambiguity.
-  var ankiRaw = vals[11];
-  var ankiMs = 0;
-  if (ankiRaw instanceof Date) ankiMs = ankiRaw.getTime();
-  else if (ankiRaw) ankiMs = new Date(ankiRaw).getTime() || 0;
+  // Heavy-action cooldowns (Pro only): per-action epoch-ms timestamps, so the
+  // serverless side can compare elapsed time without timezone ambiguity.
+  var heavyActions = aiParseJson(vals[10]);
 
   return {
     paid: paid,
     spentUsd: spent,
-    dayButtons: buttons,
+    spentUsdToday: spentToday,
+    actionsToday: actionsToday,
     dayFreetext: freetext,
-    lastMockExamDay: String(vals[10] || ''),
-    lastAnkiCheck: ankiMs,
+    heavyActions: heavyActions,
     today: dKey
   };
 }
 
-/** Adds one request's cost, bumps the daily counter, stamps feature cooldowns.
- *  Internal helper -- takes an already-verified email, same rule as above. */
+/** Adds one request's cost, bumps the relevant daily counter, stamps heavy-
+ *  action cooldowns. Internal helper -- takes an already-verified email,
+ *  same rule as above.
+ *  kind: 'freetext' | 'action' (one of the free-capped guided buttons) |
+ *        'heavy' (mock_exam / anki_check / upgrade_exam -- 5hr cooldown) */
 function aiRecordUsageByEmail(email, costUsd, kind, action) {
   email = (email || '').toString().trim().toLowerCase();
   if (!email) return;
@@ -455,16 +478,24 @@ function aiRecordUsageByEmail(email, costUsd, kind, action) {
   var dKey = aiDayKey(now);
 
   if (String(vals[4] || '') !== mKey) { vals[3] = 0; vals[4] = mKey; }
-  if (String(vals[7] || '') !== dKey) { vals[5] = 0; vals[6] = 0; vals[7] = dKey; }
+  if (String(vals[7] || '') !== dKey) { vals[5] = '{}'; vals[6] = 0; vals[7] = dKey; vals[11] = 0; }
 
   vals[3] = (parseFloat(vals[3]) || 0) + (parseFloat(costUsd) || 0);
-  if (kind === 'button') vals[5] = (parseInt(vals[5], 10) || 0) + 1;
-  else vals[6] = (parseInt(vals[6], 10) || 0) + 1;
+  vals[11] = (parseFloat(vals[11]) || 0) + (parseFloat(costUsd) || 0);
+
+  if (kind === 'freetext') {
+    vals[6] = (parseInt(vals[6], 10) || 0) + 1;
+  } else if (kind === 'action' && action) {
+    var actionsToday = aiParseJson(vals[5]);
+    actionsToday[action] = (actionsToday[action] || 0) + 1;
+    vals[5] = JSON.stringify(actionsToday);
+  } else if (kind === 'heavy' && action) {
+    var heavyActions = aiParseJson(vals[10]);
+    heavyActions[action] = now.getTime();
+    vals[10] = JSON.stringify(heavyActions);
+  }
+
   vals[9] = now;
-
-  if (action === 'mock_exam') vals[10] = dKey;
-  if (action === 'anki_check') vals[11] = now;
-
   sheet.getRange(row, 1, 1, AI_HEADERS.length).setValues([vals]);
 }
 

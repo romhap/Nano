@@ -42,6 +42,12 @@ Save, then **Deploy → Manage deployments → edit → New version → Deploy**
 Three new tabs appear on first use: **`ClubAI`** (accounts/spend),
 **`MagicLinks`** (sign-in tokens), **`Devices`** (sessions).
 
+> If a **`ClubAI`** tab already exists from before the per-action limits
+> update, delete it — the column layout changed (daily counters moved into
+> one compact JSON column so future limit changes don't need another sheet
+> migration). It's recreated automatically, empty, on the next request. Safe
+> to do since there are no real paying users on the old layout yet.
+
 ### 3. Mark paying users
 When someone subscribes via the Club AI Stripe link
 (`buy.stripe.com/fZu14nb6i3J64Y01q1gw004`), open the **ClubAI** tab, find
@@ -108,17 +114,42 @@ nothing is stored server-side about what was discussed.
 
 | | Trial | Pro |
 |---|---|---|
-| Guided prompts | 1 / day | unlimited¹ |
+| Practice question | 1 / day | unlimited¹ |
+| University preview | 1 / day | unlimited¹ |
+| Explain a topic | 1 / day | unlimited¹ |
+| Exam-day strategy | 1 / day | unlimited¹ |
+| Mark my reasoning | 1 / day | unlimited¹ |
+| Key dates | 1 / day | unlimited¹ |
 | Free-typed messages | 2 / day | unlimited¹ |
-| Full mock exam | locked | **1 / day** |
-| Anki deck check | locked | **1 per 3 hours** |
+| Syllabus | locked | unlimited¹ |
+| Break topic into subtopics | locked | unlimited¹ |
+| Full mock exam | locked | **1 per 5 hours** |
+| Upgrade an old exam | locked | **1 per 5 hours** |
+| Anki deck check | locked | **1 per 5 hours** |
 
-¹ Capped by a **$16/month spend ceiling** (≈ €15). Daily counters, the
-monthly total and both cooldowns reset themselves — nothing to clear by hand.
+¹ Capped by a **$16/month spend ceiling** (≈ €15), further split into a
+**daily share** (monthly ÷ days in the month) so one heavy day can't burn a
+whole month's allowance — see "Pro's daily budget" below. All counters and
+cooldowns reset themselves — nothing to clear by hand.
 
-Mock exams and deck checks are rate-limited even on Pro because a full
-60-question exam costs roughly 6x a normal reply. Both limits are enforced
+The six free-trial guided actions are each their own daily counter — a
+student can use all six once each on the same day, not a shared pool of one.
+
+Mock exams, exam upgrades and deck checks are rate-limited even on Pro
+because each costs several times a normal reply. All limits are enforced
 server-side, so clearing browser storage doesn't bypass them.
+
+### Pro's daily budget
+Pro's $16/month is divided by the number of days in the current calendar
+month to get a daily share (~$0.53/day on a 30-day month). Hitting that share
+blocks further messages until the next day with a **"today's budget used"**
+message — the monthly ceiling still exists underneath as a backstop. The
+plan chip's tooltip and a small line under the composer show the running
+day/month percentage after every Pro reply, and a one-time heads-up card
+appears the first time either crosses 80% in a session — mirroring the kind
+of usage indicator Claude's own apps show, just lighter-weight (text + an
+alert card rather than a full bar chart; easy to build out further later if
+wanted).
 
 ---
 
@@ -128,7 +159,8 @@ Output tokens cost **5× input** on this model, so that's where the control
 matters most. Four levers are already in place:
 
 1. **`max_tokens: 800`** on normal replies — the single biggest lever.
-   Mock exams get 4000 because 60 questions genuinely need the room.
+   The three heavy actions (mock exam, exam upgrade, Anki check) get 4000
+   because they genuinely need the room.
 2. **Rolling 6-message history.** Full history is re-sent on every request,
    so an uncapped conversation is what quietly makes a chat app expensive.
    Only the last 3 exchanges are sent.
@@ -154,42 +186,67 @@ separate daily image cap.
 
 ---
 
-## ⚠️ Two things to fix before promoting this
+## ⚠️ One thing to keep fresh, one thing to consider
 
-### Key dates will refuse to answer — on purpose
-The model has a training cutoff and **cannot know the current cycle's
-deadlines**. Rather than let it guess (a wrong deadline could make a student
-miss a real application window), it's instructed to say it doesn't have
-confirmed dates and point to universitaly.it.
-
-To switch the "Key dates" button on properly, fill in `KEY_DATES` at the top
-of `api/chat.js` with the confirmed dates, and update it each cycle.
+### Key dates — filled in, but re-check each cycle
+`KEY_DATES` in `api/chat.js` is filled in from a live lookup done 26 Aug
+2026 (exam date, EU registration window, non-EU pre-enrolment status,
+results timeline). Every answer that states a date automatically ends with
+a fixed disclaimer line pointing to universitaly.it. **Re-verify and update
+`KEY_DATES` at the start of each new cycle** — if you ever clear a field
+back to `''`, the model goes back to refusing to guess it rather than
+stating something stale.
 
 ### The syllabus link isn't fetched, only cited
 The model is told the official decree URL and told to stay within its scope,
 but it does **not** read the PDF at runtime — it works from training
-knowledge. It's good on IMAT structure, weaker on fine syllabus edges. If you
-want genuine fidelity, the next step is pasting the decree's topic list
-directly into the system prompt.
+knowledge. It's good on IMAT structure, weaker on fine syllabus edges (now
+Pro-only, so this only affects paying users). If you want genuine fidelity,
+the next step is pasting the decree's topic list directly into the system
+prompt.
 
-The same applies to your offer of past IMAT papers: pasting whole exams into
-every request would be very expensive. The better use is to distil them into
-a short style guide (question phrasing, distractor patterns, difficulty) and
-add that to the system prompt once.
+The same goes for the new **"Upgrade old exam"** button — it currently
+upgrades a student's uploaded exam using the exam-format facts already in
+the system prompt, not literal reference papers. You offered to send the
+real 2024 & 2025 IMAT papers — please do; a short distilled style guide
+(question phrasing, distractor patterns, difficulty, quantity per topic)
+added to the system prompt from those would sharpen both this button and
+the "Full mock exam" generator. Pasting the whole papers into every request
+would be too expensive — the distilled version is the right shape.
 
 ---
 
 ## The buttons
 
-Built as requested: full mock exam (Pro), single practice question, topic
-explainer, university preview, key dates, syllabus, Anki check (Pro).
-
-Four added on top:
-
-- **♟️ Exam-day strategy** — timing and when guessing beats the −0.4 penalty
+- **🎯 Practice question** — student picks a topic, then a subtopic, then
+  gets **one question at a time**. The answer is hidden behind a "Reveal
+  answer" button rather than shown immediately, so it actually works as
+  practice instead of spoiling itself.
+- **💡 Explain a topic** — topic/subtopic picker; the model is told to ask
+  for a narrower sub-topic if what's picked is too broad to cover well.
+- **📝 Full mock exam** (Pro) — generates a complete fresh 60-question exam
+  in the current format and proportions.
+- **⬆️ Upgrade old exam** (Pro, new) — student **uploads a file** (an old-format
+  exam, PDF or plain text/markdown, 4MB max) and the model rewrites it to
+  match the current format: same question count and per-section proportions,
+  current-style options and scoring. The file is sent once for that request
+  and is never saved into the student's chat history (would bloat
+  `localStorage` and there's no reason to resend it).
+- **🏛️ University preview** — picker now includes **Cagliari** and
+  **Firenze**, the two genuinely new IMAT-accessible English medicine
+  programmes for this cycle (Padova and the rest of the established list are
+  unchanged). The model is told it may not have reliable training data on
+  the two new ones and to say so rather than guess seat counts/cutoffs.
+- **♟️ Exam-day strategy** — timing and when guessing beats the −0.4 penalty.
 - **✍️ Mark my reasoning** — student pastes their working, gets marked like
-  an examiner. This is the one that most feels like real mentorship.
-- Topic and university pickers so students don't have to phrase things
+  an examiner.
+- **📅 Key dates** — see the dates section above; every dated answer ends
+  with the verify-yourself disclaimer.
+- **📚 Syllabus** (Pro) — moved behind Pro in this update.
+- **🧩 Break a topic into subtopics** (Pro, new) — topic-only picker (no
+  subtopic drill-down, since the point is generating that list), turns a
+  vague syllabus topic into a concrete list of what to actually learn.
+- **🗂️ Check my Anki deck** (Pro).
 
 Others worth considering later: "Compare two universities side by side",
 "Build me a 14-day plan", "Turn this into Anki cards".
