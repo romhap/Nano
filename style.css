@@ -1272,8 +1272,15 @@ footer {
         grid-template-columns: 1fr;
     }
 
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px 12px;
+    }
+
     .nav-link-muted {
-        display: none;
+        font-size: 0.7rem;
+        padding: 6px 0;
     }
 }
 
