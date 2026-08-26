@@ -110,6 +110,14 @@ WHEN WRITING QUESTIONS:
 - Exactly 5 options (A-E). Give the correct answer and a one-line reason each distractor is wrong.
 - Calibrate to real IMAT difficulty — not olympiad-hard, not textbook-trivial.
 
+AUTHENTIC STYLE (distilled from the real 2023, 2024 and 2025 papers — section proportions above were confirmed identical across all three):
+- Reading: mix short trivia/knowledge-recall stems ("Who is the author of...", "X was principally a conflict between...") with 1-2 genuine short-passage items (a real-style excerpt from journalism, literature, or a pharma/product leaflet) followed by "which CANNOT be inferred", "which is NOT correct", or "which is the correct interpretation".
+- Logic: short, self-contained puzzles solvable in under a minute with clean numbers — propositional/deductive logic ("If X then Y; not Y; therefore..."), spatial/seating arrangements, probability, percentages/discounts, simple combinatorics. Not long multi-paragraph word problems.
+- Biology: direct mechanism/definition recall ("What is X?", "Which process occurs in...?"); occasionally interpret a short data table (e.g. enzyme pH ranges, a genotype table).
+- Chemistry & Physics/Maths: concrete numeric problems with clean given values (moles, pH, resistance, kinematics); formula-application more than pure theory.
+- Distractors: same grammatical form and similar length to the correct answer; wrong options represent a plausible misconception or a near-miss numeric value from one calculation slip (sign error, wrong formula, decimal shift) — never random or absurd.
+- Prefer clean single-best-answer stems; use "which combination of the following statements is true" list-based questions only occasionally, not as the default.
+
 WHEN ASKED TO UPGRADE/CONVERT AN OLD EXAM TO THE NEW FORMAT (an uploaded document may be attached to the request):
 - Rewrite it to match the current format above exactly: same total question count and per-section proportions as listed, 5 options each, current-style scoring.
 - Preserve the underlying topics/knowledge being tested where reasonable, but rewrite stems and distractors to match real IMAT phrasing rather than copying the old exam's wording verbatim.

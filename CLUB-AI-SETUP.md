@@ -205,14 +205,22 @@ Pro-only, so this only affects paying users). If you want genuine fidelity,
 the next step is pasting the decree's topic list directly into the system
 prompt.
 
-The same goes for the new **"Upgrade old exam"** button — it currently
-upgrades a student's uploaded exam using the exam-format facts already in
-the system prompt, not literal reference papers. You offered to send the
-real 2024 & 2025 IMAT papers — please do; a short distilled style guide
-(question phrasing, distractor patterns, difficulty, quantity per topic)
-added to the system prompt from those would sharpen both this button and
-the "Full mock exam" generator. Pasting the whole papers into every request
-would be too expensive — the distilled version is the right shape.
+### Style guide from the real papers — done
+You sent the real 2023, 2024 and 2025 English IMAT papers. Two useful
+things came out of reading them:
+
+1. **The section proportions were already correct** — all three years match
+   the 4/5/23/15/13 breakdown baked into the system prompt exactly, so no
+   change needed there, just more confidence in it.
+2. A distilled **style guide** is now in `SYSTEM_PROMPT` (`AUTHENTIC STYLE`
+   block) covering real phrasing patterns per section, how distractors are
+   actually built (near-miss numbers from a plausible calculation slip, not
+   random), and a stylistic note the papers made clear: newer sittings lean
+   on clean single-best-answer stems more than "which combination of these
+   statements is true" list questions. This sharpens both "Full mock exam"
+   and "Upgrade old exam" without pasting whole papers into every request
+   (which would be far more expensive for a marginal accuracy gain over the
+   distilled version).
 
 ---
 
