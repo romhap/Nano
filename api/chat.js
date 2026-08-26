@@ -37,16 +37,12 @@ const FREE_ACTION_CAPS = {
   mock_question: 1,
   university: 1,
   explain: 1,
-  strategy: 1,
-  mark_answer: 1,
   key_dates: 1
 };
 const FREE_ACTION_LABELS = {
   mock_question: 'practice question',
   university: 'university preview',
   explain: 'topic explanation',
-  strategy: 'exam-day strategy',
-  mark_answer: 'reasoning check',
   key_dates: 'key dates lookup'
 };
 const FREE_FREETEXT_PER_DAY = 2;

@@ -117,8 +117,6 @@ nothing is stored server-side about what was discussed.
 | Practice question | 1 / day | unlimited¹ |
 | University preview | 1 / day | unlimited¹ |
 | Explain a topic | 1 / day | unlimited¹ |
-| Exam-day strategy | 1 / day | unlimited¹ |
-| Mark my reasoning | 1 / day | unlimited¹ |
 | Key dates | 1 / day | unlimited¹ |
 | Free-typed messages | 2 / day | unlimited¹ |
 | Syllabus | locked | unlimited¹ |
@@ -132,8 +130,8 @@ nothing is stored server-side about what was discussed.
 whole month's allowance — see "Pro's daily budget" below. All counters and
 cooldowns reset themselves — nothing to clear by hand.
 
-The six free-trial guided actions are each their own daily counter — a
-student can use all six once each on the same day, not a shared pool of one.
+The four free-trial guided actions are each their own daily counter — a
+student can use all four once each on the same day, not a shared pool of one.
 
 Mock exams, exam upgrades and deck checks are rate-limited even on Pro
 because each costs several times a normal reply. All limits are enforced
@@ -245,9 +243,6 @@ things came out of reading them:
   programmes for this cycle (Padova and the rest of the established list are
   unchanged). The model is told it may not have reliable training data on
   the two new ones and to say so rather than guess seat counts/cutoffs.
-- **♟️ Exam-day strategy** — timing and when guessing beats the −0.4 penalty.
-- **✍️ Mark my reasoning** — student pastes their working, gets marked like
-  an examiner.
 - **📅 Key dates** — see the dates section above; every dated answer ends
   with the verify-yourself disclaimer.
 - **📚 Syllabus** (Pro) — moved behind Pro in this update.
