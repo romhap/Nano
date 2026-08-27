@@ -304,7 +304,7 @@ const ACTIONS = [
     prompt:'Walk me through the official IMAT syllabus: what each section covers, how many questions each carries, and which topics carry the most weight.' },
   { id:'subtopics',    ico:'🧩', label:'Break a topic into subtopics', pro:true, picker:'topicOnly' },
   { id:'anki_check',   ico:'🗂️', label:'Check my Anki deck', pro:true,
-    prompt:'I want to check whether my Anki deck matches the IMAT syllabus. Explain exactly what to paste or export, then review it against the official syllabus and give me a coverage report: what is in scope, what is missing, and what is wasted effort.' }
+    prompt:'Take my Anki deck and review it against the current IMAT syllabus (the format introduced by CINECA/Universitaly). Explain exactly what to paste or export. Then give me a serious coverage report: what is in scope and covered, what is wasted effort, and, most importantly, what is missing. For every missing item, rate how critical it is to add on a 1-10 scale, and order the missing list from most to least critical.' }
 ];
 
 let SESSION_TOKEN = null, history = [], busy = false, started = false, currentChatId = null, EMAIL = '';
