@@ -5,13 +5,6 @@ const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/7sY7sLdeqdjGaik1q1gw002';
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
 // Paste the SAME Google Apps Script Web App URL you put in lounge.html (ends in /exec).
 const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwszZzQywosaVON0oalp_CzcfYwMjWI5hP6Kuj4gBsMmfBHj-y4Z85uz7EzIqnFDuFeIw/exec';
-// Webinar (€8.99). Paste the Payment Link once created; set its success URL to:
-// https://www.imat.club/webinar-success.html
-// (then fill in the Zoom link inside webinar-success.html itself)
-const WEBINAR_LINK = 'https://book.stripe.com/28E3cvb6i1AY0HKd8Jgw003';
-// Shown in the popup's date pill. Update this before each session, e.g.
-// '📅 Saturday, Aug 30 · 6PM CET'. Leave as-is if no date is set yet.
-const WEBINAR_DATE_TEXT = '📅 September 4 · 1PM Italy time';
 // ============================================================
 
 // Fire-and-forget: send an applicant to the Google Sheet. Never blocks the
@@ -254,52 +247,3 @@ document.querySelectorAll('.stat, .compare-card, .include-item, .cred, .about-le
 const cancelPortalLink = document.getElementById('cancelPortalLink');
 if (cancelPortalLink) cancelPortalLink.addEventListener('click', () => track('cancel_portal_click'));
 
-// === Webinar popup ===
-(function() {
-    const overlay = document.getElementById('webinarOverlay');
-    if (!overlay) return;
-
-    const closeBtn = document.getElementById('webinarClose');
-    const buyBtn = document.getElementById('webinarBuyBtn');
-    const dateText = document.getElementById('webinarDateText');
-
-    if (dateText && WEBINAR_DATE_TEXT) dateText.textContent = WEBINAR_DATE_TEXT;
-
-    // Set by webinar-success.html once someone actually completes payment —
-    // stops nagging them with the offer again on future visits.
-    const alreadyRegistered = localStorage.getItem('imat_webinar_registered') === 'true';
-    let trackedShow = false;
-
-    function showOverlay() {
-        overlay.classList.add('show');
-        if (!trackedShow) { trackedShow = true; track('webinar_popup_shown'); }
-    }
-    function hideOverlay() {
-        overlay.classList.remove('show');
-        track('webinar_popup_close');
-    }
-
-    closeBtn.addEventListener('click', hideOverlay);
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) hideOverlay();
-    });
-
-    buyBtn.addEventListener('click', () => {
-        track('webinar_buy_click');
-        if (WEBINAR_LINK) {
-            window.location.href = WEBINAR_LINK;
-        } else {
-            alert('Webinar payment link is being set up — check back shortly.');
-        }
-    });
-
-    if (alreadyRegistered) return;
-
-    // Someone who just finished the €79/mo checkout — let them see their
-    // confirmation and WhatsApp link cleanly, don't cover it with a popup
-    if (window.location.search.includes('payment=success')) return;
-
-    // Show immediately on page load, then every 45s while they stay on the page
-    showOverlay();
-    setInterval(showOverlay, 45000);
-})();

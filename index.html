@@ -443,15 +443,7 @@
         https://www.imat.club/success.html
       - STRIPE_PORTAL_LINK in script.js is already set (Customer Portal).
 
-    Webinar (€8.99 one-time):
-      - WEBINAR_LINK in script.js is a placeholder — paste the Payment
-        Link once created.
-      - Its success URL must be:
-        https://www.imat.club/webinar-success.html
-      - webinar-success.html itself needs the Zoom link pasted in
-        (look for PASTE_YOUR_ZOOM_LINK_HERE in that file).
-
-    Both success pages are dedicated static files, not query-string
+    The success page is a dedicated static file, not query-string
     detection on the homepage — this sidesteps a bug where ?payment=success
     was being stripped before the page could read it.
 
@@ -459,26 +451,6 @@
     as your payout bank account in Stripe Dashboard → Settings → Payouts.
     ============================================================
     -->
-
-    <!-- ========== Webinar popup ========== -->
-    <div class="webinar-overlay" id="webinarOverlay">
-        <div class="webinar-modal">
-            <button class="webinar-close" id="webinarClose" aria-label="Close">✕</button>
-
-            <div class="webinar-body" id="webinarOffer">
-                <div class="webinar-live-badge"><span class="webinar-pulse"></span>LIVE ON ZOOM</div>
-                <h3 class="webinar-title">From Worry to Mastery — Everything You Need to Pass the IMAT</h3>
-                <p class="webinar-date" id="webinarDateText"></p>
-                <p class="webinar-small" style="margin-top:-8px;margin-bottom:16px">Can't make it live? A recording is sent to everyone who paid.</p>
-                <ul class="webinar-points">
-                    <li>The complete system behind Rom & Maya's top scores — not just tips</li>
-                    <li>The #1 mistake that quietly costs most candidates their shot</li>
-                    <li>Live Q&A with Rom & Maya — leave with an actual plan</li>
-                </ul>
-                <button class="btn btn-primary btn-full" id="webinarBuyBtn">Reserve my spot</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Bump the ?v= below whenever script.js changes — script.js has no
          content hash in its filename, so some cache layers can keep serving
