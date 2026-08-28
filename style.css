@@ -581,179 +581,43 @@ em {
     letter-spacing: 0.01em;
 }
 
-/* === Match Quiz === */
-.quiz-box {
-    max-width: 520px;
-    margin: 0 auto 48px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 40px;
-    position: relative;
-    overflow: hidden;
+/* === FAQ === */
+.section-faq {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border-light);
 }
 
-.quiz-progress {
-    height: 3px;
-    background: var(--border-light);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-}
-
-.quiz-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: var(--accent);
-    transition: width 0.5s ease;
-}
-
-.quiz-counter {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 28px;
-    font-weight: 600;
-}
-
-.quiz-q {
-    display: none;
-}
-
-.quiz-q.active {
-    display: block;
-    animation: quizSlideIn 0.4s ease;
-}
-
-@keyframes quizSlideIn {
-    from { opacity: 0; transform: translateX(24px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-.quiz-question {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 1.15rem;
-    letter-spacing: -0.02em;
-    margin-bottom: 24px;
-    color: var(--text);
-}
-
-.quiz-options {
+.faq-list {
+    max-width: 720px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-}
-
-.quiz-opt {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 14px 18px;
-    background: var(--bg);
+    gap: 1px;
+    background: var(--border);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.88rem;
+}
+
+.faq-item {
+    background: var(--bg);
+    padding: 24px 28px;
+}
+
+.faq-q {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+}
+
+.faq-a {
     color: var(--text-soft);
-    cursor: pointer;
-    transition: all 0.15s ease;
-    line-height: 1.5;
+    font-size: 0.9rem;
+    line-height: 1.65;
 }
 
-.quiz-opt:hover {
-    border-color: var(--text);
-    color: var(--text);
-    background: var(--bg-alt);
-}
-
-.quiz-opt.selected {
-    border-color: var(--accent);
-    background: rgba(0, 71, 255, 0.04);
+.faq-a a {
     color: var(--accent);
-    font-weight: 500;
-}
-
-/* Quiz Result */
-.quiz-result {
-    text-align: center;
-    animation: quizSlideIn 0.6s ease;
-}
-
-.quiz-score-ring {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 24px;
-    position: relative;
-}
-
-.quiz-score-ring svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-}
-
-.ring-bg {
-    fill: none;
-    stroke: var(--border-light);
-    stroke-width: 6;
-}
-
-.ring-fill {
-    fill: none;
-    stroke: var(--accent);
-    stroke-width: 6;
-    stroke-linecap: round;
-    stroke-dasharray: 326.73;
-    stroke-dashoffset: 326.73;
-    transition: stroke-dashoffset 1.5s ease, stroke 0.5s ease;
-}
-
-.ring-fill.red { stroke: #D42020; }
-.ring-fill.orange { stroke: #E67E22; }
-.ring-fill.green { stroke: #1A8754; }
-
-.quiz-score-number {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 1.6rem;
-    letter-spacing: -0.03em;
-    color: var(--text);
-}
-
-.quiz-result-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 1.3rem;
-    margin-bottom: 12px;
-    letter-spacing: -0.02em;
-}
-
-.quiz-result-title.red { color: #D42020; }
-.quiz-result-title.orange { color: #E67E22; }
-.quiz-result-title.green { color: #1A8754; }
-
-.quiz-result-text {
-    color: var(--text-soft);
-    font-size: 0.92rem;
-    line-height: 1.7;
-    margin-bottom: 32px;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.enroll-intro {
-    color: var(--text-soft);
-    font-size: 0.92rem;
-    margin-bottom: 28px;
-    line-height: 1.6;
 }
 
 /* === Enrollment === */
