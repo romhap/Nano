@@ -816,6 +816,13 @@ button:disabled {
     margin-top: 12px;
 }
 
+.pay-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 12px;
+    text-align: center;
+}
+
 .manage-section {
     margin-top: 40px;
     padding-top: 24px;
