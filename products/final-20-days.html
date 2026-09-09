@@ -31,6 +31,8 @@ h1,h2,h3,h4,.num,.kicker,.foot,.tag{ font-family:'Space Grotesk',sans-serif; }
 /* ---------- cover ---------- */
 .cover{ background:var(--ink); color:#fff; padding:24mm 19mm; display:flex; flex-direction:column; }
 .cover .brand{ font-size:8.6pt; letter-spacing:.22em; text-transform:uppercase; color:#8FAEFF; font-weight:600; }
+.brand-row{ display:flex; align-items:center; gap:3mm; }
+.mark{ flex-shrink:0; }
 .cover .rule{ width:26mm; height:3px; background:var(--accent); margin:9mm 0 8mm; }
 .cover h1{ font-size:47pt; line-height:.96; letter-spacing:-.03em; font-weight:700; margin:0; }
 .cover h1 em{ font-style:normal; color:#5A88FF; display:block; }
@@ -120,7 +122,14 @@ tr.total td{ border-bottom:none; border-top:1.5px solid var(--ink); font-weight:
 
 <!-- 1 COVER -->
 <div class="page cover">
-  <div class="brand">IMAT.club &nbsp;/&nbsp; Rom &amp; Maya</div>
+  <div class="brand-row">
+    <svg class="mark" width="20" height="20" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#5A88FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#0A0A0A" stroke="#5A88FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="6" y="46" width="52" height="4" rx="2" fill="#5A88FF"/>
+    </svg>
+    <div class="brand">IMAT.club &nbsp;/&nbsp; Rom &amp; Maya</div>
+  </div>
   <div class="rule"></div>
   <h1>The Final<br>20 Days<em>Sprint Plan</em></h1>
   <div class="sub">A day-by-day plan for the last three weeks before the IMAT. What to do, in what order, and what to stop doing.</div>
@@ -748,8 +757,13 @@ tr.total td{ border-bottom:none; border-top:1.5px solid var(--ink); font-weight:
 
 <!-- 20 BACK -->
 <div class="page back">
+  <svg width="36" height="36" viewBox="0 0 64 64" fill="none" aria-hidden="true" style="margin-bottom:6mm">
+    <path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#5A88FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#0A0A0A" stroke="#5A88FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="6" y="46" width="52" height="4" rx="2" fill="#5A88FF"/>
+  </svg>
   <div class="bl">IMAT.club</div>
-  <div class="bs">By Rom &amp; Maya &nbsp;/&nbsp; University of Padova</div>
+  <div class="bs">By Rom &amp; Maya</div>
   <div class="bs" style="margin-top:8mm;color:#5A88FF">imat.club</div>
   <div class="bd">Free guide, shared for the 29 September 2026 exam. Not for resale or redistribution. Exam format, dates and section proportions reflect the official information available at the time of writing. Always verify current details on universitaly.it.</div>
 </div>

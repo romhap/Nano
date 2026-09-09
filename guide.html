@@ -122,7 +122,6 @@ h1 em{font-style:normal;color:var(--accent)}
         </div>
 
         <div class="fields">
-            <input type="text" id="gFirstName" placeholder="First name" class="fld">
             <input type="email" id="gEmail" placeholder="Your email" class="fld">
         </div>
 
@@ -180,15 +179,12 @@ if (localStorage.getItem('imat_guide_unlocked') === 'true') {
 
 document.getElementById('gBtn').addEventListener('click', submitGate);
 document.getElementById('gEmail').addEventListener('keydown', e => { if (e.key === 'Enter') submitGate(); });
-document.getElementById('gFirstName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gEmail').focus(); });
 
 function submitGate() {
-    const firstName = document.getElementById('gFirstName').value.trim();
     const email = document.getElementById('gEmail').value.trim().toLowerCase();
     const follows = document.getElementById('gFollow').checked;
     const err = document.getElementById('gErr');
 
-    if (!firstName) { err.textContent = 'Enter your first name.'; return; }
     if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
     if (!follows) { err.textContent = 'Please confirm you follow @mayashakked to unlock the guide.'; return; }
 
@@ -196,7 +192,6 @@ function submitGate() {
     reportSignup({
         source: 'instagram_guide',
         email: email,
-        name: firstName,
         user_agent: navigator.userAgent
     });
     track('guide_unlock', { source: 'instagram' });
