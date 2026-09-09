@@ -18,11 +18,22 @@
  *
  * To test: open the /exec URL in a browser — you should see
  * {"ok":true,"msg":"IMAT.club signups endpoint live"}.
+ *
+ * ALREADY DEPLOYED AND UPDATING IT: this file lives in the repo for
+ * reference, but Apps Script runs whatever was last pasted into the
+ * actual script editor -- pushing this file to git does NOT update the
+ * live script by itself. To ship a change (like the mentorship offer
+ * email below): open the same Apps Script project, replace its contents
+ * with this file's current contents, Save, then Deploy ▸ Manage
+ * deployments ▸ (pencil icon on the existing deployment) ▸ Version: New
+ * version ▸ Deploy. That keeps the same /exec URL, so nothing needs to
+ * change in lounge.html or script.js.
  */
 
 var SHEET_NAME = 'Signups';
 var HEADERS = ['Email', 'Name', 'WhatsApp', 'First Seen', 'Last Seen',
-               'Events', 'Latest Score', 'Target Universities', 'Last Source', 'User Agent'];
+               'Events', 'Latest Score', 'Target Universities', 'Last Source', 'User Agent',
+               'Offer Email Sent'];
 
 // --- Input hardening -----------------------------------------------------
 // This endpoint is public (anyone can call it, by design -- the site's own
@@ -48,7 +59,17 @@ function isValidEmail(email) {
 function processData(d) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
-  if (sheet.getLastRow() === 0) sheet.appendRow(HEADERS);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(HEADERS);
+  } else {
+    // Migration: extend the header row in place if newer columns were added
+    // after this sheet was first created. Existing data/rows are untouched.
+    var existingHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    if (existingHeaders.length < HEADERS.length) {
+      sheet.getRange(1, existingHeaders.length + 1, 1, HEADERS.length - existingHeaders.length)
+        .setValues([HEADERS.slice(existingHeaders.length)]);
+    }
+  }
 
   var email = (d.email || '').toString().trim().toLowerCase();
   if (!isValidEmail(email)) return;
@@ -76,8 +97,18 @@ function processData(d) {
   if (rowIndex === -1) {
     sheet.appendRow([
       email, name, whatsapp, now, now, 1,
-      score, targets, source, userAgent
+      score, targets, source, userAgent, ''
     ]);
+    // Brand-new lead, never seen before -- this branch runs exactly once
+    // per email, ever, so the offer email can never double-send from here.
+    try {
+      sendMentorshipOfferEmail(email, name);
+      sheet.getRange(sheet.getLastRow(), HEADERS.length).setValue(new Date());
+    } catch (mailErr) {
+      // Leave the column blank on failure rather than silently claiming it
+      // sent -- makes a failed send visible in the sheet itself.
+      Logger.log('Mentorship offer email failed for ' + email + ': ' + mailErr);
+    }
   } else {
     var row = sheet.getRange(rowIndex, 1, 1, HEADERS.length).getValues()[0];
     if (!row[1] && name) row[1] = name;
@@ -325,6 +356,57 @@ function sendWebinarReminders() {
   }
 
   Logger.log('Sent ' + sentCount + ' webinar reminder(s).');
+}
+
+/**
+ * ============================================================
+ * MENTORSHIP OFFER EMAIL — sent once, automatically, to every new Lounge lead
+ * ============================================================
+ * Fires exactly once per email address, from inside processData()'s
+ * brand-new-row branch above -- never on repeat visits, so nobody gets
+ * this twice. Uses the same Gmail "Send As" identity as the webinar and
+ * magic-link emails (sendFromClub, defined below).
+ *
+ * ONLY these four constants should need touching between IMAT cycles.
+ * "Days until exam" and the cutoff date are computed live from them each
+ * time an email goes out, so the email text itself never goes stale on
+ * its own -- but EXAM_DATE and OFFER_CUTOFF_DATE are NOT computed
+ * automatically and must be updated by hand for each new cycle, or this
+ * will keep quoting last cycle's exam date and a cutoff that's already
+ * passed. If EXAM_DATE is ever in the past when this fires, it skips
+ * sending entirely rather than mail out something wrong.
+ */
+var OFFER_DISCOUNT_CODE = 'SEPTEMBER15';
+var EXAM_DATE = new Date(2026, 8, 29);          // September 29, 2026 (month is 0-indexed)
+var OFFER_CUTOFF_DATE = new Date(2026, 8, 22);  // September 22, 2026 -- leaves ~1 week before EXAM_DATE
+var OFFER_CUTOFF_LABEL = 'September 22';        // shown in the email body, keep in sync with the date above
+
+function daysUntil(targetDate) {
+  var now = new Date();
+  return Math.ceil((targetDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+}
+
+function sendMentorshipOfferEmail(email, name) {
+  var daysLeft = daysUntil(EXAM_DATE);
+  if (daysLeft <= 0) return; // EXAM_DATE is stale -- see comment above, don't send wrong info
+
+  var examDateLabel = Utilities.formatDate(EXAM_DATE, Session.getScriptTimeZone(), 'MMMM d');
+  var greeting = name ? ('Hi ' + name + ',') : 'Hi,';
+  var subject = daysLeft + ' days left. Make them count.';
+
+  var body = greeting + '\n\n' +
+    'Thanks for trying the Lounge, our free IMAT score predictor. A score is a useful starting point, but a number alone doesn\'t tell you what to actually do next.\n\n' +
+    'The IMAT is in ' + daysLeft + ' days, on ' + examDateLabel + '. That\'s not a lot of time left to decide anything, but it\'s enough time to stop wasting effort on the wrong things and walk in with an actual plan instead of hoping it goes well.\n\n' +
+    'We\'re Rom and Maya. We scored among the highest IMAT results worldwide, and we mentor a small number of candidates personally, 1-on-1, on WhatsApp, all the way through test day.\n\n' +
+    'Before ' + OFFER_CUTOFF_LABEL + ', use code ' + OFFER_DISCOUNT_CODE + ' for 15% off your first month. We\'re setting that cutoff on purpose, we need real time to actually work with you before the exam, not just take a payment the week of.\n\n' +
+    'Here\'s what that first month actually costs you: nothing beyond it, if it\'s not for you. Cancel anytime, no explanations needed. Most prep courses charge €1,900-2,700 upfront with zero personal attention and no way to change your mind. This is the opposite of that, by design.\n\n' +
+    'Apply here: https://www.imat.club/#enroll\n' +
+    'Use code ' + OFFER_DISCOUNT_CODE + ' at checkout.\n\n' +
+    'No science background needed. If you\'re serious about the next ' + daysLeft + ' days actually mattering, this is the fastest way to find out if we\'re the right fit.\n\n' +
+    'Talk soon,\nRom & Maya\n\n' +
+    '---\nDon\'t want emails like this? Reply to this one and we\'ll take you off the list.';
+
+  sendFromClub(email, subject, body);
 }
 
 /**
