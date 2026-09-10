@@ -11,8 +11,9 @@ each one gets its own gate page for a dedicated Instagram bio link.
    like `guide_<slug>` -- this is what shows up in the Signups sheet's "Last
    Source" column, so each product's leads stay distinguishable from every
    other one, including guide-answer-sheet.html's own `guide_answer_sheet`).
-   Everything else (the form, the checkbox, the single-click download logic)
-   is meant to stay identical across every guide page.
+   Everything else (the standard site nav, the form, the checkbox, the
+   single-click download logic) is meant to stay identical across every
+   guide page.
 3. Add a `Disallow: /products/<Name>.pdf` line to `robots.txt`, alongside the
    existing entries -- keeps the raw file out of search results so
    `guide-<slug>.html` stays the only public entry point. Soft gate only;

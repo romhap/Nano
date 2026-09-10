@@ -41,9 +41,14 @@ html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
 
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
-.nav-inner{max-width:640px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:8px}
+.nav-inner{max-width:640px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .nav-inner .brand-icon{height:26px;width:26px;flex-shrink:0}
 .nav-inner .brand-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:16px}
+.nav-link{color:var(--text);text-decoration:none;font-weight:600;font-size:.7rem;padding:7px 14px;border:1px solid var(--text);border-radius:var(--radius);transition:all .15s;letter-spacing:.06em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif}
+.nav-link:hover{background:var(--text);color:var(--bg)}
+.nav-link-muted{color:var(--text2);text-decoration:none;font-size:.7rem;padding:7px 0;text-transform:uppercase;letter-spacing:.06em;font-family:'Space Grotesk',sans-serif;font-weight:600;transition:color .15s}
+.nav-link-muted:hover{color:var(--text)}
 
 .wrap{max-width:420px;margin:0 auto;padding:160px 24px 60px}
 
@@ -78,6 +83,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-
             </svg>
             <span class="brand-text">IMAT.club</span>
         </a>
+        <div class="nav-links">
+            <a href="articles.html" class="nav-link-muted">Articles</a>
+            <a href="lounge.html" class="nav-link-muted">Lounge</a>
+            <a href="index.html#enroll" class="nav-link">Apply</a>
+        </div>
     </div>
 </nav>
 
