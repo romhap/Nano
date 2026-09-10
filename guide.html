@@ -34,7 +34,7 @@
     --bg:#FFFFFF;--bg2:#F5F5F5;--card:#FFFFFF;
     --text:#0A0A0A;--text2:#666;--text3:#999;
     --border:#E0E0E0;--border2:#EEEEEE;
-    --accent:#0047FF;--accent-bg:rgba(0,71,255,0.05);
+    --accent:#0047FF;
     --red:#D42020;--radius:4px;
 }
 html{scroll-behavior:smooth}
@@ -46,18 +46,7 @@ h1,h2{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1.1;let
 .nav-inner .brand-icon{height:26px;width:26px;flex-shrink:0}
 .nav-inner .brand-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-.02em;color:var(--text);text-decoration:none}
 
-.wrap{max-width:460px;margin:0 auto;padding:110px 24px 60px}
-
-.kicker{font-family:'Space Grotesk',sans-serif;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px;text-align:center}
-h1{font-size:2.3rem;text-align:center;margin-bottom:10px}
-h1 em{font-style:normal;color:var(--accent)}
-.sub{color:var(--text2);font-size:.94rem;text-align:center;margin-bottom:28px;line-height:1.55}
-
-.pitch{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px 22px;margin-bottom:28px}
-.pitch p{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:10px;font-family:'Space Grotesk',sans-serif}
-.pitch ul{list-style:none}
-.pitch li{font-size:.86rem;color:var(--text);padding:5px 0 5px 20px;position:relative}
-.pitch li::before{content:'+';position:absolute;left:0;color:var(--accent);font-weight:700;font-family:'Space Grotesk',sans-serif}
+.wrap{max-width:420px;margin:0 auto;padding:160px 24px 60px}
 
 .fields{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
 .fld{padding:13px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem;width:100%;transition:border-color .15s}
@@ -78,14 +67,8 @@ h1 em{font-style:normal;color:var(--accent)}
 .unlocked{display:none;text-align:center}
 .unlocked.show{display:block}
 .gate.hide{display:none}
-.check{width:52px;height:52px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
-.check svg{width:26px;height:26px}
-.unlocked h2{font-size:1.7rem;margin-bottom:10px}
-.unlocked p{color:var(--text2);font-size:.9rem;margin-bottom:22px}
 .dl-btn{display:block;width:100%;padding:15px;background:var(--accent);color:#fff;border-radius:var(--radius);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-decoration:none;text-align:center;transition:opacity .15s}
 .dl-btn:hover{opacity:.88}
-.unlocked .small{font-size:.72rem;color:var(--text3);margin-top:16px}
-.unlocked .small a{color:var(--text2)}
 </style>
 </head>
 <body>
@@ -107,20 +90,6 @@ h1 em{font-style:normal;color:var(--accent)}
 
     <!-- ========== GATE ========== -->
     <div class="gate" id="gate">
-        <div class="kicker">Free · 22 pages</div>
-        <h1>The Final<br>20 <em>Days</em></h1>
-        <p class="sub">A day-by-day IMAT sprint plan from Rom &amp; Maya. What to do, in what order, and what to stop doing.</p>
-
-        <div class="pitch">
-            <p>What's inside</p>
-            <ul>
-                <li>A day-by-day plan for every one of the final 20 days</li>
-                <li>The scoring maths behind the -0.4 penalty, worked out in points</li>
-                <li>Section-by-section tactics, weighted by what's actually on the paper</li>
-                <li>The four distractor patterns wrong answers are built around</li>
-            </ul>
-        </div>
-
         <div class="fields">
             <input type="email" id="gEmail" placeholder="Your email" class="fld">
         </div>
@@ -137,17 +106,7 @@ h1 em{font-style:normal;color:var(--accent)}
 
     <!-- ========== UNLOCKED ========== -->
     <div class="unlocked" id="unlocked">
-        <div class="check">
-            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-                <path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#0047FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#fff" stroke="#0047FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                <rect x="6" y="46" width="52" height="4" rx="2" fill="#0047FF"/>
-            </svg>
-        </div>
-        <h2>You're in.</h2>
-        <p>Your guide is ready. Save it somewhere you'll actually open it again.</p>
         <a href="products/IMAT-Final-20-Days.pdf" class="dl-btn" id="dlLink" download>Download the PDF</a>
-        <p class="small">Want more than a plan? <a href="index.html#enroll">See the mentorship →</a></p>
     </div>
 
 </div>
