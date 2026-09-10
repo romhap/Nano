@@ -4,14 +4,15 @@
 # the sitemap on purpose (utility/stealth pages), but nothing here blocks
 # them for a crawler that already has the URL.
 #
-# The PDF itself is disallowed so it doesn't show up directly in search
-# results, bypassing the email-gated landing page at guide.html that's
-# meant to be the only public entry point to it. This is a soft gate, not
-# real access control -- anyone with the direct URL can still fetch it.
+# Files under /products/ are disallowed individually so they don't show up
+# directly in search results, bypassing their dedicated guide-<slug>.html
+# gate pages that are meant to be the only public entry point to them. This
+# is a soft gate, not real access control -- anyone with the direct URL can
+# still fetch a file. Add one Disallow line per new file in /products/.
 
 User-agent: *
 Allow: /
-Disallow: /products/IMAT-Final-20-Days.pdf
+Disallow: /products/IMAT-Answer-Sheet.pdf
 
 # Explicitly welcome the major AI-answer crawlers (some default to
 # disallowed on other sites; we want IMAT.club surfaced in AI engines too).

@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Final 20 Days - Free IMAT Sprint Plan | IMAT.club</title>
-    <meta name="description" content="A free 22-page day-by-day IMAT sprint plan from Rom & Maya: what to do, in what order, and what to stop doing in the final 20 days before the exam.">
-    <link rel="canonical" href="https://www.imat.club/guide.html">
+    <title>Official IMAT Answer Sheet Specimen | IMAT.club</title>
+    <meta name="description" content="The official Cambridge Assessment IMAT answer sheet specimen, free from Rom & Maya.">
+    <link rel="canonical" href="https://www.imat.club/guide-answer-sheet.html">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=4">
     <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
     <link rel="apple-touch-icon" href="apple-touch-icon.png?v=4">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="The Final 20 Days - Free IMAT Sprint Plan">
-    <meta property="og:description" content="A free 22-page day-by-day IMAT sprint plan from Rom & Maya. What to do, in what order, and what to stop doing.">
-    <meta property="og:url" content="https://www.imat.club/guide.html">
+    <meta property="og:title" content="Official IMAT Answer Sheet Specimen">
+    <meta property="og:description" content="The official Cambridge Assessment IMAT answer sheet specimen, free from Rom & Maya.">
+    <meta property="og:url" content="https://www.imat.club/guide-answer-sheet.html">
     <meta property="og:image" content="https://www.imat.club/logo.jpg">
     <meta property="og:site_name" content="IMAT.club">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="The Final 20 Days - Free IMAT Sprint Plan">
-    <meta name="twitter:description" content="A free 22-page day-by-day IMAT sprint plan from Rom & Maya.">
+    <meta name="twitter:title" content="Official IMAT Answer Sheet Specimen">
+    <meta name="twitter:description" content="The official Cambridge Assessment IMAT answer sheet specimen, free from Rom & Maya.">
     <meta name="twitter:image" content="https://www.imat.club/logo.jpg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,7 +39,6 @@
 }
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
-h1,h2{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1.1;letter-spacing:-0.03em}
 
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
 .nav-inner{max-width:640px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:8px}
@@ -61,14 +60,10 @@ h1,h2{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1.1;let
 
 .btn{width:100%;padding:14px;background:var(--text);color:var(--bg);border:none;border-radius:var(--radius);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity .15s;margin-top:16px}
 .btn:hover{opacity:.85}
-.err{color:var(--red);font-size:.8rem;margin-top:12px;min-height:1.2em;text-align:center}
+.msg{font-size:.8rem;margin-top:12px;min-height:1.2em;text-align:center}
+.msg.err{color:var(--red)}
+.msg.ok{color:var(--accent)}
 .consent{font-size:.68rem;color:var(--text3);margin-top:18px;line-height:1.5;text-align:center}
-
-.unlocked{display:none;text-align:center}
-.unlocked.show{display:block}
-.gate.hide{display:none}
-.dl-btn{display:block;width:100%;padding:15px;background:var(--accent);color:#fff;border-radius:var(--radius);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-decoration:none;text-align:center;transition:opacity .15s}
-.dl-btn:hover{opacity:.88}
 </style>
 </head>
 <body>
@@ -87,32 +82,24 @@ h1,h2{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1.1;let
 </nav>
 
 <div class="wrap">
-
-    <!-- ========== GATE ========== -->
-    <div class="gate" id="gate">
-        <div class="fields">
-            <input type="email" id="gEmail" placeholder="Your email" class="fld">
-        </div>
-
-        <label class="ig-row">
-            <input type="checkbox" id="gFollow">
-            <span class="ig-text">I follow <a href="https://www.instagram.com/mayashakked/" target="_blank" rel="noopener">@mayashakked</a> on Instagram</span>
-        </label>
-
-        <button class="btn" id="gBtn">Get the guide</button>
-        <p class="err" id="gErr"></p>
-        <p class="consent">Your email is stored to deliver the guide and to email you about the mentorship. Unsubscribe anytime.</p>
+    <div class="fields">
+        <input type="email" id="gEmail" placeholder="Your email" class="fld">
     </div>
 
-    <!-- ========== UNLOCKED ========== -->
-    <div class="unlocked" id="unlocked">
-        <a href="products/IMAT-Final-20-Days.pdf" class="dl-btn" id="dlLink" download>Download the PDF</a>
-    </div>
+    <label class="ig-row">
+        <input type="checkbox" id="gFollow">
+        <span class="ig-text">I follow <a href="https://www.instagram.com/mayashakked/" target="_blank" rel="noopener">@mayashakked</a> on Instagram</span>
+    </label>
 
+    <button class="btn" id="gBtn">Download</button>
+    <p class="msg" id="gMsg"></p>
+    <p class="consent">Your email is stored to deliver this file and to email you about the mentorship. Unsubscribe anytime.</p>
 </div>
 
 <script>
 const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwszZzQywosaVON0oalp_CzcfYwMjWI5hP6Kuj4gBsMmfBHj-y4Z85uz7EzIqnFDuFeIw/exec';
+const FILE_URL = 'products/IMAT-Answer-Sheet.pdf';
+const SOURCE = 'guide_answer_sheet';
 
 function track(name, data) {
     try { window.va && window.va('event', { name: name, data: data || {} }); } catch (e) {}
@@ -125,15 +112,15 @@ function reportSignup(payload) {
     } catch (e) {}
 }
 
-function showUnlocked() {
-    document.getElementById('gate').classList.add('hide');
-    document.getElementById('unlocked').classList.add('show');
-}
-
-// Returning visitor who already unlocked this on this device -- skip straight
-// to the download rather than asking them to fill the form in again.
-if (localStorage.getItem('imat_guide_unlocked') === 'true') {
-    showUnlocked();
+// Triggers a real file download without navigating the page away from the
+// form -- an <a download> click does this natively in every modern browser.
+function triggerDownload(url) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
 document.getElementById('gBtn').addEventListener('click', submitGate);
@@ -142,21 +129,21 @@ document.getElementById('gEmail').addEventListener('keydown', e => { if (e.key =
 function submitGate() {
     const email = document.getElementById('gEmail').value.trim().toLowerCase();
     const follows = document.getElementById('gFollow').checked;
-    const err = document.getElementById('gErr');
+    const msg = document.getElementById('gMsg');
 
-    if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
-    if (!follows) { err.textContent = 'Please confirm you follow @mayashakked to unlock the guide.'; return; }
+    if (!email || !email.includes('@')) { msg.textContent = 'Enter a valid email.'; msg.className = 'msg err'; return; }
+    if (!follows) { msg.textContent = 'Please confirm you follow @mayashakked to download.'; msg.className = 'msg err'; return; }
 
-    err.textContent = '';
     reportSignup({
-        source: 'instagram_guide',
+        source: SOURCE,
         email: email,
         user_agent: navigator.userAgent
     });
-    track('guide_unlock', { source: 'instagram' });
+    track('guide_download', { source: SOURCE });
 
-    localStorage.setItem('imat_guide_unlocked', 'true');
-    showUnlocked();
+    triggerDownload(FILE_URL);
+    msg.textContent = 'Downloaded.';
+    msg.className = 'msg ok';
 }
 </script>
 

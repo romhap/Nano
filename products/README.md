@@ -1,41 +1,41 @@
 # Products
 
-Lead magnets and downloadable assets. Not linked from the site navigation.
+Lead magnets and downloadable assets. Not linked from the site navigation --
+each one gets its own gate page for a dedicated Instagram bio link.
 
-## final-20-days.html -> IMAT-Final-20-Days.pdf
+## The pattern (repeat this for every new file)
 
-A 22-page day-by-day IMAT sprint plan, built as a lead magnet for new
-Instagram followers. Written for the 29 September 2026 exam, but the plan
-itself is numbered by days remaining rather than calendar date, so the
-structure still works for a later cycle once the dates are updated.
+1. Drop the file in here: `products/<Name>.pdf`.
+2. Copy `guide-answer-sheet.html` (site root) to `guide-<slug>.html` and
+   update: the `<title>`/meta tags, `FILE_URL`, and `SOURCE` (a unique string
+   like `guide_<slug>` -- this is what shows up in the Signups sheet's "Last
+   Source" column, so each product's leads stay distinguishable from every
+   other one, including guide-answer-sheet.html's own `guide_answer_sheet`).
+   Everything else (the form, the checkbox, the single-click download logic)
+   is meant to stay identical across every guide page.
+3. Add a `Disallow: /products/<Name>.pdf` line to `robots.txt`, alongside the
+   existing entries -- keeps the raw file out of search results so
+   `guide-<slug>.html` stays the only public entry point. Soft gate only;
+   anyone with the direct URL can still fetch the file.
+4. Add `guide-<slug>.html` (not the PDF) to `sitemap.xml`.
 
-Fonts (Space Grotesk, Inter) are embedded as base64 inside the HTML, so the
-PDF renders identically with no network access and no font substitution.
+No page collects a name, only email + the Instagram-follow checkbox, and
+there's no marketing copy on the gate by design -- just the form and, on
+submit, the file.
 
-### Regenerating the PDF after editing the HTML
+## IMAT-Answer-Sheet.pdf / guide-answer-sheet.html
 
-    /opt/pw-browsers/chromium-1194/chrome-linux/chrome \
-      --headless --disable-gpu --no-sandbox \
-      --virtual-time-budget=30000 --no-pdf-header-footer \
-      --print-to-pdf="IMAT-Final-20-Days.pdf" final-20-days.html
+The official Cambridge Assessment / Ministero dell'Istruzione IMAT answer
+sheet specimen (public specimen material, watermarked SAMPLE by Cambridge
+Assessment).
 
-Each `.page` div is a fixed A4 box with `overflow:hidden`, which means content
-that does not fit is silently clipped rather than flowing onto a new page.
-After any content edit, check that no page overflows before shipping. The
-quickest way is to load the file in a browser and run:
-
-    document.querySelectorAll('.page').forEach((p,i)=>{
-      let pr=p.getBoundingClientRect(), c=0;
-      p.querySelectorAll(':scope > *').forEach(el=>{
-        if(!el.classList.contains('foot'))
-          c=Math.max(c, el.getBoundingClientRect().bottom-pr.top);
-      });
-      if(c > p.clientHeight-53) console.log('OVERFLOW on page', i+1);
-    });
-
-### Updating for a future cycle
-
-- Exam date appears on the cover, page 3 endnote, the day-by-day dates,
-  the test-day page and the back cover.
-- Results dates are on the "What happens next" page.
-- The discount code and its cutoff are on the CTA page.
+Note: this specimen's section layout (a merged "General Knowledge and
+Logical Reasoning" block, roughly 22/18/12/8 questions across sections)
+does not match the current verified exam format used everywhere else on
+the site (Reading 4 + Logic 5 + Biology 23 + Chemistry 15 + Physics & Maths
+13 = 60, per `api/chat.js`'s `KEY_DATES`/`SYSTEM_PROMPT`). It's offered here
+purely as a specimen of the answer-sheet *layout* (how the bubbles, barcode
+area, and sections are physically arranged on the page), not as a source of
+truth on current section weighting. Don't reuse the question-count
+breakdown from this file elsewhere on the site without flagging that
+caveat.
