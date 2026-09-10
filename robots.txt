@@ -13,6 +13,7 @@
 User-agent: *
 Allow: /
 Disallow: /products/IMAT-Answer-Sheet.pdf
+Disallow: /products/IMAT-Test-Day-Briefing.pdf
 
 # Explicitly welcome the major AI-answer crawlers (some default to
 # disallowed on other sites; we want IMAT.club surfaced in AI engines too).

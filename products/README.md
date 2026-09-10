@@ -40,3 +40,14 @@ area, and sections are physically arranged on the page), not as a source of
 truth on current section weighting. Don't reuse the question-count
 breakdown from this file elsewhere on the site without flagging that
 caveat.
+
+## IMAT-Test-Day-Briefing.pdf / guide-test-day-briefing.html
+
+An 8-page branded briefing covering what to bring, what's strictly banned in
+the exam room, how the paper is marked and submitted, what automatically
+voids a paper, and a 6-item pre-exam checklist. Content is sourced from the
+user-supplied `IMAT_Test_Day_Briefing.docx` (itself citing the Decreto
+Ministeriale (MUR), Allegato 1) and rebuilt as a fresh branded PDF using the
+same design system, embedded fonts, and brand icon as the site's other
+lead-magnet PDFs -- carries the same "confirm current details annually"
+hedge used elsewhere on the site for regulation-derived content.
