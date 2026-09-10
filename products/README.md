@@ -24,6 +24,31 @@ No page collects a name, only email + the Instagram-follow checkbox, and
 there's no marketing copy on the gate by design -- just the form and, on
 submit, the file.
 
+## PDF design system (reuse for every new file)
+
+Same look every time: A4 pages via `@page{size:A4;margin:0}`, the site's
+type pair (Space Grotesk headings / Inter body) with fonts embedded as
+base64 `@font-face` (live Google Fonts fetches aren't reliable during
+headless rendering -- see `test-day-briefing.html`'s `<style>` block and
+the cached `fonts-inline.css` in scratchpad for the base64 payload), a dark
+cover and back-cover bookending light interior pages, and the brand icon
+SVG on both. Copy `test-day-briefing.html` as the starting point for a new
+PDF's source rather than starting from scratch.
+
+Every PDF also carries a small, low-key disclaimer in two places -- a
+muted line under the cover's meta row, and folded into the back cover's
+existing source note -- saying the content is our own summary/opinion
+based on the cited reference material, not official or legal advice, and
+that the reader should verify details independently. Keep the wording
+short and the styling quiet (small size, muted grey, no box or icon around
+it) so it reads as a footnote, not a warning.
+
+Before finalizing a new PDF: run the overflow check (an injected script
+measuring each `.page`'s tallest descendant against `clientHeight` minus
+footer height -- `overflow:hidden` on the fixed-height page boxes clips
+overset content silently instead of erroring) and spot-check the render
+with screenshots, not just the HTML source.
+
 ## IMAT-Answer-Sheet.pdf / guide-answer-sheet.html
 
 The official Cambridge Assessment / Ministero dell'Istruzione IMAT answer
