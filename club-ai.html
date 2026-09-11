@@ -570,7 +570,8 @@ async function persistCurrentChat(){
   await ensureEmail();
   if (!EMAIL) return; // still unresolved (e.g. offline, or a mock/dev session) -- nothing to scope storage to
   if (!currentChatId) currentChatId = genId();
-  let title = (history.find(m => m.role === 'user') || {}).content || 'New chat';
+  const firstUser = history.find(m => m.role === 'user') || {};
+  let title = firstUser.display || firstUser.content || 'New chat';
   title = title.length > 60 ? title.slice(0, 60) + '…' : title;
   const chats = getChats();
   const idx = chats.findIndex(c => c.id === currentChatId);
@@ -632,7 +633,7 @@ function loadChat(id){
   currentChatId = chat.id;
   history = chat.messages.slice();
   chat.messages.forEach(m => {
-    if (m.role === 'user') addUser(m.content);
+    if (m.role === 'user') addUser(m.display || m.content);
     else if (m.action === 'mock_question') addAIQuestion(m.content);
     else addAI(m.content);
   });
@@ -652,11 +653,11 @@ function renderSuggestions(){
     b.appendChild(ico); b.appendChild(txt);
     if (a.pro) { const l=document.createElement('span'); l.className='lock'; l.textContent='PRO'; b.appendChild(l); }
     b.addEventListener('click', () => {
-      if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => send(topicPrompt(a,t), a.id));
-      else if (a.picker === 'uni') openPicker('Which university?', { '': UNIS }, u => send(uniPrompt(u), a.id));
-      else if (a.picker === 'topicOnly') openPicker('Which topic?', { '': Object.keys(TOPICS) }, t => send(subtopicsPrompt(t), a.id));
+      if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => send(topicPrompt(a,t), a.id, `${a.label}: ${t}`));
+      else if (a.picker === 'uni') openPicker('Which university?', { '': UNIS }, u => send(uniPrompt(u), a.id, `${a.label}: ${u}`));
+      else if (a.picker === 'topicOnly') openPicker('Which topic?', { '': Object.keys(TOPICS) }, t => send(subtopicsPrompt(t), a.id, `${a.label}: ${t}`));
       else if (a.picker === 'upload') openUpgradeExamPicker();
-      else send(a.prompt, a.id);
+      else send(a.prompt, a.id, a.label);
     });
     box.appendChild(b);
   });
@@ -874,11 +875,15 @@ async function handleChatResponse(res, data, action){
   }
 }
 
-async function send(text, action){
+// displayText: what the student sees in their own chat bubble. For default
+// buttons this is a short clean label instead of the full templated prompt
+// (still sent to the model in full via `text`/`history`) -- keeps the thread
+// readable instead of showing the internal instruction wording.
+async function send(text, action, displayText){
   if (busy || !text) return;
   busy = true; $('send').disabled = true;
-  closePicker(); addUser(text);
-  history.push({ role:'user', content:text });
+  closePicker(); addUser(displayText || text);
+  history.push({ role:'user', content:text, display: displayText || undefined });
   addDots();
   track('clubai_message', { action: action || 'freetext' });
 
