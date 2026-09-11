@@ -48,11 +48,12 @@ Three new tabs appear on first use: **`ClubAI`** (accounts/spend),
 > migration). It's recreated automatically, empty, on the next request. Safe
 > to do since there are no real paying users on the old layout yet.
 
-### 3. Mark paying users
-When someone subscribes via the Club AI Stripe link
-(`buy.stripe.com/fZu14nb6i3J64Y01q1gw004`), open the **ClubAI** tab, find
-their row, set **Paid** to `TRUE`. That's the only manual step — same flow you
-already use for mentorship subscribers.
+### 3. Paying users get marked automatically
+A Stripe webhook flips **Paid** to `TRUE` the moment someone subscribes via
+the Club AI Stripe link (`buy.stripe.com/fZu14nb6i3J64Y01q1gw004`) — no
+manual sheet edit needed. See **`STRIPE-WEBHOOK-SETUP.md`** for the one-time
+Stripe Dashboard setup. You can still open the **ClubAI** tab and edit
+**Paid** by hand any time (comps, refunds, etc).
 
 ---
 

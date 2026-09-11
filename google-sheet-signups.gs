@@ -210,6 +210,17 @@ function doGet(e) {
       lockR.releaseLock();
     }
   }
+  if (e.parameter.markPaid) {
+    var lockP = LockService.getScriptLock();
+    lockP.waitLock(20000);
+    try {
+      return json(markClubAiPaid(e.parameter.markPaid, e.parameter.secret || ''));
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    } finally {
+      lockP.releaseLock();
+    }
+  }
   if (e.parameter.webinarSignup) {
     var lock = LockService.getScriptLock();
     lock.waitLock(20000);
@@ -416,10 +427,11 @@ function sendMentorshipOfferEmail(email, name) {
  * Lives in its own "ClubAI" tab, separate from Signups and
  * WebinarAttendees.
  *
- * The "Paid" column is the switch: set it to TRUE when someone
- * subscribes via the Club AI Stripe link, FALSE (or blank) for
- * trial users. Nothing sets it automatically — same manual flow
- * you already use for new subscribers.
+ * The "Paid" column is the switch. It's set automatically by
+ * markClubAiPaid() below, called from the Vercel Stripe webhook
+ * (api/stripe-webhook.js) the moment a Club AI subscription payment
+ * completes. Still safe to flip a row to TRUE/FALSE by hand here if
+ * you ever need to override it (comps, refunds, etc).
  *
  * Day and month counters reset themselves, so you never need to
  * clear them by hand.
@@ -473,6 +485,29 @@ function aiFindRow(sheet, email) {
     if ((emails[i][0] || '').toString().trim().toLowerCase() === email) return i + 2;
   }
   return -1;
+}
+
+/** Sets Paid = TRUE for an email in the ClubAI tab. Called server-to-server
+ *  from the Vercel Stripe webhook handler once a Club AI subscription
+ *  payment is verified there — gated by a shared secret (this project's
+ *  'WEBHOOK_SECRET' Script Property) since this endpoint's base URL is
+ *  otherwise public, embedded in client-side JS across the site. */
+function markClubAiPaid(email, secret) {
+  var expected = PropertiesService.getScriptProperties().getProperty('WEBHOOK_SECRET');
+  if (!expected || secret !== expected) return { ok: false, error: 'unauthorized' };
+
+  email = (email || '').toString().trim().toLowerCase();
+  if (!email || email.indexOf('@') === -1) return { ok: false, error: 'invalid_email' };
+
+  var sheet = getAiSheet();
+  var row = aiFindRow(sheet, email);
+  var now = new Date();
+  if (row === -1) {
+    sheet.appendRow([email, '', true, 0, aiMonthKey(now), '{}', 0, aiDayKey(now), now, now, '{}', 0]);
+  } else {
+    sheet.getRange(row, 3).setValue(true); // 'Paid' column
+  }
+  return { ok: true };
 }
 
 function aiTruthy(v) {
