@@ -473,6 +473,22 @@ function getAiSheet() {
 function aiMonthKey(d) {
   return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
 }
+
+// Sheets can silently auto-convert a plain "2026-09" / "2026-09-11" string
+// into a real Date cell on write. Reading it back with String(cellValue)
+// then never matches a freshly computed key -- the stored month/day looks
+// permanently "different", so every single request wrongly reads as a new
+// month/day and wipes Spent USD / Actions Today / Freetext Today back to
+// zero. Re-derive the key the same way it was written whenever the cell
+// came back as a Date, so a stored key only ever mismatches on a real
+// month/day rollover.
+function readStoredMonthKey(v) {
+  return v instanceof Date ? aiMonthKey(v) : String(v || '');
+}
+function readStoredDayKey(v) {
+  return v instanceof Date ? aiDayKey(v) : String(v || '');
+}
+
 function aiDayKey(d) {
   return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
 }
@@ -545,10 +561,10 @@ function aiCheckByEmail(email, whatsapp) {
   var vals = sheet.getRange(row, 1, 1, AI_HEADERS.length).getValues()[0];
   var paid = aiTruthy(vals[2]);
   var spent = parseFloat(vals[3]) || 0;
-  var storedMonth = String(vals[4] || '');
+  var storedMonth = readStoredMonthKey(vals[4]);
   var actionsToday = aiParseJson(vals[5]);
   var freetext = parseInt(vals[6], 10) || 0;
-  var storedDay = String(vals[7] || '');
+  var storedDay = readStoredDayKey(vals[7]);
   var spentToday = parseFloat(vals[11]) || 0;
 
   // Self-resetting counters
@@ -594,8 +610,8 @@ function aiRecordUsageByEmail(email, costUsd, kind, action) {
   var mKey = aiMonthKey(now);
   var dKey = aiDayKey(now);
 
-  if (String(vals[4] || '') !== mKey) { vals[3] = 0; vals[4] = mKey; }
-  if (String(vals[7] || '') !== dKey) { vals[5] = '{}'; vals[6] = 0; vals[7] = dKey; vals[11] = 0; }
+  if (readStoredMonthKey(vals[4]) !== mKey) { vals[3] = 0; vals[4] = mKey; }
+  if (readStoredDayKey(vals[7]) !== dKey) { vals[5] = '{}'; vals[6] = 0; vals[7] = dKey; vals[11] = 0; }
 
   vals[3] = (parseFloat(vals[3]) || 0) + (parseFloat(costUsd) || 0);
   vals[11] = (parseFloat(vals[11]) || 0) + (parseFloat(costUsd) || 0);
