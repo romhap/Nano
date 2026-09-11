@@ -855,6 +855,11 @@ async function handleChatResponse(res, data, action){
     addAI(data.message || 'Your session ended. Please sign in again.');
     clearSession();
     setTimeout(() => location.href = location.pathname, 1400);
+  } else if (data.error === 'account_check_failed') {
+    // Transient backend hiccup, NOT a real sign-out -- session is left
+    // untouched so the student can just retry the same message.
+    addAI(data.message || "Couldn't reach Club AI's account system. Try again in a moment.");
+    track('clubai_blocked', { reason:'account_check_failed' });
   } else if (data.error === 'paid_only') {
     addCard('A Pro feature', data.message || 'This one is part of Club AI Pro.', true);
     track('clubai_blocked', { reason:'paid_only' });

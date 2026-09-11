@@ -241,8 +241,17 @@ export default async function handler(req, res) {
   // ---- Account + entitlement ----------------------------------------------
   // account.email below is the SERVER's resolution of the session token, not
   // anything the client asserted -- this is the actual fix for the
-  // impersonation gap. If the token is missing/expired/revoked, account is
-  // either null or {valid:false} and we bounce back to sign-in.
+  // impersonation gap.
+  //
+  // Two distinct failure shapes here, and they must NOT be treated the same:
+  //   - account === null means fetchAccount() couldn't even complete the
+  //     request (network blip, Apps Script cold start, an 8s timeout) --
+  //     that says nothing about whether the session itself is valid. Forcing
+  //     a sign-out here would kick out a genuinely signed-in student over a
+  //     transient hiccup and silently discard their real session token.
+  //   - account.valid === false is the server EXPLICITLY saying this token
+  //     doesn't resolve to any live, non-revoked device row -- that's the
+  //     only case that should actually clear the session and re-gate.
   //
   // Exception: if SIGNUP_ENDPOINT itself isn't configured yet (fresh setup,
   // still testing locally), there's no account backend to check against at
@@ -250,7 +259,13 @@ export default async function handler(req, res) {
   // the whole app before Rom has wired anything up. Once SIGNUP_ENDPOINT is
   // set, this fallback is unreachable and a bad session is always a real 401.
   const account = await fetchAccount(sessionToken);
-  if (SIGNUP_ENDPOINT && (!account || account.valid === false)) {
+  if (SIGNUP_ENDPOINT && account === null) {
+    return res.status(503).json({
+      error: 'account_check_failed',
+      message: "Couldn't reach Club AI's account system just now. Try again in a moment."
+    });
+  }
+  if (SIGNUP_ENDPOINT && account && account.valid === false) {
     return res.status(401).json({
       error: 'sign_in_required',
       message: 'Your session has expired or was signed out on this device. Please sign in again.'
