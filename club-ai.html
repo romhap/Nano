@@ -320,7 +320,7 @@ const ACTIONS = [
     prompt:'Take my Anki deck and review it against the current IMAT syllabus (the format introduced by CINECA/Universitaly). Explain exactly what to paste or export. Then give me a serious coverage report: what is in scope and covered, what is wasted effort, and, most importantly, what is missing. For every missing item, rate how critical it is to add on a 1-10 scale, and order the missing list from most to least critical.' }
 ];
 
-let SESSION_TOKEN = null, history = [], busy = false, started = false, currentChatId = null, EMAIL = '';
+let SESSION_TOKEN = null, history = [], busy = false, started = false, currentChatId = null, EMAIL = '', activeMode = null;
 
 const $ = id => document.getElementById(id);
 function track(n,d){ try{ window.va && window.va('event',{name:n,data:d||{}}); }catch(e){} }
@@ -449,7 +449,7 @@ $('signOut').addEventListener('click', () => {
   location.href = location.pathname;
 });
 function resetToHero(){
-  history = []; started = false; currentChatId = null;
+  history = []; started = false; currentChatId = null; activeMode = null;
   $('thread').innerHTML = '';
   $('thread').classList.remove('on');
   $('hero').classList.remove('hidden');
@@ -659,6 +659,11 @@ function loadChat(id){
 // Shared by the hero grid and the mid-thread "guided prompts" reopener
 // below, so both stay in sync with one click-handling path.
 function handleActionPick(a){
+  // Sticks until a different button is pressed or "New chat" -- so a plain
+  // typed follow-up (handled in fire() below) still knows what mode it's
+  // continuing, instead of the model treating it as a fresh, contextless
+  // question the moment the student stops clicking buttons.
+  activeMode = a;
   if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => send(topicPrompt(a,t), a.id, `${a.label}: ${t}`));
   else if (a.picker === 'uni') openPicker('Which university?', { '': UNIS }, u => send(uniPrompt(u), a.id, `${a.label}: ${u}`));
   else if (a.picker === 'topicOnly') openPicker('Which topic?', { '': Object.keys(TOPICS) }, t => send(subtopicsPrompt(t), a.id, `${a.label}: ${t}`));
@@ -1057,11 +1062,21 @@ input.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); fire(); }
 });
 $('send').addEventListener('click', fire);
+// When a guided mode is active (see handleActionPick above), a plain typed
+// follow-up gets a short reminder of that context prepended before it's
+// sent to the model -- invisible in the UI (the student's bubble still
+// shows exactly what they typed) since only `text` carries it, not
+// `displayText`. Without this the model has no signal it's still inside,
+// say, a Practice Question flow, and free-floats into a generic answer.
+function modeHint(a){
+  return `[Context: the student is continuing inside the "${a.label}" flow they started earlier in this chat. Keep responding consistently with that (e.g., in Practice Question mode, a short reply like "another one" or "give me a hint" means continue that same flow, not switch to a plain explanation) unless they clearly want to move on to something else.]`;
+}
 function fire(){
   const v = input.value.trim();
   if (!v) return;
   input.value = ''; autosize();
-  send(v, null);
+  const text = activeMode ? `${modeHint(activeMode)}\n\n${v}` : v;
+  send(text, null, v);
 }
 </script>
 </body>
