@@ -28,7 +28,16 @@
  * deployments ▸ (pencil icon on the existing deployment) ▸ Version: New
  * version ▸ Deploy. That keeps the same /exec URL, so nothing needs to
  * change in lounge.html or script.js.
+ *
+ * VERIFYING A DEPLOY ACTUALLY TOOK: this has bitten us more than once --
+ * "New version ▸ Deploy" not actually being clicked leaves the OLD code
+ * running indefinitely with no visible sign anything is wrong. After every
+ * deploy, open <your /exec URL>?version= in a browser. It should show the
+ * SCRIPT_VERSION string below. If it shows an older one (or errors), the
+ * deploy didn't take -- redo the Deploy step, don't just re-Save.
  */
+
+var SCRIPT_VERSION = '2026-09-11-date-key-fix';
 
 var SHEET_NAME = 'Signups';
 var HEADERS = ['Email', 'Name', 'WhatsApp', 'First Seen', 'Last Seen',
@@ -138,6 +147,9 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  if (typeof e.parameter.version !== 'undefined') {
+    return json({ version: SCRIPT_VERSION });
+  }
   if (e.parameter.aiCheck) {
     var lockA = LockService.getScriptLock();
     lockA.waitLock(20000);
