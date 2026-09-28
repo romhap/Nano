@@ -302,6 +302,44 @@ const TOPICS = {
   'Logic & Reading': ['Logical Problems','Numerical & Data Reasoning','Argument Analysis','Reading Comprehension','General Culture & History','Institutions & Citizenship']
 };
 
+// One level down from TOPICS -- shown after a topic is picked for Practice
+// Question / Explain a topic, so the student can narrow in instead of
+// always getting a broad, unfocused question or explanation. "General"
+// (prepended at render time, see openSubtopicPicker) skips this and keeps
+// the old whole-topic behavior.
+const SUBTOPICS = {
+  'Genetics & Heredity': ['Mendelian inheritance & ratios','Pedigree analysis','Allele frequency & Hardy-Weinberg','Mutations & their effects','Chromosomal inheritance'],
+  'Molecular Biology': ['DNA replication','Transcription','Translation','Gene regulation','Mutations at the molecular level'],
+  'Cell Biology': ['Organelle structure & function','Membrane transport','Cell communication & signaling','Cell cycle & division','Cytoskeleton'],
+  'Human Anatomy & Physiology': ['Cardiovascular system','Respiratory system','Nervous system','Digestive system','Endocrine system','Musculoskeletal system'],
+  'Bioenergetics': ['Glycolysis','Krebs cycle','Oxidative phosphorylation','Photosynthesis basics','ATP & energy currency'],
+  'Evolution & Ecology': ['Natural selection mechanics','Speciation','Population genetics','Ecological relationships & food webs','Biodiversity & conservation'],
+
+  'Organic Chemistry': ['Functional groups','Nomenclature basics','Hydrocarbons','Isomerism','Common reaction types'],
+  'Stoichiometry & Reactions': ['Mole calculations','Limiting reagent','Percent yield','Balancing equations','Concentration & dilution'],
+  'Acids, Bases & pH': ['pH & pOH calculations','Strong vs weak acids/bases','Titration basics','Buffers','Ka & Kb'],
+  'Atomic Structure & Bonding': ['Electron configuration','Periodic trends','Ionic vs covalent bonding','Molecular geometry','Intermolecular forces'],
+  'Electrochemistry': ['Oxidation states','Redox reactions','Galvanic cells','Electrolysis basics'],
+  'Thermochemistry & Kinetics': ['Exothermic vs endothermic reactions',"Enthalpy & Hess's law",'Reaction rates','Activation energy','Equilibrium basics'],
+
+  'Dynamics & Energy': ["Newton's laws",'Work & energy','Momentum & impulse','Circular motion'],
+  'Kinematics': ['Uniform motion','Uniformly accelerated motion','Projectile motion','Free fall'],
+  'Electrostatics & Circuits': ["Coulomb's law",'Electric field & potential',"Ohm's law",'Series & parallel circuits'],
+  'Thermodynamics': ['Temperature & heat','Gas laws','Laws of thermodynamics','Specific heat & calorimetry'],
+  'Fluid Mechanics': ['Density & pressure',"Pascal's principle","Archimedes' principle","Bernoulli's principle"],
+  'Algebra & Functions': ['Solving equations','Rearranging formulas','Exponents & scientific notation','Basic functions & graphs'],
+  'Probability & Geometry': ['Basic probability','Ratios & proportions','Area & volume','Reading graphs & data'],
+
+  'Logical Problems': ['Propositional logic','Deductive reasoning','Seating/arrangement puzzles','Syllogisms'],
+  'Numerical & Data Reasoning': ['Percentages & ratios','Data table interpretation','Basic statistics','Estimation under time pressure'],
+  'Argument Analysis': ['Identifying assumptions','Strengthening/weakening arguments','Spotting logical fallacies'],
+  'Reading Comprehension': ['Main idea & inference','Vocabulary in context',"Author's tone & purpose",'Literary vs informational passages'],
+  'General Culture & History': ['World history milestones','Geography basics','Art & literature','Current affairs'],
+  'Institutions & Citizenship': ['Government structures','Italian & EU institutions','Rights & civic duties','Separation of powers']
+};
+
+const SUBTOPIC_GENERAL = 'General (whole topic)';
+
 const UNIS = ['Milano (Statale)','Milano-Bicocca','Roma (Sapienza)','Bologna','Pavia','Padova','Roma (Tor Vergata)','Torino','Napoli (Federico II)','Parma','Siena','Napoli (Vanvitelli)','Bari','Catania','Messina','Cagliari','Firenze (Florence)'];
 
 const ACTIONS = [
@@ -664,11 +702,23 @@ function handleActionPick(a){
   // continuing, instead of the model treating it as a fresh, contextless
   // question the moment the student stops clicking buttons.
   activeMode = a;
-  if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => send(topicPrompt(a,t), a.id, `${a.label}: ${t}`));
+  if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => openSubtopicPicker(a, t));
   else if (a.picker === 'uni') openPicker('Which university?', { '': UNIS }, u => send(uniPrompt(u), a.id, `${a.label}: ${u}`));
   else if (a.picker === 'topicOnly') openPicker('Which topic?', { '': Object.keys(TOPICS) }, t => send(subtopicsPrompt(t), a.id, `${a.label}: ${t}`));
   else if (a.picker === 'upload') openUpgradeExamPicker();
   else send(a.prompt, a.id, a.label);
+}
+// Second step after a topic is picked for Practice question / Explain a
+// topic -- lets the student narrow to a specific subtopic, or pick General
+// to keep asking about the whole topic like before. Falls straight through
+// to General if a topic has no authored subtopic list yet.
+function openSubtopicPicker(a, topic){
+  const subs = SUBTOPICS[topic];
+  if (!subs || !subs.length) { send(topicPrompt(a, topic), a.id, `${a.label}: ${topic}`); return; }
+  openPicker(topic + ' - pick a subtopic', { '': [SUBTOPIC_GENERAL, ...subs] }, s => {
+    const label = s === SUBTOPIC_GENERAL ? `${a.label}: ${topic}` : `${a.label}: ${topic} - ${s}`;
+    send(topicPrompt(a, topic, s), a.id, label);
+  });
 }
 function buildActionButton(a){
   const b = document.createElement('button');
@@ -710,10 +760,13 @@ function openActionsPicker(){
 }
 $('tmplBtn').addEventListener('click', openActionsPicker);
 function topicTitle(a){ return a.id === 'explain' ? 'Which topic should I explain?' : 'Pick a topic'; }
-function topicPrompt(a, topic){
+// subtopic is null/omitted for "General" -- keeps the original whole-topic
+// prompt unchanged in that case, only narrows when a real subtopic is picked.
+function topicPrompt(a, topic, subtopic){
+  const focus = (subtopic && subtopic !== SUBTOPIC_GENERAL) ? (topic + ', specifically ' + subtopic) : topic;
   if (a.id === 'mock_question')
-    return 'Generate one IMAT multiple-choice question in the current exam format on the topic of: ' + topic + '. Five options (A-E). Output ONLY the question and its five options first. Then on its own line write exactly "///ANSWER///" as a delimiter, then give the correct answer letter and a one-line reason each distractor fails. Do not reveal the answer before the delimiter.';
-  return 'I am studying for the IMAT exam (MCQ exam to enter medschool in Italy), I want to master and excel this exam, so for the syllabus-topic I give you, explain it sharply and at exam depth: ' + topic + '. If it is too broad to cover well, tell me which sub-topic to narrow to instead.';
+    return 'Generate one IMAT multiple-choice question in the current exam format on the topic of: ' + focus + '. Five options (A-E). Output ONLY the question and its five options first. Then on its own line write exactly "///ANSWER///" as a delimiter, then give the correct answer letter and a one-line reason each distractor fails. Do not reveal the answer before the delimiter.';
+  return 'I am studying for the IMAT exam (MCQ exam to enter medschool in Italy), I want to master and excel this exam, so for the syllabus-topic I give you, explain it sharply and at exam depth: ' + focus + '. If it is too broad to cover well, tell me which sub-topic to narrow to instead.';
 }
 function subtopicsPrompt(topic){
   return 'I am studying for the IMAT exam, the syllabus is very vague, so for this topic of the syllabus I give you, make a clear list of all the subtopics I must learn: ' + topic + '.';
