@@ -93,6 +93,13 @@
         .ai-body li{margin-bottom:5px}
         .ai-body h3{font-size:1rem;margin:16px 0 8px}
         .ai-body hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+        .md-table-wrap{overflow-x:auto;margin:0 0 13px;border:1px solid var(--border);border-radius:8px}
+        .md-table-wrap table{width:100%;border-collapse:collapse;font-size:.88rem}
+        .md-table-wrap th,.md-table-wrap td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);white-space:normal;vertical-align:top}
+        .md-table-wrap tr:last-child td{border-bottom:none}
+        .md-table-wrap th{background:var(--surface);font-weight:600;color:var(--text)}
+        .md-table-wrap td{color:var(--text2)}
+        .md-table-wrap td strong{color:var(--text)}
 
         .dots{display:inline-flex;gap:4px;align-items:center;height:26px}
         .dots i{width:6px;height:6px;background:var(--text3);border-radius:50%;animation:pulse 1.4s infinite}
@@ -125,10 +132,13 @@
         .composer-wrap{flex-shrink:0;background:linear-gradient(to bottom,transparent,var(--bg) 22%);padding-bottom:14px}
         .composer-wrap.floating{position:absolute;left:0;right:0;bottom:0;background:none;pointer-events:none}
         .composer-wrap.floating .composer{pointer-events:auto}
-        .composer{display:flex;align-items:flex-end;gap:8px;border:1px solid var(--border);border-radius:24px;padding:7px 7px 7px 18px;background:var(--bg);transition:border-color .15s,box-shadow .15s}
+        .composer{display:flex;align-items:flex-end;gap:8px;border:1px solid var(--border);border-radius:24px;padding:7px 7px 7px 7px;background:var(--bg);transition:border-color .15s,box-shadow .15s}
         .composer:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
         .composer textarea{flex:1;resize:none;border:none;outline:none;background:none;font-family:'Inter',sans-serif;font-size:.945rem;color:var(--text);line-height:1.55;padding:8px 0;max-height:180px}
         .composer textarea::placeholder{color:var(--text3)}
+        .tmplbtn{width:34px;height:34px;flex-shrink:0;border:1px solid var(--border);border-radius:50%;background:var(--bg);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+        .tmplbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+        .tmplbtn svg{width:16px;height:16px}
         .send{width:34px;height:34px;flex-shrink:0;border:none;border-radius:50%;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,opacity .15s}
         .send:hover{background:var(--accent2)}
         .send:disabled{opacity:.3;cursor:not-allowed}
@@ -262,6 +272,9 @@
     <div class="composer-wrap" id="composerWrap">
         <div class="col">
             <div class="composer">
+                <button class="tmplbtn" id="tmplBtn" title="Guided prompts">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                </button>
                 <textarea id="input" rows="1" placeholder="Ask anything about the IMAT…"></textarea>
                 <button class="send" id="send" title="Send">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
@@ -643,25 +656,54 @@ function loadChat(id){
 }
 
 /* ---------- suggestions ---------- */
+// Shared by the hero grid and the mid-thread "guided prompts" reopener
+// below, so both stay in sync with one click-handling path.
+function handleActionPick(a){
+  if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => send(topicPrompt(a,t), a.id, `${a.label}: ${t}`));
+  else if (a.picker === 'uni') openPicker('Which university?', { '': UNIS }, u => send(uniPrompt(u), a.id, `${a.label}: ${u}`));
+  else if (a.picker === 'topicOnly') openPicker('Which topic?', { '': Object.keys(TOPICS) }, t => send(subtopicsPrompt(t), a.id, `${a.label}: ${t}`));
+  else if (a.picker === 'upload') openUpgradeExamPicker();
+  else send(a.prompt, a.id, a.label);
+}
+function buildActionButton(a){
+  const b = document.createElement('button');
+  const ico = document.createElement('span'); ico.className='ico'; ico.textContent=a.ico;
+  const txt = document.createElement('span'); txt.textContent=a.label;
+  b.appendChild(ico); b.appendChild(txt);
+  if (a.pro) { const l=document.createElement('span'); l.className='lock'; l.textContent='PRO'; b.appendChild(l); }
+  return b;
+}
 function renderSuggestions(){
   const box = $('sugg');
   box.innerHTML = '';
   ACTIONS.forEach(a => {
-    const b = document.createElement('button');
-    const ico = document.createElement('span'); ico.className='ico'; ico.textContent=a.ico;
-    const txt = document.createElement('span'); txt.textContent=a.label;
-    b.appendChild(ico); b.appendChild(txt);
-    if (a.pro) { const l=document.createElement('span'); l.className='lock'; l.textContent='PRO'; b.appendChild(l); }
-    b.addEventListener('click', () => {
-      if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => send(topicPrompt(a,t), a.id, `${a.label}: ${t}`));
-      else if (a.picker === 'uni') openPicker('Which university?', { '': UNIS }, u => send(uniPrompt(u), a.id, `${a.label}: ${u}`));
-      else if (a.picker === 'topicOnly') openPicker('Which topic?', { '': Object.keys(TOPICS) }, t => send(subtopicsPrompt(t), a.id, `${a.label}: ${t}`));
-      else if (a.picker === 'upload') openUpgradeExamPicker();
-      else send(a.prompt, a.id, a.label);
-    });
+    const b = buildActionButton(a);
+    b.addEventListener('click', () => handleActionPick(a));
     box.appendChild(b);
   });
 }
+// Lets a student bring back the guided-prompt buttons mid-conversation,
+// without hitting "New chat" and losing what's already in the thread.
+function openActionsPicker(){
+  closePicker();
+  beginThread();
+  const box = document.createElement('div');
+  box.className = 'picker'; box.id = 'picker';
+  const top = document.createElement('div'); top.className = 'picker-top';
+  const t = document.createElement('span'); t.textContent = 'Guided prompts';
+  const x = document.createElement('button'); x.textContent = '✕'; x.addEventListener('click', closePicker);
+  top.appendChild(t); top.appendChild(x); box.appendChild(top);
+  const sugg = document.createElement('div'); sugg.className = 'sugg';
+  ACTIONS.forEach(a => {
+    const b = buildActionButton(a);
+    b.addEventListener('click', () => { closePicker(); handleActionPick(a); });
+    sugg.appendChild(b);
+  });
+  box.appendChild(sugg);
+  $('thread').appendChild(box);
+  toBottom();
+}
+$('tmplBtn').addEventListener('click', openActionsPicker);
 function topicTitle(a){ return a.id === 'explain' ? 'Which topic should I explain?' : 'Pick a topic'; }
 function topicPrompt(a, topic){
   if (a.id === 'mock_question')
@@ -717,19 +759,46 @@ function md(text){
   const flush = () => {
     if (para.length) { out += '<p>' + inline(para.join('<br>')) + '</p>'; para = []; }
   };
-  lines.forEach(raw => {
-    const line = raw.trim();
-    if (!line) { flush(); closeList(); return; }
-    if (/^(-{3,}|\*{3,}|_{3,})$/.test(line)) { flush(); closeList(); out += '<hr>'; return; }
+  // A GFM-style table row -- "| cell | cell |". The separator row directly
+  // under a header ("|---|---|", optionally with colons for alignment) is
+  // what actually confirms it's a table rather than a stray line with pipes.
+  const isTableRow = l => /^\|.*\|$/.test(l);
+  const isTableSep = l => /^\|?[\s:|-]+\|?$/.test(l) && l.includes('-');
+  const splitRow = l => {
+    let s = l;
+    if (s.startsWith('|')) s = s.slice(1);
+    if (s.endsWith('|')) s = s.slice(0, -1);
+    return s.split('|').map(c => c.trim());
+  };
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) { flush(); closeList(); continue; }
+
+    if (isTableRow(line) && i + 1 < lines.length && isTableSep(lines[i + 1].trim())) {
+      flush(); closeList();
+      const header = splitRow(line);
+      const rows = [];
+      let j = i + 2;
+      while (j < lines.length && isTableRow(lines[j].trim())) { rows.push(splitRow(lines[j].trim())); j++; }
+      out += '<div class="md-table-wrap"><table><thead><tr>' +
+        header.map(c => '<th>' + inline(c) + '</th>').join('') +
+        '</tr></thead><tbody>' +
+        rows.map(r => '<tr>' + r.map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>').join('') +
+        '</tbody></table></div>';
+      i = j - 1;
+      continue;
+    }
+
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(line)) { flush(); closeList(); out += '<hr>'; continue; }
     const h = line.match(/^#{1,6}\s+(.*)$/);
-    if (h) { flush(); closeList(); out += '<h3>' + inline(h[1]) + '</h3>'; return; }
+    if (h) { flush(); closeList(); out += '<h3>' + inline(h[1]) + '</h3>'; continue; }
     const ol = line.match(/^(\d+)[.)]\s+(.*)$/);
-    if (ol) { flush(); if (list !== 'ol') { closeList(); out += '<ol>'; list = 'ol'; } out += '<li>' + inline(ol[2]) + '</li>'; return; }
+    if (ol) { flush(); if (list !== 'ol') { closeList(); out += '<ol>'; list = 'ol'; } out += '<li>' + inline(ol[2]) + '</li>'; continue; }
     const ul = line.match(/^[-*•]\s+(.*)$/);
-    if (ul) { flush(); if (list !== 'ul') { closeList(); out += '<ul>'; list = 'ul'; } out += '<li>' + inline(ul[1]) + '</li>'; return; }
+    if (ul) { flush(); if (list !== 'ul') { closeList(); out += '<ul>'; list = 'ul'; } out += '<li>' + inline(ul[1]) + '</li>'; continue; }
     closeList();
     para.push(line);
-  });
+  }
   flush(); closeList();
   return out;
 }
