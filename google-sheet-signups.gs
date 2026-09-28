@@ -37,7 +37,7 @@
  * deploy didn't take -- redo the Deploy step, don't just re-Save.
  */
 
-var SCRIPT_VERSION = '2026-09-11-date-key-fix';
+var SCRIPT_VERSION = '2026-09-28-force-text-format';
 
 var SHEET_NAME = 'Signups';
 var HEADERS = ['Email', 'Name', 'WhatsApp', 'First Seen', 'Last Seen',
@@ -479,6 +479,15 @@ function getAiSheet() {
         .setValues([AI_HEADERS.slice(existing.length)]);
     }
   }
+  // Belt-and-suspenders against the Date auto-conversion bug (see
+  // readStoredMonthKey/readStoredDayKey above): forcing these two columns
+  // to plain-text format stops Sheets from re-interpreting a written
+  // "2026-09" / "2026-09-28" string as a real Date the next time either
+  // gets written, which is what silently broke the day/month comparison
+  // and reset spend + limits on every request. Cheap and idempotent, so
+  // safe to redo on every call rather than trying to run it only once.
+  sheet.getRange(2, 5, 4999, 1).setNumberFormat('@'); // Month
+  sheet.getRange(2, 8, 4999, 1).setNumberFormat('@'); // Day
   return sheet;
 }
 
