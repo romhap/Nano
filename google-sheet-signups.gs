@@ -37,7 +37,7 @@
  * deploy didn't take -- redo the Deploy step, don't just re-Save.
  */
 
-var SCRIPT_VERSION = '2026-09-28-force-text-format';
+var SCRIPT_VERSION = '2026-09-28-aidebug-route';
 
 var SHEET_NAME = 'Signups';
 var HEADERS = ['Email', 'Name', 'WhatsApp', 'First Seen', 'Last Seen',
@@ -149,6 +149,38 @@ function doPost(e) {
 function doGet(e) {
   if (typeof e.parameter.version !== 'undefined') {
     return json({ version: SCRIPT_VERSION });
+  }
+  if (e.parameter.aiDebug) {
+    // Read-only diagnostic: dumps the ClubAI row's raw cell values and
+    // types, next to what a fresh check would compute right now, without
+    // writing anything. Use this to catch the reset bug in the act --
+    // visit right after seeing Spent USD / Actions Today reset to see
+    // exactly why the day/month comparison thought it was a new day.
+    try {
+      var dbgSheet = getAiSheet();
+      var dbgRow = aiFindRow(dbgSheet, (e.parameter.aiDebug || '').toString().trim().toLowerCase());
+      if (dbgRow === -1) return json({ found: false });
+      var dbgVals = dbgSheet.getRange(dbgRow, 1, 1, AI_HEADERS.length).getValues()[0];
+      var dbgNow = new Date();
+      return json({
+        found: true,
+        row: dbgRow,
+        rawMonthCell: dbgVals[4],
+        rawMonthType: Object.prototype.toString.call(dbgVals[4]),
+        rawDayCell: dbgVals[7],
+        rawDayType: Object.prototype.toString.call(dbgVals[7]),
+        storedMonthKey: readStoredMonthKey(dbgVals[4]),
+        storedDayKey: readStoredDayKey(dbgVals[7]),
+        computedMonthKeyNow: aiMonthKey(dbgNow),
+        computedDayKeyNow: aiDayKey(dbgNow),
+        scriptTimeZone: Session.getScriptTimeZone(),
+        actionsTodayRaw: dbgVals[5],
+        spentMonth: dbgVals[3],
+        spentDay: dbgVals[11]
+      });
+    } catch (err) {
+      return json({ error: String(err) });
+    }
   }
   if (e.parameter.aiCheck) {
     var lockA = LockService.getScriptLock();
