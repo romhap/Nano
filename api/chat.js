@@ -220,6 +220,46 @@ function daysInCurrentMonth() {
   return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 }
 
+// --- Answer cache (deterministic guided actions only) -----------------------
+// "Explain a topic", "University preview" and "Break a topic into
+// subtopics" ask the same question every time for a given topic/subtopic/
+// university -- no reason to pay Anthropic again once one student has
+// already gotten that exact answer. The client computes and sends a
+// cacheKey (e.g. "university:Messina") only for these three actions; any
+// other action's cacheKey is ignored below via the whitelist, as a safety
+// net against a client bug accidentally caching something that should
+// vary per request (a practice question, a mock exam, a personalized
+// Anki review).
+const CACHEABLE_ACTIONS = ['explain', 'university', 'subtopics'];
+
+async function checkCache(cacheKey) {
+  if (!SIGNUP_ENDPOINT || !cacheKey) return null;
+  try {
+    const r = await fetch(
+      `${SIGNUP_ENDPOINT}?cacheGet=${encodeURIComponent(cacheKey)}`,
+      { signal: AbortSignal.timeout(8000) }
+    );
+    const data = await r.json();
+    return data && data.hit ? data.answer : null;
+  } catch (e) {
+    return null; // a cache miss on error just means we fall through to a real call
+  }
+}
+
+async function writeCache(cacheKey, answer) {
+  if (!SIGNUP_ENDPOINT || !cacheKey || !answer) return;
+  try {
+    await fetch(SIGNUP_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cacheSet: cacheKey, value: answer }),
+      signal: AbortSignal.timeout(8000)
+    });
+  } catch (e) {
+    /* non-fatal: worst case the next student's identical question isn't cached yet either */
+  }
+}
+
 // ---------------------------------------------------------------------------
 
 export default async function handler(req, res) {
@@ -227,7 +267,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { sessionToken, messages, action, file } = req.body || {};
+  const { sessionToken, messages, action, file, cacheKey } = req.body || {};
 
   if (!sessionToken || typeof sessionToken !== 'string') {
     return res.status(401).json({ error: 'sign_in_required', message: 'Please sign in to Club AI.' });
@@ -349,6 +389,26 @@ export default async function handler(req, res) {
     });
   }
 
+  // ---- Answer cache (deterministic guided actions only) ---------------------
+  // A cache hit still counts against the student's own daily action cap
+  // (recordUsage runs with cost 0) -- from their side they used their
+  // "Explain a topic" for today either way, whether or not it happened to
+  // already exist from another student's identical question.
+  if (cacheKey && CACHEABLE_ACTIONS.includes(action)) {
+    const cached = await checkCache(cacheKey);
+    if (cached) {
+      await recordUsage(sessionToken, 0, kind, action);
+      let usagePct;
+      if (isPaid && account) {
+        usagePct = {
+          dayPct: Math.min(100, Math.round(((account.spentUsdToday || 0) / dailyBudget) * 100)),
+          monthPct: Math.min(100, Math.round(((account.spentUsd || 0) / MONTHLY_BUDGET_USD) * 100))
+        };
+      }
+      return res.status(200).json({ reply: cached, paid: isPaid, usage: usagePct, cached: true });
+    }
+  }
+
   // ---- Real call -----------------------------------------------------------
   try {
     const Anthropic = (await import('@anthropic-ai/sdk')).default;
@@ -398,6 +458,9 @@ export default async function handler(req, res) {
       (usage.output_tokens || 0) * PRICE_OUT_PER_TOKEN;
 
     await recordUsage(sessionToken, costUsd, kind, action);
+    if (cacheKey && CACHEABLE_ACTIONS.includes(action)) {
+      await writeCache(cacheKey, reply);
+    }
 
     let usagePct;
     if (isPaid && account) {

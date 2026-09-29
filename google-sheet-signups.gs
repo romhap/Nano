@@ -37,7 +37,7 @@
  * deploy didn't take -- redo the Deploy step, don't just re-Save.
  */
 
-var SCRIPT_VERSION = '2026-09-28-aidebug-route';
+var SCRIPT_VERSION = '2026-09-29-ai-answer-cache';
 
 var SHEET_NAME = 'Signups';
 var HEADERS = ['Email', 'Name', 'WhatsApp', 'First Seen', 'Last Seen',
@@ -137,6 +137,9 @@ function doPost(e) {
   lock.waitLock(20000);
   try {
     var d = JSON.parse(e.postData.contents);
+    if (d.cacheSet) {
+      return json(cacheSet(d.cacheSet, d.value || ''));
+    }
     processData(d);
     return json({ ok: true });
   } catch (err) {
@@ -180,6 +183,17 @@ function doGet(e) {
       });
     } catch (err) {
       return json({ error: String(err) });
+    }
+  }
+  if (e.parameter.cacheGet) {
+    var lockC = LockService.getScriptLock();
+    lockC.waitLock(20000);
+    try {
+      return json(cacheGet(e.parameter.cacheGet));
+    } catch (err) {
+      return json({ hit: false, error: String(err) });
+    } finally {
+      lockC.releaseLock();
     }
   }
   if (e.parameter.aiCheck) {
@@ -581,6 +595,67 @@ function markClubAiPaid(email, secret) {
 
 function aiTruthy(v) {
   return v === true || /^(true|yes|y|1)$/i.test(String(v).trim());
+}
+
+/**
+ * ============================================================
+ * CLUB AI — answer cache for deterministic guided actions
+ * ============================================================
+ * "Explain a topic", "University preview" and "Break a topic into
+ * subtopics" always ask the same question for a given topic/subtopic/
+ * university -- there's no reason to pay the Anthropic API again for the
+ * 10th student who asks about, say, Messina, once the 1st student's
+ * answer is sitting right here. api/chat.js checks this cache before
+ * calling the model and writes to it after a fresh answer, keyed by a
+ * string like "university:Messina" or "explain:Cell Biology:Krebs cycle"
+ * that the client computes (see club-ai.html's cacheKey building in
+ * handleActionPick/openSubtopicPicker).
+ *
+ * Expiry: only "university:" keys go stale (seat counts/cutoffs can shift
+ * mid-cycle) -- CACHE_TTL_DAYS_UNIVERSITY below. Explanations and
+ * subtopic breakdowns are treated as evergreen and never expire on their
+ * own; clear a row by hand in the AiCache tab if one ever needs a refresh.
+ */
+var CACHE_SHEET_NAME = 'AiCache';
+var CACHE_HEADERS = ['CacheKey', 'Answer', 'CreatedAt'];
+var CACHE_TTL_DAYS_UNIVERSITY = 45;
+
+function getCacheSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CACHE_SHEET_NAME) || ss.insertSheet(CACHE_SHEET_NAME);
+  if (sheet.getLastRow() === 0) sheet.appendRow(CACHE_HEADERS);
+  return sheet;
+}
+
+function cacheGet(key) {
+  key = (key || '').toString().trim();
+  if (!key) return { hit: false };
+  var sheet = getCacheSheet();
+  var row = findRowByExact(sheet, 1, key);
+  if (row === -1) return { hit: false };
+
+  var vals = sheet.getRange(row, 1, 1, CACHE_HEADERS.length).getValues()[0];
+  var createdAt = vals[2] instanceof Date ? vals[2] : new Date(vals[2]);
+
+  if (key.indexOf('university:') === 0) {
+    var ageDays = (Date.now() - createdAt.getTime()) / (24 * 60 * 60 * 1000);
+    if (ageDays > CACHE_TTL_DAYS_UNIVERSITY) return { hit: false };
+  }
+  return { hit: true, answer: String(vals[1] || '') };
+}
+
+function cacheSet(key, answer) {
+  key = (key || '').toString().trim();
+  if (!key || !answer) return { ok: false };
+  var sheet = getCacheSheet();
+  var row = findRowByExact(sheet, 1, key);
+  var now = new Date();
+  if (row === -1) {
+    sheet.appendRow([key, answer, now]);
+  } else {
+    sheet.getRange(row, 1, 1, CACHE_HEADERS.length).setValues([[key, answer, now]]);
+  }
+  return { ok: true };
 }
 
 function aiParseJson(v) {
