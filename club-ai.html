@@ -546,14 +546,32 @@ function enter(){
   EMAIL = getEmail();
   $('gate').style.display = 'none';
   $('shell').classList.remove('hidden');
-  $('planChip').classList.remove('hidden');
   $('newChat').classList.remove('hidden');
   $('histBtn').classList.remove('hidden');
   $('devBtn').classList.remove('hidden');
   $('signOut').classList.remove('hidden');
   $('composerWrap').classList.add('floating');
   renderSuggestions();
+  refreshPlanStatus();
   $('input').focus();
+}
+// The plan chip defaulted to its hardcoded "Trial" markup until the first
+// real /api/chat response corrected it -- meaning a Pro account opening
+// Club AI saw "Trial" flash (or linger, if they never sent a message) even
+// though they're actually paid. Fetch the real status right away instead
+// of waiting on a chat round trip, and only reveal the chip once we know
+// which one to show, so an already-Pro account never sees the wrong label.
+async function refreshPlanStatus(){
+  if (!SESSION_TOKEN) return;
+  try {
+    const res = await fetch(`${SIGNUP_ENDPOINT}?aiCheck=${encodeURIComponent(SESSION_TOKEN)}`);
+    const data = await res.json();
+    if (data && data.valid) setPlan(!!data.paid);
+  } catch(e) {
+    // fall through: chip still reveals below with its default "Trial" text,
+    // same fallback behavior as before this fix
+  }
+  $('planChip').classList.remove('hidden');
 }
 
 /* ---------- boot: either verify an incoming link, or resume a session ---------- */
