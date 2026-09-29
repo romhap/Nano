@@ -1126,7 +1126,16 @@ async function send(text, action, displayText, cacheKey){
 }
 
 /* ---------- upgrade old exam (file upload) ---------- */
-const MAX_EXAM_FILE_BYTES = 4 * 1024 * 1024; // Vercel serverless functions cap request bodies around 4.5MB
+// Vercel's serverless request body cap is a hard, unconfigurable 4.5MB --
+// confirmed against Vercel's own docs, not adjustable from this project's
+// side. That's the TOTAL POST body, not the raw file: PDFs get base64
+// encoded before sending (readFileAsBase64 below), which inflates size by
+// ~4/3. So the old "4MB raw" limit was actually unsafe -- a 3.5-4MB file
+// passed this check but could still blow past Vercel's real ceiling once
+// encoded, failing with a confusing raw network error instead of this
+// friendly message. 3MB raw -> ~4MB encoded, comfortably under 4.5MB with
+// headroom for the session token and the rest of the JSON payload.
+const MAX_EXAM_FILE_BYTES = 3 * 1024 * 1024;
 
 function openUpgradeExamPicker(){
   $('examFileInput').click();
@@ -1164,7 +1173,7 @@ async function handleExamUpload(file){
   closePicker();
   if (file.size > MAX_EXAM_FILE_BYTES) {
     beginThread();
-    addAI("That file is too large (4MB max). Try a smaller PDF, or paste the exam as plain text instead.");
+    addAI("That file is too large (3MB max). Try a smaller PDF, or paste the exam as plain text instead.");
     return;
   }
   busy = true; $('send').disabled = true;
