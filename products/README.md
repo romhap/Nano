@@ -1,7 +1,10 @@
 # Products
 
-Lead magnets and downloadable assets. Not linked from the site navigation --
-each one gets its own gate page for a dedicated Instagram bio link.
+Lead magnets and downloadable assets. Most get their own gate page for a
+dedicated Instagram bio link (the pattern below); `IMAT-Syllabus.pdf` is
+the one exception -- it's delivered as a Club AI Pro perk (the "Syllabus"
+guided button triggers the download directly, client-side, after checking
+paid status -- no gate page, no email capture, see its own section below).
 
 ## The pattern (repeat this for every new file)
 
@@ -76,3 +79,25 @@ Ministeriale (MUR), Allegato 1) and rebuilt as a fresh branded PDF using the
 same design system, embedded fonts, and brand icon as the site's other
 lead-magnet PDFs -- carries the same "confirm current details annually"
 hedge used elsewhere on the site for regulation-derived content.
+
+## IMAT-Syllabus.pdf / syllabus.html
+
+Delivered differently from every other file here: no gate page, no email
+capture. Club AI's "Syllabus" button (Pro-only) triggers this download
+directly and client-side, after a quick paid-status check against the same
+account endpoint the plan chip uses -- see `downloadSyllabusPdf()` in
+`club-ai.html`. Genuinely free to serve (no /api/chat call, same principle
+as the Mentorship FAQ / IMAT FAQ buttons), so it's fine that a Pro student
+can re-download it as many times as they want.
+
+Content is the site's own topic/subtopic breakdown (club-ai.html's
+`TOPICS`/`SUBTOPICS`, the same data backing the Practice Question/Explain a
+topic pickers) laid out per section, not a line-by-line transcription of
+the official decree -- `entermedschool.com`, where `api/chat.js`'s
+`SYLLABUS_URL` points, was unreachable from the environment this was built
+in, so the "IMAT.club version" framing is deliberate: our own organization
+of the same officially-scoped material, not a claim of verbatim decree
+text. Carries the same disclaimer pattern as the other regulation-adjacent
+PDFs (our own summary/opinion, verify independently, decree is the binding
+source).
+

@@ -105,6 +105,8 @@
         .dots i{width:6px;height:6px;background:var(--text3);border-radius:50%;animation:pulse 1.4s infinite}
         .dots i:nth-child(2){animation-delay:.2s}
         .dots i:nth-child(3){animation-delay:.4s}
+        .dots-row{display:flex;align-items:center;gap:9px}
+        .dots-label{font-size:.83rem;color:var(--text3);transition:opacity .25s}
         @keyframes pulse{0%,60%,100%{opacity:.25;transform:scale(.85)}30%{opacity:1;transform:scale(1)}}
 
         /* Inline picker */
@@ -127,6 +129,8 @@
         .card a{display:inline-block;padding:10px 20px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:.86rem;font-weight:600}
         .card a:hover{background:var(--accent2)}
         .card.plain{border-color:var(--border);background:var(--surface)}
+        .pdf-dl-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.86rem;cursor:pointer;transition:background .15s}
+        .pdf-dl-btn:hover{background:var(--accent2)}
 
         /* ---------- COMPOSER ---------- */
         .composer-wrap{flex-shrink:0;background:linear-gradient(to bottom,transparent,var(--bg) 22%);padding-bottom:14px}
@@ -353,8 +357,7 @@ const ACTIONS = [
     prompt:'What are the key IMAT dates and deadlines I need to know — registration windows for EU and non-EU candidates, the exam date, and when results come out?' },
   { id:'mentorship_faq', ico:'💬', label:'Mentorship FAQ', picker:'faq', faqKey:'mentorship' },
   { id:'imat_faq',      ico:'❓', label:'IMAT FAQ',        picker:'faq', faqKey:'imat' },
-  { id:'syllabus',     ico:'📚', label:'Syllabus', pro:true,
-    prompt:'Walk me through the official IMAT syllabus: what each section covers, how many questions each carries, and which topics carry the most weight.' },
+  { id:'syllabus',     ico:'📚', label:'Syllabus', pro:true, picker:'syllabusPdf' },
   { id:'subtopics',    ico:'🧩', label:'Break a topic into subtopics', pro:true, picker:'topicOnly' },
   { id:'anki_check',   ico:'🗂️', label:'Check my Anki deck', pro:true,
     prompt:'Take my Anki deck and review it against the current IMAT syllabus (the format introduced by CINECA/Universitaly). Explain exactly what to paste or export. Then give me a serious coverage report: what is in scope and covered, what is wasted effort, and, most importantly, what is missing. For every missing item, rate how critical it is to add on a 1-10 scale, and order the missing list from most to least critical.' }
@@ -765,10 +768,49 @@ function handleActionPick(a){
   activeMode = a;
   if (a.picker === 'topic') openPicker(topicTitle(a), TOPICS, t => openSubtopicPicker(a, t));
   else if (a.picker === 'uni') openPicker('Which university?', { '': UNIS }, u => send(uniPrompt(u), a.id, `${a.label}: ${u}`, 'university:' + u));
-  else if (a.picker === 'topicOnly') openPicker('Which topic?', { '': Object.keys(TOPICS) }, t => send(subtopicsPrompt(t), a.id, `${a.label}: ${t}`, 'subtopics:' + t));
+  else if (a.picker === 'topicOnly') openPicker('Pick a topic', TOPICS, t => send(subtopicsPrompt(t), a.id, `${a.label}: ${t}`, 'subtopics:' + t));
   else if (a.picker === 'upload') openUpgradeExamPicker();
   else if (a.picker === 'faq') openFaqPicker(a);
+  else if (a.picker === 'syllabusPdf') downloadSyllabusPdf(a);
   else send(a.prompt, a.id, a.label);
+}
+// Delivers the pre-built, branded syllabus PDF directly -- no /api/chat
+// call, so this is genuinely free every time, same as the FAQ buttons.
+// Still Pro-gated: checks paid status via the same account endpoint the
+// plan chip uses before allowing the download (soft gate, same trust
+// model as the other lead-magnet PDFs in /products -- not real access
+// control, just not advertised outside a paid session).
+function triggerDownload(url){
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+async function downloadSyllabusPdf(a){
+  beginThread();
+  addDots();
+  try {
+    const res = await fetch(`${SIGNUP_ENDPOINT}?aiCheck=${encodeURIComponent(SESSION_TOKEN)}`);
+    const data = await res.json();
+    killDots();
+    if (!data || !data.valid || !data.paid) {
+      addCard('A Pro feature', 'This one is part of Club AI Pro.', true);
+      track('clubai_blocked', { reason:'paid_only', action:'syllabus' });
+      return;
+    }
+    addUser(a.label);
+    addAI("Here's the official IMAT syllabus, organized the IMAT.club way. Your download should start automatically.");
+    history.push({ role:'user', content:a.label });
+    history.push({ role:'assistant', content:'Delivered the IMAT.club syllabus PDF.' });
+    triggerDownload('products/IMAT-Syllabus.pdf');
+    track('clubai_syllabus_download');
+    persistCurrentChat();
+  } catch (e) {
+    killDots();
+    addAI("Couldn't reach Club AI — check your connection and try again.");
+  }
 }
 // Mentorship FAQ / IMAT FAQ: answered entirely client-side from the FAQS
 // table above, never touches /api/chat -- genuinely free no matter how
@@ -860,7 +902,7 @@ function topicPrompt(a, topic, subtopic){
   return 'I am studying for the IMAT exam (MCQ exam to enter medschool in Italy), I want to master and excel this exam, so for the syllabus-topic I give you, explain it sharply and at exam depth: ' + focus + '. If it is too broad to cover well, tell me which sub-topic to narrow to instead.';
 }
 function subtopicsPrompt(topic){
-  return 'I am studying for the IMAT exam, the syllabus is very vague, so for this topic of the syllabus I give you, make a clear list of all the subtopics I must learn: ' + topic + '.';
+  return 'I am studying for the IMAT exam, and the syllabus for this topic is vague. Give me an exhaustive, deeply nested breakdown of everything under "' + topic + '" that could show up on the IMAT: start with the main sub-themes, then branch each one further into the specific concepts, mechanisms, or calculation types within it, going as many levels deep as genuinely useful, not just a flat list. Be as thorough and detailed as possible so nothing commonly tested is left out, formatted as a nested list.';
 }
 function uniPrompt(uni){
   return 'Give me a full IMAT-focused preview of ' + uni + ': how competitive it is, roughly what score has been needed recently, how many seats there are for EU and non-EU candidates, what the city and the course are like, and anything an applicant should weigh before ranking it. Flag clearly anything you are not certain is current.';
@@ -995,12 +1037,41 @@ function addAIQuestion(text){
   }
   toBottom();
 }
+// Rotating status text alongside the dots so a longer wait (a full mock
+// exam or a PDF render can take a while) reads as active progress rather
+// than a stuck spinner. Purely cosmetic -- doesn't reflect real backend
+// stages, just keeps the wait feeling purposeful.
+const LOADING_PHRASES = [
+  'Looking through the best IMAT resources…',
+  'Reading real IMAT sources…',
+  'Checking the current exam format…',
+  'Cross-checking against past papers…',
+  'Pulling together IMAT information…',
+  'Structuring the answer…',
+  'Double-checking accuracy…'
+];
+let dotsInterval = null;
 function addDots(){
   const t = document.createElement('div'); t.className = 'turn ai'; t.id = 'dots';
-  t.innerHTML = '<div class="ai-mark">' + MARK + '</div><div class="ai-body"><span class="dots"><i></i><i></i><i></i></span></div>';
+  t.innerHTML = '<div class="ai-mark">' + MARK + '</div><div class="ai-body"><div class="dots-row"><span class="dots"><i></i><i></i><i></i></span><span class="dots-label" id="dotsLabel"></span></div></div>';
   $('thread').appendChild(t); toBottom();
+
+  const order = LOADING_PHRASES.slice().sort(() => Math.random() - 0.5);
+  let i = 0;
+  const label = () => $('dotsLabel');
+  if (label()) label().textContent = order[0];
+  dotsInterval = setInterval(() => {
+    i = (i + 1) % order.length;
+    const el = label();
+    if (!el) return;
+    el.style.opacity = '0';
+    setTimeout(() => { el.textContent = order[i]; el.style.opacity = '1'; }, 250);
+  }, 2200);
 }
-function killDots(){ const d = $('dots'); if (d) d.remove(); }
+function killDots(){
+  if (dotsInterval) { clearInterval(dotsInterval); dotsInterval = null; }
+  const d = $('dots'); if (d) d.remove();
+}
 
 function addCard(title, msg, withCta){
   const c = document.createElement('div');
@@ -1014,6 +1085,36 @@ function addCard(title, msg, withCta){
     c.appendChild(a);
   } else { p.style.marginBottom = '0'; }
   $('thread').appendChild(c); toBottom();
+}
+
+// A base64 PDF the server generated (currently just Full mock exam) is
+// handed to the browser as a click-to-download card rather than an
+// automatic download -- auto-downloads can get silently blocked by the
+// browser and are a worse surprise than one extra click.
+function addPdfDownloadCard(filename, base64){
+  const t = document.createElement('div'); t.className = 'turn ai';
+  const m = document.createElement('div'); m.className = 'ai-mark'; m.innerHTML = MARK;
+  const b = document.createElement('div'); b.className = 'ai-body';
+  const btn = document.createElement('button');
+  btn.className = 'pdf-dl-btn';
+  btn.textContent = '⬇ Download as PDF';
+  btn.addEventListener('click', () => {
+    try {
+      const bin = atob(base64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      track('clubai_pdf_download', { filename });
+    } catch (e) {}
+  });
+  b.appendChild(btn);
+  t.appendChild(m); t.appendChild(b);
+  $('thread').appendChild(t); toBottom();
 }
 
 function toBottom(){ const s = $('scroll'); s.scrollTop = s.scrollHeight; }
@@ -1033,10 +1134,10 @@ function setUsage(usage){
   const line = $('usageLine');
   if (!usage) { line.classList.add('hidden'); return; }
   line.classList.remove('hidden');
-  line.textContent = `Last 5h: ${usage.windowPct}% · This month: ${usage.monthPct}%`;
+  line.textContent = `Last 5h: ${usage.windowPct}% of tokens · This month: ${usage.monthPct}% of tokens`;
   if (usage.windowPct >= 80 && !warnedWindow) {
     warnedWindow = true;
-    addCard('Heads up', `You've used ${usage.windowPct}% of your Club AI budget for the last few hours. It refills gradually.`, false);
+    addCard('Heads up', `You've used ${usage.windowPct}% of your Club AI tokens for the last few hours. It refills gradually.`, false);
   }
   if (usage.monthPct >= 80 && !warnedMonth) {
     warnedMonth = true;
@@ -1065,6 +1166,7 @@ async function handleChatResponse(res, data, action){
     if (action === 'mock_question') addAIQuestion(data.reply);
     else addAI(data.reply);
     history.push({ role:'assistant', content:data.reply, action: action || null });
+    if (data.pdfBase64) addPdfDownloadCard(data.pdfFilename || 'IMAT-Club.pdf', data.pdfBase64);
     if (typeof data.paid !== 'undefined') setPlan(data.paid);
     setUsage(data.usage);
     await persistCurrentChat();
