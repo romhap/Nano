@@ -300,9 +300,9 @@ const PRO_LINK = 'https://buy.stripe.com/fZu14nb6i3J64Y01q1gw004';
 const STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/28E3cvb6i4NaaikecNgw000';
 
 const TOPICS = {
-  'Biology': ['Genetics & Heredity','Molecular Biology','Cell Biology','Human Anatomy & Physiology','Bioenergetics','Evolution & Ecology'],
-  'Chemistry': ['Organic Chemistry','Stoichiometry & Reactions','Acids, Bases & pH','Atomic Structure & Bonding','Electrochemistry','Thermochemistry & Kinetics'],
-  'Physics & Maths': ['Dynamics & Energy','Kinematics','Electrostatics & Circuits','Thermodynamics','Fluid Mechanics','Algebra & Functions','Probability & Geometry'],
+  'Biology': ['Cell Biology','Cell Cycle & Reproduction','Genetics & Heredity','Evolution & Biotechnology','Human Anatomy & Physiology','Bioenergetics'],
+  'Chemistry': ['Matter & Gas Laws','Atomic Structure & Periodic Table','Chemical Bonding','Stoichiometry & Solutions','Equilibrium, Kinetics & Redox','Acids, Bases & pH','Organic Chemistry'],
+  'Physics & Maths': ['Dynamics & Energy','Kinematics','Electricity & Electromagnetism','Thermodynamics','Fluid Mechanics','Algebra & Functions','Geometry & Trigonometry','Probability & Statistics'],
   'Logic & Reading': ['Logical Problems','Numerical & Data Reasoning','Argument Analysis','Reading Comprehension','General Culture & History','Institutions & Citizenship']
 };
 
@@ -311,35 +311,49 @@ const TOPICS = {
 // always getting a broad, unfocused question or explanation. "General"
 // (prepended at render time, see openSubtopicPicker) skips this and keeps
 // the old whole-topic behavior.
+//
+// SOURCE: Biology/Chemistry/Physics & Maths topics and subtopics below are
+// aligned to the actual official syllabus (Decreto Ministeriale, Allegato
+// A -- the same source as products/syllabus.html), not an earlier,
+// independently-guessed version this data used to be. Logic & Reading's
+// two decree sections are two short paragraphs of general skill
+// description with no itemized topic list to align to -- "Logical
+// Problems"/"Numerical & Data Reasoning"/"Argument Analysis" are a
+// reasonable categorization of "various forms of logical reasoning" (the
+// decree's own phrase), not a claim that the decree itemizes them; Reading
+// Comprehension/General Culture & History/Institutions & Citizenship map
+// directly to that section's actual bullet points.
 const SUBTOPICS = {
-  'Genetics & Heredity': ['Mendelian inheritance & ratios','Pedigree analysis','Allele frequency & Hardy-Weinberg','Mutations & their effects','Chromosomal inheritance'],
-  'Molecular Biology': ['DNA replication','Transcription','Translation','Gene regulation','Mutations at the molecular level'],
-  'Cell Biology': ['Organelle structure & function','Membrane transport','Cell communication & signaling','Cell cycle & division','Cytoskeleton'],
-  'Human Anatomy & Physiology': ['Cardiovascular system','Respiratory system','Nervous system','Digestive system','Endocrine system','Musculoskeletal system'],
-  'Bioenergetics': ['Glycolysis','Krebs cycle','Oxidative phosphorylation','Photosynthesis basics','ATP & energy currency'],
-  'Evolution & Ecology': ['Natural selection mechanics','Speciation','Population genetics','Ecological relationships & food webs','Biodiversity & conservation'],
+  'Cell Biology': ['Cell theory & cell size','Prokaryotic vs eukaryotic cells','Cell membrane structure & transport','Cell organelles & their functions','Organic molecules & enzymes'],
+  'Cell Cycle & Reproduction': ['Mitosis & meiosis','Chromosome complement & chromosome maps','Sexual vs asexual reproduction','Life cycles'],
+  'Genetics & Heredity': ['Mendelian genetics','Classical genetics & chromosomal theory','Molecular genetics (DNA, genetic code, protein synthesis)','Human genetics & hereditary diseases','Gene expression regulation'],
+  'Evolution & Biotechnology': ['Mutations','Natural & artificial selection','Theories of evolution','Recombinant DNA technology & applications'],
+  'Human Anatomy & Physiology': ['Animal tissues','Human organ systems & their interactions','Homeostasis'],
+  'Bioenergetics': ['ATP as energy currency','Oxidation-reduction reactions in living things','Photosynthesis','Glycolysis, respiration & fermentation'],
 
-  'Organic Chemistry': ['Functional groups','Nomenclature basics','Hydrocarbons','Isomerism','Common reaction types'],
-  'Stoichiometry & Reactions': ['Mole calculations','Limiting reagent','Percent yield','Balancing equations','Concentration & dilution'],
-  'Acids, Bases & pH': ['pH & pOH calculations','Strong vs weak acids/bases','Titration basics','Buffers','Ka & Kb'],
-  'Atomic Structure & Bonding': ['Electron configuration','Periodic trends','Ionic vs covalent bonding','Molecular geometry','Intermolecular forces'],
-  'Electrochemistry': ['Oxidation states','Redox reactions','Galvanic cells','Electrolysis basics'],
-  'Thermochemistry & Kinetics': ['Exothermic vs endothermic reactions',"Enthalpy & Hess's law",'Reaction rates','Activation energy','Equilibrium basics'],
+  'Matter & Gas Laws': ['States of matter & mixtures','Compounds vs elements','Laws of ideal gases'],
+  'Atomic Structure & Periodic Table': ['Atomic particles, number & mass','Isotopes & electron configuration','Periodic trends (radius, ionization, electron affinity)','Groups, periods & transition elements'],
+  'Chemical Bonding': ['Ionic, covalent & metallic bonds','Bond energy & polarity','Electronegativity','Intermolecular forces'],
+  'Stoichiometry & Solutions': ["Atomic/molecular mass & Avogadro's number",'Mole calculations','Balancing & classifying reactions','Solubility & concentration'],
+  'Equilibrium, Kinetics & Redox': ['Equilibria in aqueous solution','Reaction rates & catalysis','Oxidation numbers','Balancing redox reactions'],
+  'Acids, Bases & pH': ['Acid/base concept','Acidity, neutrality & basicity','pH calculations','Hydrolysis & buffer solutions'],
+  'Organic Chemistry': ['Carbon bonding & isomerism','Aliphatic, alicyclic & aromatic hydrocarbons','Functional groups (alcohols, amines, aldehydes, ketones, acids...)','Nomenclature basics'],
 
-  'Dynamics & Energy': ["Newton's laws",'Work & energy','Momentum & impulse','Circular motion'],
-  'Kinematics': ['Uniform motion','Uniformly accelerated motion','Projectile motion','Free fall'],
-  'Electrostatics & Circuits': ["Coulomb's law",'Electric field & potential',"Ohm's law",'Series & parallel circuits'],
-  'Thermodynamics': ['Temperature & heat','Gas laws','Laws of thermodynamics','Specific heat & calorimetry'],
-  'Fluid Mechanics': ['Density & pressure',"Pascal's principle","Archimedes' principle","Bernoulli's principle"],
-  'Algebra & Functions': ['Solving equations','Rearranging formulas','Exponents & scientific notation','Basic functions & graphs'],
-  'Probability & Geometry': ['Basic probability','Ratios & proportions','Area & volume','Reading graphs & data'],
+  'Dynamics & Energy': ["Newton's three laws",'Work, energy & power','Impulse & momentum conservation','Angular momentum & moment of a force'],
+  'Kinematics': ['Velocity, acceleration & centripetal acceleration','Uniform & uniformly accelerated motion','Uniform circular motion','Simple harmonic motion'],
+  'Electricity & Electromagnetism': ["Coulomb's law, electric field & potential",'Capacitors & capacitance',"Current, resistance & Ohm's law","Circuits, Kirchhoff's laws & magnetic induction"],
+  'Thermodynamics': ['Temperature, heat & calorimetry','Specific heat & latent heat','Ideal gas laws','First & second laws of thermodynamics'],
+  'Fluid Mechanics': ['Density, pressure & hydrostatics',"Pascal, Stevin & Archimedes' principles",'Flow rate & continuity equation',"Bernoulli's equation & viscosity"],
+  'Algebra & Functions': ['Equations, inequalities & systems','Powers, radicals & logarithms','Polynomials & factoring','Functions: domain, graphs & composition'],
+  'Geometry & Trigonometry': ['Polygons, circles, areas & volumes','Angles, trig ratios & formulas','Coordinate geometry (line, circle, conics)',"Pythagorean & Euclid's theorems"],
+  'Probability & Statistics': ['Frequency distributions & graphs','Random experiments & events','Probability & frequency'],
 
   'Logical Problems': ['Propositional logic','Deductive reasoning','Seating/arrangement puzzles','Syllogisms'],
   'Numerical & Data Reasoning': ['Percentages & ratios','Data table interpretation','Basic statistics','Estimation under time pressure'],
   'Argument Analysis': ['Identifying assumptions','Strengthening/weakening arguments','Spotting logical fallacies'],
-  'Reading Comprehension': ['Main idea & inference','Vocabulary in context',"Author's tone & purpose",'Literary vs informational passages'],
-  'General Culture & History': ['World history milestones','Geography basics','Art & literature','Current affairs'],
-  'Institutions & Citizenship': ['Government structures','Italian & EU institutions','Rights & civic duties','Separation of powers']
+  'Reading Comprehension': ['Vocabulary in context','Textual cohesion & coherence','Extracting & inferring information'],
+  'General Culture & History': ['Historical-cultural phenomena in space & time','World history & geography'],
+  'Institutions & Citizenship': ['National & international institutions','Legal, economic & citizenship matters']
 };
 
 const SUBTOPIC_GENERAL = 'General (whole topic)';

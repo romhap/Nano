@@ -470,31 +470,39 @@ const UNIVERSITIES = [
 
 // `hrs` = rough hours of focused study to meaningfully lift this topic.
 // Used to rank the study plan by return on time (points recoverable ÷ hours).
+// Topics/weights aligned to the actual official syllabus (Decreto
+// Ministeriale, Allegato A) -- an earlier version of this list included
+// topics not actually in the decree (e.g. ecology, electrochemical cells/
+// standard potentials, enthalpy/entropy/Gibbs under chemistry) and was
+// corrected once the real source was available. Same topic names as
+// club-ai.html's TOPICS/SUBTOPICS for consistency across the site.
 const WEAKNESS_MAP = {
     biology: [
-        { topic: 'Genetics & Heredity', weight: .22, hrs: 8, desc: 'Mendel, linkage, mutations, blood groups — the most tested area.' },
-        { topic: 'Molecular Biology', weight: .20, hrs: 7, desc: 'DNA replication, transcription, translation, gene regulation, biotech.' },
-        { topic: 'Cell Biology', weight: .18, hrs: 5, desc: 'Organelles, membrane transport, mitosis vs meiosis.' },
-        { topic: 'Human Anatomy & Physiology', weight: .20, hrs: 9, desc: 'Nervous, endocrine, immune, cardiovascular, excretory systems.' },
-        { topic: 'Bioenergetics', weight: .12, hrs: 6, desc: 'Glycolysis, Krebs, electron transport, photosynthesis, ATP.' },
-        { topic: 'Evolution & Ecology', weight: .08, hrs: 3, desc: 'Natural selection, speciation, food chains, ecosystems.' }
+        { topic: 'Genetics & Heredity', weight: .24, hrs: 8, desc: 'Mendelian, classical & molecular genetics, human genetics & hereditary disease - the most tested area.' },
+        { topic: 'Human Anatomy & Physiology', weight: .20, hrs: 8, desc: 'Animal tissues, human organ systems and their interactions, homeostasis.' },
+        { topic: 'Cell Biology', weight: .18, hrs: 6, desc: 'Cell theory, membrane structure & transport, organelles, organic molecules & enzymes.' },
+        { topic: 'Cell Cycle & Reproduction', weight: .14, hrs: 5, desc: 'Mitosis, meiosis, chromosome maps, sexual vs asexual reproduction.' },
+        { topic: 'Bioenergetics', weight: .14, hrs: 6, desc: 'ATP, redox reactions, photosynthesis, glycolysis, respiration, fermentation.' },
+        { topic: 'Evolution & Biotechnology', weight: .10, hrs: 4, desc: 'Mutations, natural & artificial selection, evolution theory, recombinant DNA.' }
     ],
     chemistry: [
-        { topic: 'Organic Chemistry', weight: .22, hrs: 9, desc: 'Functional groups, nomenclature, isomerism, reaction types.' },
-        { topic: 'Stoichiometry & Reactions', weight: .18, hrs: 5, desc: 'Balancing, mole concept, limiting reagent, yield calculations.' },
-        { topic: 'Acids, Bases & pH', weight: .16, hrs: 4, desc: 'pH, buffers, titrations, strong vs weak acids.' },
-        { topic: 'Atomic Structure & Bonding', weight: .16, hrs: 5, desc: 'Electron config, periodic trends, VSEPR, intermolecular forces.' },
-        { topic: 'Electrochemistry', weight: .14, hrs: 5, desc: 'Redox, electrochemical cells, standard potentials.' },
-        { topic: 'Thermochem & Kinetics', weight: .14, hrs: 5, desc: 'Enthalpy, entropy, Gibbs, reaction rates, activation energy.' }
+        { topic: 'Organic Chemistry', weight: .18, hrs: 7, desc: 'Functional groups, nomenclature, isomerism, hydrocarbons.' },
+        { topic: 'Stoichiometry & Solutions', weight: .17, hrs: 6, desc: 'Mole concept, balancing reactions, concentration & solubility.' },
+        { topic: 'Acids, Bases & pH', weight: .15, hrs: 5, desc: 'pH, buffers, hydrolysis, strong vs weak acids/bases.' },
+        { topic: 'Atomic Structure & Periodic Table', weight: .15, hrs: 5, desc: 'Electron config, isotopes, periodic trends, transition elements.' },
+        { topic: 'Chemical Bonding', weight: .13, hrs: 4, desc: 'Ionic, covalent & metallic bonds, polarity, intermolecular forces.' },
+        { topic: 'Equilibrium, Kinetics & Redox', weight: .13, hrs: 5, desc: 'Aqueous equilibria, reaction rates & catalysis, oxidation numbers.' },
+        { topic: 'Matter & Gas Laws', weight: .09, hrs: 3, desc: 'States of matter, compounds vs elements, ideal gas laws.' }
     ],
     physmath: [
-        { topic: 'Dynamics & Energy', weight: .22, hrs: 6, desc: 'Newton\'s laws, work-energy theorem, conservation laws.' },
-        { topic: 'Kinematics', weight: .15, hrs: 4, desc: 'Uniform/accelerated motion, projectiles, circular motion.' },
-        { topic: 'Electrostatics & Circuits', weight: .18, hrs: 6, desc: 'Coulomb, electric fields, Ohm\'s law, series/parallel circuits.' },
-        { topic: 'Thermodynamics', weight: .13, hrs: 4, desc: 'Heat, specific heat, phase changes, gas laws.' },
-        { topic: 'Fluid Mechanics', weight: .10, hrs: 3, desc: 'Pressure, Pascal, Archimedes, Bernoulli.' },
-        { topic: 'Algebra & Functions', weight: .12, hrs: 4, desc: 'Equations, inequalities, logarithms, graphs.' },
-        { topic: 'Probability & Geometry', weight: .10, hrs: 4, desc: 'Permutations, combinations, trig, coordinate geometry.' }
+        { topic: 'Dynamics & Energy', weight: .17, hrs: 5, desc: 'Newton\'s laws, work-energy-power, momentum conservation.' },
+        { topic: 'Electricity & Electromagnetism', weight: .15, hrs: 5, desc: 'Coulomb\'s law, field/potential, Ohm\'s & Kirchhoff\'s laws, magnetism.' },
+        { topic: 'Kinematics', weight: .13, hrs: 4, desc: 'Uniform/accelerated motion, circular motion, simple harmonic motion.' },
+        { topic: 'Algebra & Functions', weight: .12, hrs: 4, desc: 'Equations, inequalities, logarithms, functions & graphs.' },
+        { topic: 'Geometry & Trigonometry', weight: .12, hrs: 4, desc: 'Areas/volumes, trig ratios, coordinate geometry, classic theorems.' },
+        { topic: 'Thermodynamics', weight: .11, hrs: 3, desc: 'Heat, calorimetry, specific/latent heat, gas laws, laws of thermodynamics.' },
+        { topic: 'Fluid Mechanics', weight: .10, hrs: 3, desc: 'Hydrostatics (Pascal, Stevin, Archimedes) and Bernoulli\'s equation.' },
+        { topic: 'Probability & Statistics', weight: .10, hrs: 3, desc: 'Frequency distributions, random experiments, probability.' }
     ],
     logical: [
         { topic: 'Logical Problems', weight: .45, hrs: 4, desc: 'Word problems, deduction, conditions and constraints under time pressure.' },
