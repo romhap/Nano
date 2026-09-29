@@ -826,10 +826,15 @@ function renderSuggestions(){
 // Lets a student bring back the guided-prompt buttons mid-conversation,
 // without hitting "New chat" and losing what's already in the thread.
 function openActionsPicker(){
+  // Toggle: if this exact picker is already open, a second click on the
+  // same button should close it rather than just re-render it in place.
+  const existing = $('picker');
+  if (existing && existing.dataset.kind === 'actions') { closePicker(); return; }
   closePicker();
   beginThread();
   const box = document.createElement('div');
   box.className = 'picker'; box.id = 'picker';
+  box.dataset.kind = 'actions';
   const top = document.createElement('div'); top.className = 'picker-top';
   const t = document.createElement('span'); t.textContent = 'Guided prompts';
   const x = document.createElement('button'); x.textContent = '✕'; x.addEventListener('click', closePicker);
