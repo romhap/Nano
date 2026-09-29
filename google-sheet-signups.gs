@@ -37,7 +37,7 @@
  * deploy didn't take -- redo the Deploy step, don't just re-Save.
  */
 
-var SCRIPT_VERSION = '2026-09-29-five-hour-window';
+var SCRIPT_VERSION = '2026-09-29-fix-format-latency';
 
 var SHEET_NAME = 'Signups';
 var HEADERS = ['Email', 'Name', 'WhatsApp', 'First Seen', 'Last Seen',
@@ -542,9 +542,16 @@ function getAiSheet() {
   // "2026-09" / "2026-09-28" string as a real Date the next time either
   // gets written, which is what silently broke the day/month comparison
   // and reset spend + limits on every request. Cheap and idempotent, so
-  // safe to redo on every call rather than trying to run it only once.
-  sheet.getRange(2, 5, 4999, 1).setNumberFormat('@'); // Month
-  sheet.getRange(2, 8, 4999, 1).setNumberFormat('@'); // Day
+  // safe to redo on every call rather than trying to run it only once --
+  // BUT scale the range to actual sheet size (+ a small growth buffer)
+  // rather than a fixed large number: this runs on every single aiCheck/
+  // aiUsage call (so up to twice per chat message), and formatting
+  // thousands of cells every time turned out to be real added latency --
+  // almost certainly why "account_check_failed" ("couldn't reach Club
+  // AI's account system") started showing up far more than it should.
+  var formatRows = Math.max(sheet.getLastRow(), 1) + 20;
+  sheet.getRange(2, 5, formatRows, 1).setNumberFormat('@'); // Month
+  sheet.getRange(2, 8, formatRows, 1).setNumberFormat('@'); // Day
   return sheet;
 }
 

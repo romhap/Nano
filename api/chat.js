@@ -196,7 +196,7 @@ async function fetchAccount(sessionToken) {
   try {
     const r = await fetch(
       `${SIGNUP_ENDPOINT}?aiCheck=${encodeURIComponent(sessionToken)}`,
-      { signal: AbortSignal.timeout(8000) }
+      { signal: AbortSignal.timeout(12000) } // was 8000 -- too tight even after fixing the real latency cause (see getAiSheet's format-range fix), leaving this as extra headroom
     );
     return await r.json();
   } catch (e) {
