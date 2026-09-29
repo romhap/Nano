@@ -17,7 +17,7 @@ change needed.
 
 ---
 
-## Going live (3 steps)
+## Going live (4 steps)
 
 ### 1. Add the API key to Vercel
 Vercel → your project → **Settings → Environment Variables**:
@@ -54,6 +54,13 @@ the Club AI Stripe link (`buy.stripe.com/fZu14nb6i3J64Y01q1gw004`) — no
 manual sheet edit needed. See **`STRIPE-WEBHOOK-SETUP.md`** for the one-time
 Stripe Dashboard setup. You can still open the **ClubAI** tab and edit
 **Paid** by hand any time (comps, refunds, etc).
+
+### 4. Enable Vercel Blob storage (for "Upgrade old exam")
+Vercel → your project → **Storage → Create Database → Blob**. This
+auto-injects `BLOB_READ_WRITE_TOKEN` as an environment variable — nothing to
+copy by hand. Without this, uploading a PDF larger than ~3MB for "Upgrade
+old exam" will fail (it falls back to the old inline-upload path under
+that size, but a real scanned past paper is usually bigger).
 
 ---
 
@@ -122,33 +129,39 @@ nothing is stored server-side about what was discussed.
 | Free-typed messages | 2 / day | unlimited¹ |
 | Syllabus | locked | unlimited¹ |
 | Break topic into subtopics | locked | unlimited¹ |
-| Full mock exam | locked | **1 per 5 hours** |
-| Upgrade an old exam | locked | **1 per 5 hours** |
-| Anki deck check | locked | **1 per 5 hours** |
+| Full mock exam | locked | unlimited¹ |
+| Upgrade an old exam | locked | unlimited¹ |
+| Anki deck check | locked | unlimited¹ |
 
-¹ Capped by a **$16/month spend ceiling** (≈ €15), further split into a
-**daily share** (monthly ÷ days in the month) so one heavy day can't burn a
-whole month's allowance — see "Pro's daily budget" below. All counters and
-cooldowns reset themselves — nothing to clear by hand.
+¹ Capped by a **$16/month spend ceiling** (≈ €15), paced by a **rolling
+5-hour spend window** underneath it (see "Pro's 5-hour window" below) --
+no per-action cooldowns anymore, a Pro account can use any action as many
+times as it wants as long as total spend stays under both. All counters
+reset themselves -- nothing to clear by hand.
 
-The four free-trial guided actions are each their own daily counter — a
+The four free-trial guided actions are each their own daily counter -- a
 student can use all four once each on the same day, not a shared pool of one.
 
-Mock exams, exam upgrades and deck checks are rate-limited even on Pro
-because each costs several times a normal reply. All limits are enforced
-server-side, so clearing browser storage doesn't bypass them.
+Mock exams, exam upgrades and deck checks still get a bigger token budget
+per reply (they're worth several times a normal message), but no longer
+have their own separate "1 per 5 hours" restriction -- they're governed by
+the same monthly + 5-hour-window ceilings as everything else. All limits
+are enforced server-side, so clearing browser storage doesn't bypass them.
 
-### Pro's daily budget
-Pro's $16/month is divided by the number of days in the current calendar
-month to get a daily share (~$0.53/day on a 30-day month). Hitting that share
-blocks further messages until the next day with a **"today's budget used"**
-message — the monthly ceiling still exists underneath as a backstop. The
-plan chip's tooltip and a small line under the composer show the running
-day/month percentage after every Pro reply, and a one-time heads-up card
-appears the first time either crosses 80% in a session — mirroring the kind
-of usage indicator Claude's own apps show, just lighter-weight (text + an
-alert card rather than a full bar chart; easy to build out further later if
-wanted).
+### Pro's 5-hour window
+Rather than splitting the $16/month evenly across calendar days (which
+could cut someone off mid-study-session well before their day was done),
+spend is paced against a rolling 5-hour window sized from typical **waking**
+hours, not a full 24: the monthly budget is divided across (days in month
+x 16 waking hours), then scaled up to a 5-hour ceiling. Hitting that
+ceiling blocks further messages until the window rolls over, with a
+**"slow down a moment"** message -- the monthly ceiling still exists
+underneath as the ultimate backstop. The plan chip's tooltip and a small
+line under the composer show the running window/month percentage after
+every Pro reply, and a one-time heads-up card appears the first time either
+crosses 80% in a session -- mirroring the kind of usage indicator Claude's
+own apps show, just lighter-weight (text + an alert card rather than a full
+bar chart; easy to build out further later if wanted).
 
 ---
 
@@ -233,12 +246,15 @@ things came out of reading them:
   for a narrower sub-topic if what's picked is too broad to cover well.
 - **📝 Full mock exam** (Pro) — generates a complete fresh 60-question exam
   in the current format and proportions.
-- **⬆️ Upgrade old exam** (Pro, new) — student **uploads a file** (an old-format
-  exam, PDF or plain text/markdown, 4MB max) and the model rewrites it to
+- **⬆️ Upgrade old exam** (Pro, new) — student **uploads a file** (PDF up to
+  20MB, or plain text/markdown up to 3MB) and the model rewrites it to
   match the current format: same question count and per-section proportions,
-  current-style options and scoring. The file is sent once for that request
-  and is never saved into the student's chat history (would bloat
-  `localStorage` and there's no reason to resend it).
+  current-style options and scoring. PDFs upload directly to Vercel Blob
+  storage (bypassing Vercel's serverless functions' hard 4.5MB request-body
+  limit entirely -- see `api/upload-exam.js`), so a scanned past paper isn't
+  capped the way a plain API request would be. The file is sent once for
+  that request and is never saved into the student's chat history (would
+  bloat `localStorage` and there's no reason to resend it).
 - **🏛️ University preview** — picker now includes **Cagliari** and
   **Firenze**, the two genuinely new IMAT-accessible English medicine
   programmes for this cycle (Padova and the rest of the established list are

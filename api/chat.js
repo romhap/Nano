@@ -50,16 +50,13 @@ const FREE_FREETEXT_PER_DAY = 2;
 // Features expensive enough (or valuable enough) to require Pro outright.
 const PAID_ONLY_ACTIONS = ['syllabus', 'subtopics', 'mock_exam', 'anki_check', 'upgrade_exam'];
 
-// ...and even for Pro users, the three heaviest ones share a cooldown — a
-// full exam (generated or upgraded) or a deck check costs far more than a
-// normal reply.
+// mock_exam / anki_check / upgrade_exam still get the bigger MAX_TOKENS_HEAVY
+// budget below (they genuinely need the room), but no longer have their own
+// per-action cooldown on top of it -- a Pro account is governed purely by
+// the monthly ceiling and the rolling 5-hour window further down, same as
+// every other action. See FIVE_HOUR_WINDOW_MS for why the old "1 per 5
+// hours" cooldown was removed in favor of a token-based window instead.
 const HEAVY_ACTIONS = ['mock_exam', 'anki_check', 'upgrade_exam'];
-const HEAVY_COOLDOWN_HOURS = 5;
-const HEAVY_ACTION_LABELS = {
-  mock_exam: 'a full mock exam',
-  anki_check: 'an Anki deck check',
-  upgrade_exam: 'an exam upgrade'
-};
 
 // --- Exam facts the model must not improvise --------------------------------
 // Filled in from a live lookup on 26 Aug 2026. Re-check and update every
@@ -220,6 +217,25 @@ function daysInCurrentMonth() {
   return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 }
 
+// --- Pro pacing: a rolling 5-hour spend window instead of a flat daily slice -
+// The old model split the monthly budget evenly across calendar days
+// (MONTHLY_BUDGET_USD / daysInCurrentMonth()) and blocked once that flat
+// slice was gone, regardless of when a student actually studies -- someone
+// doing a legitimate multi-hour session could get cut off well before the
+// day ends. This instead paces spend against a 5-hour rolling window sized
+// from how much of a day is actually spent awake and using it, not a full
+// 24 hours, which is both more generous and more realistic: the monthly
+// budget is divided across (days in month * waking hours per day), then
+// scaled up to a 5-hour ceiling. The overall MONTHLY_BUDGET_USD hard cap
+// below is unchanged and still the ultimate backstop.
+const AWAKE_HOURS_PER_DAY = 16; // ~16h awake, ~8h asleep -- a reasonable average
+const FIVE_HOUR_WINDOW_MS = 5 * 60 * 60 * 1000;
+
+function fiveHourSpendCeiling() {
+  const hourlyRate = MONTHLY_BUDGET_USD / (daysInCurrentMonth() * AWAKE_HOURS_PER_DAY);
+  return hourlyRate * 5;
+}
+
 // --- Answer cache (deterministic guided actions only) -----------------------
 // "Explain a topic", "University preview" and "Break a topic into
 // subtopics" ask the same question every time for a given topic/subtopic/
@@ -267,7 +283,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { sessionToken, messages, action, file, cacheKey } = req.body || {};
+  const { sessionToken, messages, action, file, fileUrl, mediaType, cacheKey } = req.body || {};
 
   if (!sessionToken || typeof sessionToken !== 'string') {
     return res.status(401).json({ error: 'sign_in_required', message: 'Please sign in to Club AI.' });
@@ -339,8 +355,6 @@ export default async function handler(req, res) {
     }
   }
 
-  const dailyBudget = MONTHLY_BUDGET_USD / daysInCurrentMonth();
-
   if (isPaid && account) {
     if ((account.spentUsd || 0) >= MONTHLY_BUDGET_USD) {
       return res.status(429).json({
@@ -348,30 +362,11 @@ export default async function handler(req, res) {
         message: "You've used this month's Club AI allowance. It resets on the 1st."
       });
     }
-    if ((account.spentUsdToday || 0) >= dailyBudget) {
+    if ((account.spentUsd5h || 0) >= fiveHourSpendCeiling()) {
       return res.status(429).json({
-        error: 'daily_limit',
-        message: "You've used today's share of your Club AI budget. It refills tomorrow — spreading it out keeps everyone's Pro access fast and unlimited-feeling all month."
+        error: 'window_limit',
+        message: "You've used a lot of Club AI in the last few hours. It refills gradually rather than all at once — try again shortly."
       });
-    }
-  }
-
-  // Heavy-feature cooldown — Pro only (free users are already blocked above
-  // by PAID_ONLY_ACTIONS since all three heavy actions are paid-only).
-  if (isPaid && account && HEAVY_ACTIONS.includes(action)) {
-    const lastTs = (account.heavyActions && account.heavyActions[action]) || 0;
-    if (lastTs) {
-      const elapsedMs = Date.now() - lastTs;
-      const cooldownMs = HEAVY_COOLDOWN_HOURS * 60 * 60 * 1000;
-      if (elapsedMs < cooldownMs) {
-        const mins = Math.ceil((cooldownMs - elapsedMs) / 60000);
-        const wait = mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`;
-        const label = HEAVY_ACTION_LABELS[action] || 'this';
-        return res.status(429).json({
-          error: 'cooldown',
-          message: `${label[0].toUpperCase()}${label.slice(1)} is limited to one every ${HEAVY_COOLDOWN_HOURS} hours. Next one in ${wait}.`
-        });
-      }
     }
   }
 
@@ -385,7 +380,7 @@ export default async function handler(req, res) {
       reply: mockReply(action),
       mock: true,
       paid: isPaid,
-      usage: isPaid ? { dayPct: 0, monthPct: 0 } : undefined
+      usage: isPaid ? { windowPct: 0, monthPct: 0 } : undefined
     });
   }
 
@@ -401,7 +396,7 @@ export default async function handler(req, res) {
       let usagePct;
       if (isPaid && account) {
         usagePct = {
-          dayPct: Math.min(100, Math.round(((account.spentUsdToday || 0) / dailyBudget) * 100)),
+          windowPct: Math.min(100, Math.round(((account.spentUsd5h || 0) / fiveHourSpendCeiling()) * 100)),
           monthPct: Math.min(100, Math.round(((account.spentUsd || 0) / MONTHLY_BUDGET_USD) * 100))
         };
       }
@@ -423,19 +418,46 @@ export default async function handler(req, res) {
     // "Upgrade old exam" attaches a document to the last user turn instead of
     // relying on plain text. PDFs go in as a native document block; anything
     // else (student pasted/uploaded plain text) is just appended as text.
-    if (action === 'upgrade_exam' && file && file.data) {
+    // A large file arrives as a Vercel Blob URL (see api/upload-exam.js)
+    // rather than inline base64, since Vercel's serverless request body is
+    // hard-capped at 4.5MB -- fetch it here instead, server-side, where
+    // that limit doesn't apply to an outbound fetch, then delete the blob
+    // once it's been read since it's only needed for this one request.
+    let uploadedFile = file;
+    if (action === 'upgrade_exam' && fileUrl) {
+      try {
+        const blobRes = await fetch(fileUrl, { signal: AbortSignal.timeout(20000) });
+        if (!blobRes.ok) throw new Error(`blob fetch failed: ${blobRes.status}`);
+        const buf = Buffer.from(await blobRes.arrayBuffer());
+        const isPdf = (mediaType || '').includes('pdf');
+        uploadedFile = { data: isPdf ? buf.toString('base64') : buf.toString('utf-8'), mediaType };
+      } catch (fetchErr) {
+        return res.status(400).json({
+          error: 'file_fetch_failed',
+          message: "Couldn't read the uploaded file. Try uploading it again."
+        });
+      }
+      try {
+        const { del } = await import('@vercel/blob');
+        await del(fileUrl);
+      } catch (delErr) {
+        /* non-fatal: worst case an unused blob lingers briefly */
+      }
+    }
+
+    if (action === 'upgrade_exam' && uploadedFile && uploadedFile.data) {
       const last = trimmed[trimmed.length - 1];
       if (last && last.role === 'user') {
         const promptText = typeof last.content === 'string' && last.content
           ? last.content
           : 'Upgrade this old IMAT exam to exactly match the new IMAT format.';
-        if ((file.mediaType || '').includes('pdf')) {
+        if ((uploadedFile.mediaType || '').includes('pdf')) {
           last.content = [
-            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file.data } },
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: uploadedFile.data } },
             { type: 'text', text: promptText }
           ];
         } else {
-          last.content = `${promptText}\n\n--- UPLOADED EXAM (${file.name || 'file'}) ---\n${file.data}`;
+          last.content = `${promptText}\n\n--- UPLOADED EXAM (${uploadedFile.name || 'file'}) ---\n${uploadedFile.data}`;
         }
       }
     }
@@ -464,10 +486,10 @@ export default async function handler(req, res) {
 
     let usagePct;
     if (isPaid && account) {
-      const newToday = (account.spentUsdToday || 0) + costUsd;
+      const newWindow = (account.spentUsd5h || 0) + costUsd;
       const newMonth = (account.spentUsd || 0) + costUsd;
       usagePct = {
-        dayPct: Math.min(100, Math.round((newToday / dailyBudget) * 100)),
+        windowPct: Math.min(100, Math.round((newWindow / fiveHourSpendCeiling()) * 100)),
         monthPct: Math.min(100, Math.round((newMonth / MONTHLY_BUDGET_USD) * 100))
       };
     }

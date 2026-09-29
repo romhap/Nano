@@ -1024,18 +1024,19 @@ function setPlan(paid){
   c.title = paid ? 'Manage your subscription' : 'Upgrade to Club AI Pro';
 }
 
-// Pro's budget is split across the days of the month so no single day can
-// blow the whole month's allowance. This just surfaces that running % --
-// the actual cap is enforced server-side regardless of what's shown here.
-let warnedDay = false, warnedMonth = false;
+// Pro's budget paces against a rolling 5-hour window (sized from typical
+// waking hours, not a flat calendar-day split) rather than a hard daily
+// cutoff -- this just surfaces that running % -- the actual cap is
+// enforced server-side regardless of what's shown here.
+let warnedWindow = false, warnedMonth = false;
 function setUsage(usage){
   const line = $('usageLine');
   if (!usage) { line.classList.add('hidden'); return; }
   line.classList.remove('hidden');
-  line.textContent = `Today: ${usage.dayPct}% of daily budget · This month: ${usage.monthPct}%`;
-  if (usage.dayPct >= 80 && !warnedDay) {
-    warnedDay = true;
-    addCard('Heads up', `You've used ${usage.dayPct}% of today's Club AI budget. It refills tomorrow.`, false);
+  line.textContent = `Last 5h: ${usage.windowPct}% · This month: ${usage.monthPct}%`;
+  if (usage.windowPct >= 80 && !warnedWindow) {
+    warnedWindow = true;
+    addCard('Heads up', `You've used ${usage.windowPct}% of your Club AI budget for the last few hours. It refills gradually.`, false);
   }
   if (usage.monthPct >= 80 && !warnedMonth) {
     warnedMonth = true;
@@ -1087,12 +1088,12 @@ async function handleChatResponse(res, data, action){
   } else if (data.error === 'budget_reached') {
     addCard('Monthly allowance used', data.message || 'Resets on the 1st.', false);
     track('clubai_blocked', { reason:'budget' });
-  } else if (data.error === 'daily_limit') {
-    addCard('Today\'s budget used', data.message || 'Refills tomorrow.', false);
-    track('clubai_blocked', { reason:'daily_limit' });
-  } else if (data.error === 'cooldown') {
-    addCard('Not just yet', data.message || 'Try again shortly.', false);
-    track('clubai_blocked', { reason:'cooldown', action: action || '' });
+  } else if (data.error === 'window_limit') {
+    addCard('Slow down a moment', data.message || 'Refills gradually, try again shortly.', false);
+    track('clubai_blocked', { reason:'window_limit' });
+  } else if (data.error === 'file_fetch_failed') {
+    addAI(data.message || "Couldn't read the uploaded file. Try uploading it again.");
+    track('clubai_blocked', { reason:'file_fetch_failed' });
   } else {
     addAI(data.message || 'Something went wrong. Try again in a moment.');
   }
@@ -1126,19 +1127,40 @@ async function send(text, action, displayText, cacheKey){
 }
 
 /* ---------- upgrade old exam (file upload) ---------- */
-// Vercel's serverless request body cap is a hard, unconfigurable 4.5MB --
-// confirmed against Vercel's own docs, not adjustable from this project's
-// side. That's the TOTAL POST body, not the raw file: PDFs get base64
-// encoded before sending (readFileAsBase64 below), which inflates size by
-// ~4/3. So the old "4MB raw" limit was actually unsafe -- a 3.5-4MB file
-// passed this check but could still blow past Vercel's real ceiling once
-// encoded, failing with a confusing raw network error instead of this
-// friendly message. 3MB raw -> ~4MB encoded, comfortably under 4.5MB with
-// headroom for the session token and the rest of the JSON payload.
-const MAX_EXAM_FILE_BYTES = 3 * 1024 * 1024;
+// Two ceilings now: MAX_EXAM_FILE_BYTES_BLOB is the real limit, enforced by
+// Vercel Blob direct-to-storage uploads (api/upload-exam.js mints the
+// token, matches its own maximumSizeInBytes) -- these bypass Vercel's
+// serverless request-body cap entirely since the file's bytes never pass
+// through a function. MAX_EXAM_FILE_BYTES_INLINE is the OLD, much smaller
+// ceiling, kept only as a fallback path for the rare case the Blob upload
+// module fails to load (e.g. the CDN it's fetched from is unreachable) --
+// see loadBlobUpload() below. 3MB raw -> ~4MB base64-encoded, comfortably
+// under Vercel's hard, unconfigurable 4.5MB request-body limit.
+const MAX_EXAM_FILE_BYTES_BLOB = 20 * 1024 * 1024;
+const MAX_EXAM_FILE_BYTES_INLINE = 3 * 1024 * 1024;
 
 function openUpgradeExamPicker(){
   $('examFileInput').click();
+}
+
+// @vercel/blob/client isn't bundled into this project (there's no build
+// step -- every page here is plain HTML/JS), so it's loaded from jsdelivr's
+// ESM CDN on demand instead, the same way any other npm-only helper would
+// be for a bundler-free static site. Cached after the first successful
+// load; returns null (never throws) on any failure so callers can fall
+// back to the old inline-upload path instead of breaking the feature.
+let _blobUploadFn = null, _blobUploadTried = false;
+async function loadBlobUpload(){
+  if (_blobUploadFn) return _blobUploadFn;
+  if (_blobUploadTried) return null;
+  _blobUploadTried = true;
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@vercel/blob@2.8.0/client/+esm');
+    _blobUploadFn = mod.upload;
+    return _blobUploadFn;
+  } catch (e) {
+    return null;
+  }
 }
 
 function readFileAsBase64(file){
@@ -1171,11 +1193,19 @@ $('examFileInput').addEventListener('change', async (e) => {
 async function handleExamUpload(file){
   if (busy) return;
   closePicker();
-  if (file.size > MAX_EXAM_FILE_BYTES) {
+  const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+
+  if (isPdf && file.size > MAX_EXAM_FILE_BYTES_BLOB) {
     beginThread();
-    addAI("That file is too large (3MB max). Try a smaller PDF, or paste the exam as plain text instead.");
+    addAI('That file is too large (20MB max). Try a smaller PDF, or paste the exam as plain text instead.');
     return;
   }
+  if (!isPdf && file.size > MAX_EXAM_FILE_BYTES_INLINE) {
+    beginThread();
+    addAI('That text file is too large (3MB max).');
+    return;
+  }
+
   busy = true; $('send').disabled = true;
 
   const shownText = `[Uploaded: ${file.name}] Upgrade this old IMAT exam to the new format.`;
@@ -1186,17 +1216,42 @@ async function handleExamUpload(file){
   addDots();
   track('clubai_message', { action: 'upgrade_exam' });
 
+  const baseBody = {
+    sessionToken: SESSION_TOKEN,
+    messages: [{ role:'user', content:'Upgrade this old IMAT exam to exactly match the new IMAT format, matching both question style and quantity per topic.' }],
+    action: 'upgrade_exam'
+  };
+
   try {
-    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
-    const fileData = isPdf ? await readFileAsBase64(file) : await readFileAsText(file);
+    let body;
+    if (isPdf) {
+      const uploadFn = await loadBlobUpload();
+      if (uploadFn) {
+        const blob = await uploadFn(file.name, file, {
+          access: 'public',
+          handleUploadUrl: '/api/upload-exam',
+          clientPayload: SESSION_TOKEN
+        });
+        body = { ...baseBody, fileUrl: blob.url, mediaType: 'application/pdf' };
+      } else if (file.size <= MAX_EXAM_FILE_BYTES_INLINE) {
+        // Blob upload module failed to load -- fall back to the old path,
+        // only viable for files small enough to fit Vercel's body limit.
+        const fileData = await readFileAsBase64(file);
+        body = { ...baseBody, file: { data: fileData, mediaType: 'application/pdf', name: file.name } };
+      } else {
+        killDots();
+        addAI("Large-file upload isn't available right now. Try again shortly, or use a PDF under 3MB.");
+        busy = false; $('send').disabled = false;
+        return;
+      }
+    } else {
+      const fileData = await readFileAsText(file);
+      body = { ...baseBody, file: { data: fileData, mediaType: 'text/plain', name: file.name } };
+    }
+
     const res = await fetch('/api/chat', {
       method:'POST', headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({
-        sessionToken: SESSION_TOKEN,
-        messages: [{ role:'user', content:'Upgrade this old IMAT exam to exactly match the new IMAT format, matching both question style and quantity per topic.' }],
-        action: 'upgrade_exam',
-        file: { data: fileData, mediaType: isPdf ? 'application/pdf' : 'text/plain', name: file.name }
-      })
+      body: JSON.stringify(body)
     });
     const data = await res.json();
     killDots();

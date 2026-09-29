@@ -37,7 +37,7 @@
  * deploy didn't take -- redo the Deploy step, don't just re-Save.
  */
 
-var SCRIPT_VERSION = '2026-09-29-ai-answer-cache';
+var SCRIPT_VERSION = '2026-09-29-five-hour-window';
 
 var SHEET_NAME = 'Signups';
 var HEADERS = ['Email', 'Name', 'WhatsApp', 'First Seen', 'Last Seen',
@@ -502,14 +502,25 @@ function sendMentorshipOfferEmail(email, name) {
  */
 
 var AI_SHEET_NAME = 'ClubAI';
+var FIVE_HOUR_MS = 5 * 60 * 60 * 1000;
 // 'Actions Today' and 'Last Heavy Action' are small JSON objects (not one
 // column per action) so adding/removing a free action or a heavy feature
 // later never requires another header migration:
 //   Actions Today     = {"mock_question":1,"university":0,...}  (free daily caps)
-//   Last Heavy Action = {"mock_exam":1699999999999,...}         (Pro 5hr cooldowns)
+//   Last Heavy Action = {"mock_exam":1699999999999,...}         (kept for reference
+//                        only -- no longer read for gating; Pro heavy actions used
+//                        to get their own "1 per 5 hours" cooldown here, replaced by
+//                        the rolling 5-hour spend window below, api/chat.js's
+//                        fiveHourSpendCeiling())
+// 'Spent USD (5h)' + '5H Window Start (ms)' back that rolling window: the
+// window resets (spend -> 0, start -> now) once now - start >= 5 hours,
+// same self-resetting-counter pattern as Day/Month below. Window Start is
+// stored as a plain epoch-ms NUMBER, not a Date/formatted string -- see the
+// readStoredMonthKey/readStoredDayKey comment above for why a date-shaped
+// value in this sheet is asking for Sheets to silently re-type it later.
 var AI_HEADERS = ['Email', 'WhatsApp', 'Paid', 'Spent USD (month)', 'Month',
                   'Actions Today', 'Freetext Today', 'Day', 'First Seen', 'Last Seen',
-                  'Last Heavy Action', 'Spent USD (day)'];
+                  'Last Heavy Action', 'Spent USD (day)', 'Spent USD (5h)', '5H Window Start (ms)'];
 
 function getAiSheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -586,7 +597,7 @@ function markClubAiPaid(email, secret) {
   var row = aiFindRow(sheet, email);
   var now = new Date();
   if (row === -1) {
-    sheet.appendRow([email, '', true, 0, aiMonthKey(now), '{}', 0, aiDayKey(now), now, now, '{}', 0]);
+    sheet.appendRow([email, '', true, 0, aiMonthKey(now), '{}', 0, aiDayKey(now), now, now, '{}', 0, 0, now.getTime()]);
   } else {
     sheet.getRange(row, 3).setValue(true); // 'Paid' column
   }
@@ -681,9 +692,9 @@ function aiCheckByEmail(email, whatsapp) {
   var row = aiFindRow(sheet, email);
 
   if (row === -1) {
-    sheet.appendRow([email, whatsapp || '', false, 0, mKey, '{}', 0, dKey, now, now, '{}', 0]);
+    sheet.appendRow([email, whatsapp || '', false, 0, mKey, '{}', 0, dKey, now, now, '{}', 0, 0, now.getTime()]);
     return { paid: false, spentUsd: 0, spentUsdToday: 0, actionsToday: {}, dayFreetext: 0,
-             heavyActions: {}, today: dKey, isNew: true };
+             heavyActions: {}, today: dKey, spentUsd5h: 0, isNew: true };
   }
 
   var vals = sheet.getRange(row, 1, 1, AI_HEADERS.length).getValues()[0];
@@ -694,6 +705,8 @@ function aiCheckByEmail(email, whatsapp) {
   var freetext = parseInt(vals[6], 10) || 0;
   var storedDay = readStoredDayKey(vals[7]);
   var spentToday = parseFloat(vals[11]) || 0;
+  var spent5h = parseFloat(vals[12]) || 0;
+  var windowStart = parseFloat(vals[13]) || 0;
 
   // Self-resetting counters
   if (storedMonth !== mKey) { spent = 0; vals[3] = 0; vals[4] = mKey; }
@@ -701,12 +714,15 @@ function aiCheckByEmail(email, whatsapp) {
     actionsToday = {}; freetext = 0; spentToday = 0;
     vals[5] = '{}'; vals[6] = 0; vals[7] = dKey; vals[11] = 0;
   }
+  if (!windowStart || (now.getTime() - windowStart) >= FIVE_HOUR_MS) {
+    spent5h = 0; vals[12] = 0; vals[13] = now.getTime();
+  }
   if (!vals[1] && whatsapp) vals[1] = whatsapp;
   vals[9] = now;
   sheet.getRange(row, 1, 1, AI_HEADERS.length).setValues([vals]);
 
-  // Heavy-action cooldowns (Pro only): per-action epoch-ms timestamps, so the
-  // serverless side can compare elapsed time without timezone ambiguity.
+  // Kept for reference only -- see the AI_HEADERS comment above for why
+  // this no longer gates anything.
   var heavyActions = aiParseJson(vals[10]);
 
   return {
@@ -716,15 +732,16 @@ function aiCheckByEmail(email, whatsapp) {
     actionsToday: actionsToday,
     dayFreetext: freetext,
     heavyActions: heavyActions,
-    today: dKey
+    today: dKey,
+    spentUsd5h: spent5h
   };
 }
 
 /** Adds one request's cost, bumps the relevant daily counter, stamps heavy-
- *  action cooldowns. Internal helper -- takes an already-verified email,
- *  same rule as above.
+ *  action timestamps (reference only, see AI_HEADERS comment). Internal
+ *  helper -- takes an already-verified email, same rule as above.
  *  kind: 'freetext' | 'action' (one of the free-capped guided buttons) |
- *        'heavy' (mock_exam / anki_check / upgrade_exam -- 5hr cooldown) */
+ *        'heavy' (mock_exam / anki_check / upgrade_exam) */
 function aiRecordUsageByEmail(email, costUsd, kind, action) {
   email = (email || '').toString().trim().toLowerCase();
   if (!email) return;
@@ -740,9 +757,14 @@ function aiRecordUsageByEmail(email, costUsd, kind, action) {
 
   if (readStoredMonthKey(vals[4]) !== mKey) { vals[3] = 0; vals[4] = mKey; }
   if (readStoredDayKey(vals[7]) !== dKey) { vals[5] = '{}'; vals[6] = 0; vals[7] = dKey; vals[11] = 0; }
+  var windowStart = parseFloat(vals[13]) || 0;
+  if (!windowStart || (now.getTime() - windowStart) >= FIVE_HOUR_MS) {
+    vals[12] = 0; vals[13] = now.getTime();
+  }
 
   vals[3] = (parseFloat(vals[3]) || 0) + (parseFloat(costUsd) || 0);
   vals[11] = (parseFloat(vals[11]) || 0) + (parseFloat(costUsd) || 0);
+  vals[12] = (parseFloat(vals[12]) || 0) + (parseFloat(costUsd) || 0);
 
   if (kind === 'freetext') {
     vals[6] = (parseInt(vals[6], 10) || 0) + 1;

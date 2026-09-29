@@ -5,6 +5,7 @@
   "description": "IMAT.club — mentorship site, lounge, and Club AI",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
-    "stripe": "^17.0.0"
+    "stripe": "^17.0.0",
+    "@vercel/blob": "^2.8.0"
   }
 }
