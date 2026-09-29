@@ -90,14 +90,19 @@ account endpoint the plan chip uses -- see `downloadSyllabusPdf()` in
 as the Mentorship FAQ / IMAT FAQ buttons), so it's fine that a Pro student
 can re-download it as many times as they want.
 
-Content is the site's own topic/subtopic breakdown (club-ai.html's
-`TOPICS`/`SUBTOPICS`, the same data backing the Practice Question/Explain a
-topic pickers) laid out per section, not a line-by-line transcription of
-the official decree -- `entermedschool.com`, where `api/chat.js`'s
-`SYLLABUS_URL` points, was unreachable from the environment this was built
-in, so the "IMAT.club version" framing is deliberate: our own organization
-of the same officially-scoped material, not a claim of verbatim decree
-text. Carries the same disclaimer pattern as the other regulation-adjacent
-PDFs (our own summary/opinion, verify independently, decree is the binding
-source).
+Content is a full English translation of the actual official decree (the
+user supplied the real Allegato A PDF directly, after
+`entermedschool.com` -- where `api/chat.js`'s `SYLLABUS_URL` points --
+turned out to be unreachable from the environment this was first built
+in). Organized into the decree's own 6 sections (Reading & Knowledge,
+Logical Reasoning, Biology, Chemistry, Mathematics, Physics), not the
+site's 4-category topic grouping used elsewhere. Carries the same
+disclaimer pattern as the other regulation-adjacent PDFs -- our own
+translation/summary, not official or legal advice, the Italian original
+is the binding source, verify independently -- but no longer hedges on
+whether the content itself is faithful to the decree, since this version
+is: an earlier iteration of this PDF was built from the site's own
+topic/subtopic data instead (a reasonable approximation, but not the
+verbatim programme) before the real source was supplied; that content
+gap is now closed.
 
