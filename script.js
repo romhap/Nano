@@ -32,24 +32,22 @@ document.getElementById('toggleTerms').addEventListener('click', function () {
     if (box.classList.contains('open')) track('terms_opened');
 });
 
-// === Both checkboxes must be checked to enable button ===
+// === Checkbox must be checked to enable button ===
 const acceptTerms = document.getElementById('acceptTerms');
-const acceptEligibility = document.getElementById('acceptEligibility');
 
 function updatePayBtn() {
-    document.getElementById('payBtn').disabled = !(acceptTerms.checked && acceptEligibility.checked);
+    document.getElementById('payBtn').disabled = !acceptTerms.checked;
 }
 
 acceptTerms.addEventListener('change', updatePayBtn);
-acceptEligibility.addEventListener('change', updatePayBtn);
 
 // === Form submission → redirect to Stripe ===
 document.getElementById('enrollForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
-    if (!acceptTerms.checked || !acceptEligibility.checked) return;
+    if (!acceptTerms.checked) return;
 
-    const TERMS_VERSION = '2026.03.31';
+    const TERMS_VERSION = '2026.09.30';
     const timestamp = new Date().toISOString();
 
     const data = {
@@ -58,7 +56,6 @@ document.getElementById('enrollForm').addEventListener('submit', function (e) {
         whatsapp: document.getElementById('whatsapp').value.trim(),
         consents: {
             terms_accepted: true,
-            eligibility_confirmed: true,
             terms_version: TERMS_VERSION
         },
         timestamp: timestamp,
