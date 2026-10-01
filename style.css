@@ -832,23 +832,30 @@ button:disabled {
     text-align: center;
 }
 
-/* Quiet, secondary off-ramp for hesitant leads -- deliberately de-emphasized
-   (small, muted, no box) so it never competes visually with the main CTA
-   above it. Meant to be noticed by someone already reading this far while
-   hesitating, not by someone already reaching for "Continue to payment". */
-.clarity-note {
-    font-size: 0.78rem;
-    color: var(--text-muted);
+/* Secondary off-ramp for hesitant leads -- a real, visible card with its
+   own button, not a buried footnote, but still clearly the #2 option: an
+   outline button (not filled blue) so it reads as secondary to "Continue
+   to payment" above it rather than competing with it. */
+.clarity-offer {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-alt);
     text-align: center;
-    line-height: 1.5;
-    margin-top: 10px;
 }
-.clarity-note a {
+.clarity-offer-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+.clarity-offer-text {
+    font-size: 0.82rem;
     color: var(--text-muted);
-    text-decoration: underline;
-}
-.clarity-note a:hover {
-    color: var(--accent);
+    line-height: 1.5;
+    margin-bottom: 12px;
 }
 
 .manage-section {
