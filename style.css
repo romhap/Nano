@@ -382,6 +382,15 @@ em {
     line-height: 1.7;
 }
 
+.truth-shout {
+    display: inline-block;
+    color: var(--danger);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    font-size: clamp(0.72rem, 2.4vw, 1rem);
+    white-space: nowrap;
+}
+
 /* Comparison */
 .compare-grid {
     display: grid;
