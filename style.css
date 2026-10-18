@@ -494,6 +494,10 @@ em {
     line-height: 1.7;
 }
 
+.about-text .btn {
+    margin-top: 8px;
+}
+
 .about-creds {
     display: flex;
     flex-direction: column;
