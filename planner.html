@@ -213,10 +213,13 @@
         document.getElementById('resultDate').textContent = resultDateText;
         document.getElementById('resultSub').textContent = 'That gives you about ' + months + ' month' + (months === 1 ? '' : 's') + ' of real runway before the ' + examDateText + ' IMAT, based on where you are starting from.';
 
-        var note = answers.region === 'noneu'
-            ? 'As a non-EU applicant, track your university pre-enrollment steps on a separate timeline from your study plan, they run in parallel, not after.'
-            : 'As an EU applicant, your registration process is more straightforward, but don\'t let that turn into a late start on actual studying.';
-        document.getElementById('resultNote').textContent = note;
+        var noteEl = document.getElementById('resultNote');
+        if (answers.region === 'noneu') {
+            noteEl.textContent = 'As a non-EU applicant, track your university pre-enrollment steps on a separate timeline from your study plan, they run in parallel, not after.';
+            noteEl.style.display = 'block';
+        } else {
+            noteEl.style.display = 'none';
+        }
 
         document.getElementById('result').style.display = 'block';
         document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
