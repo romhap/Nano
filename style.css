@@ -849,6 +849,21 @@ button:disabled {
    own button, not a buried footnote, but still clearly the #2 option: an
    outline button (not filled blue) so it reads as secondary to "Continue
    to payment" above it rather than competing with it. */
+.premium-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.01em;
+    margin: 20px 0;
+}
+
 .clarity-offer {
     margin-top: 18px;
     padding: 16px 18px;
