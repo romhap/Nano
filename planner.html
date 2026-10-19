@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Planner | IMAT.club</title>
+    <meta name="description" content="Answer a few questions and find out when you should actually start studying for the IMAT.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://www.imat.club/planner.html">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=4">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png?v=4">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=4">
+    <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <style>
+        .planner-page { min-height: 100vh; padding: 56px 24px 80px; }
+        .planner-wrap { max-width: 560px; margin: 0 auto; }
+        .planner-header { text-align: center; margin-bottom: 36px; }
+        .planner-header h1 { margin-bottom: 8px; }
+        .planner-header p { color: var(--text-muted); font-size: 0.95rem; }
+        .planner-q { margin-bottom: 28px; }
+        .planner-q-label { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.92rem; margin-bottom: 10px; }
+        .planner-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+        .planner-opt { font-family: 'Inter', sans-serif; font-size: 0.85rem; padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text-soft); cursor: pointer; transition: all 0.15s; }
+        .planner-opt:hover { border-color: var(--accent); }
+        .planner-opt.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
+        .planner-calc { margin-top: 12px; }
+        .planner-nudge { color: var(--danger); font-size: 0.82rem; margin-top: 10px; display: none; }
+        .planner-result { display: none; margin-top: 36px; padding: 28px 24px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-alt); text-align: center; }
+        .planner-result-label { font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
+        .planner-result-date { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.7rem; color: var(--accent); margin-bottom: 10px; }
+        .planner-result-sub { color: var(--text-soft); font-size: 0.9rem; line-height: 1.6; margin-bottom: 18px; }
+        .planner-result-note { color: var(--text-muted); font-size: 0.8rem; line-height: 1.6; margin-bottom: 22px; padding-top: 16px; border-top: 1px solid var(--border); text-align: left; }
+        .planner-ctas { display: flex; flex-direction: column; gap: 10px; }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="index.html" class="nav-logo">
+            <svg class="brand-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                <path d="M8 46 Q8 22 32 20 Q56 22 56 46" stroke="#0047FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M23 46 L23 36 Q23 30 32 30 Q41 30 41 36 L41 46" fill="#fff" stroke="#0047FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="6" y="46" width="52" height="4" rx="2" fill="#0047FF"/>
+            </svg>
+            <span class="brand-text">IMAT.club</span>
+        </a>
+        <div class="nav-links">
+            <a href="articles.html" class="nav-link-muted">Articles</a>
+            <a href="index.html" class="nav-link-muted">Home</a>
+            <a href="index.html#enroll" class="nav-link">Apply</a>
+        </div>
+    </div>
+</nav>
+
+<section class="planner-page">
+    <div class="planner-wrap">
+        <div class="planner-header">
+            <h1>The Planner</h1>
+            <p>Answer a few questions. Find out when you should actually start.</p>
+        </div>
+
+        <div id="examDateQuestion" class="planner-q" style="display:none">
+            <div class="planner-q-label">This year's IMAT is close. Which one are you planning for?</div>
+            <div class="planner-opts" data-key="examChoice">
+                <button class="planner-opt" data-value="this">This year's IMAT</button>
+                <button class="planner-opt" data-value="next">Next year's IMAT</button>
+            </div>
+        </div>
+
+        <div class="planner-q">
+            <div class="planner-q-label">EU or non-EU applicant?</div>
+            <div class="planner-opts" data-key="region">
+                <button class="planner-opt" data-value="eu">EU</button>
+                <button class="planner-opt" data-value="noneu">Non-EU</button>
+            </div>
+        </div>
+
+        <div class="planner-q">
+            <div class="planner-q-label">Science background going in?</div>
+            <div class="planner-opts" data-key="science">
+                <button class="planner-opt" data-value="none">None</button>
+                <button class="planner-opt" data-value="some">Some</button>
+                <button class="planner-opt" data-value="strong">Strong</button>
+            </div>
+        </div>
+
+        <div class="planner-q">
+            <div class="planner-q-label">Hours per week you can realistically give it?</div>
+            <div class="planner-opts" data-key="hours">
+                <button class="planner-opt" data-value="low">Under 5</button>
+                <button class="planner-opt" data-value="mid">5-10</button>
+                <button class="planner-opt" data-value="high">10-20</button>
+                <button class="planner-opt" data-value="veryhigh">20+</button>
+            </div>
+        </div>
+
+        <div class="planner-q">
+            <div class="planner-q-label">How familiar are you with the exam right now?</div>
+            <div class="planner-opts" data-key="confidence">
+                <button class="planner-opt" data-value="new">Haven't really looked into it</button>
+                <button class="planner-opt" data-value="familiar">Familiar, haven't started</button>
+                <button class="planner-opt" data-value="started">Already started studying</button>
+            </div>
+        </div>
+
+        <div class="planner-q">
+            <div class="planner-q-label">Experience with standardized or competitive exams before?</div>
+            <div class="planner-opts" data-key="examExp">
+                <button class="planner-opt" data-value="none">None</button>
+                <button class="planner-opt" data-value="some">Some</button>
+                <button class="planner-opt" data-value="lots">A lot</button>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-full planner-calc" id="calcBtn">Show me when to start</button>
+        <p class="planner-nudge" id="nudge">Answer every question above first, so the result is actually about you.</p>
+
+        <div class="planner-result" id="result">
+            <div class="planner-result-label">You should start around</div>
+            <div class="planner-result-date" id="resultDate"></div>
+            <p class="planner-result-sub" id="resultSub"></p>
+            <p class="planner-result-note" id="resultNote"></p>
+            <div class="planner-ctas">
+                <a href="index.html#enroll" class="btn btn-primary btn-full">Apply for the mentorship</a>
+                <a href="https://book.stripe.com/6oU3cvb6idjGfCEfgRgw005" target="_blank" rel="noopener" class="btn btn-outline btn-full">Not ready? Book a 25-minute Clarity Call</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p class="footer-brand">IMAT.club, BY ROM & MAYA.</p>
+        <p class="footer-legal">Personal consulting service. No guarantees of results or admission are made or implied.</p>
+    </div>
+</footer>
+
+<script>
+(function () {
+    var answers = {};
+    var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function nextImatDate() {
+        var today = new Date();
+        var year = today.getFullYear();
+        var sept15ThisYear = new Date(year, 8, 15);
+        var msPerDay = 1000 * 60 * 60 * 24;
+        var daysUntil = Math.round((sept15ThisYear - today) / msPerDay);
+        if (daysUntil < -1) {
+            // already passed this year
+            return { date: new Date(year + 1, 8, 15), needsChoice: false };
+        }
+        if (daysUntil <= 14) {
+            return { date: sept15ThisYear, needsChoice: true, nextYearDate: new Date(year + 1, 8, 15) };
+        }
+        return { date: sept15ThisYear, needsChoice: false };
+    }
+
+    var examInfo = nextImatDate();
+    if (examInfo.needsChoice) {
+        document.getElementById('examDateQuestion').style.display = 'block';
+    }
+
+    document.querySelectorAll('.planner-opts').forEach(function (group) {
+        group.addEventListener('click', function (e) {
+            var btn = e.target.closest('.planner-opt');
+            if (!btn) return;
+            group.querySelectorAll('.planner-opt').forEach(function (b) { b.classList.remove('selected'); });
+            btn.classList.add('selected');
+            answers[group.getAttribute('data-key')] = btn.getAttribute('data-value');
+        });
+    });
+
+    function monthsNeeded(a) {
+        var m = 6;
+        m += { none: 2, some: 0, strong: -1.5 }[a.science];
+        m += { low: 2, mid: 0.5, high: -0.5, veryhigh: -1.5 }[a.hours];
+        m += { new: 1, familiar: 0, started: -1 }[a.confidence];
+        m += { none: 1, some: 0, lots: -1 }[a.examExp];
+        m = Math.max(2, Math.min(10, m));
+        return Math.round(m);
+    }
+
+    document.getElementById('calcBtn').addEventListener('click', function () {
+        var required = ['region', 'science', 'hours', 'confidence', 'examExp'];
+        if (examInfo.needsChoice) required.push('examChoice');
+        var missing = required.some(function (k) { return !answers[k]; });
+        if (missing) {
+            document.getElementById('nudge').style.display = 'block';
+            return;
+        }
+        document.getElementById('nudge').style.display = 'none';
+
+        var examDate = examInfo.date;
+        if (examInfo.needsChoice && answers.examChoice === 'next') {
+            examDate = examInfo.nextYearDate;
+        }
+
+        var months = monthsNeeded(answers);
+        var startDate = new Date(examDate);
+        startDate.setMonth(startDate.getMonth() - months);
+
+        var resultDateText = MONTH_NAMES[startDate.getMonth()] + ' ' + startDate.getFullYear();
+        var examDateText = MONTH_NAMES[examDate.getMonth()] + ' ' + examDate.getDate() + ', ' + examDate.getFullYear();
+
+        document.getElementById('resultDate').textContent = resultDateText;
+        document.getElementById('resultSub').textContent = 'That gives you about ' + months + ' month' + (months === 1 ? '' : 's') + ' of real runway before the ' + examDateText + ' IMAT, based on where you are starting from.';
+
+        var note = answers.region === 'noneu'
+            ? 'As a non-EU applicant, track your university pre-enrollment steps on a separate timeline from your study plan, they run in parallel, not after.'
+            : 'As an EU applicant, your registration process is more straightforward, but don\'t let that turn into a late start on actual studying.';
+        document.getElementById('resultNote').textContent = note;
+
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+})();
+</script>
+
+</body>
+</html>
