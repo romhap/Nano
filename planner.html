@@ -83,8 +83,8 @@
         </div>
 
         <div class="planner-q">
-            <div class="planner-q-label">Science background going in?</div>
-            <div class="planner-opts" data-key="science">
+            <div class="planner-q-label">Biology background going in?</div>
+            <div class="planner-opts" data-key="scienceBio">
                 <button class="planner-opt" data-value="none">None</button>
                 <button class="planner-opt" data-value="some">Some</button>
                 <button class="planner-opt" data-value="strong">Strong</button>
@@ -92,17 +92,36 @@
         </div>
 
         <div class="planner-q">
-            <div class="planner-q-label">Hours per week you can realistically give it?</div>
-            <div class="planner-opts" data-key="hours">
-                <button class="planner-opt" data-value="low">Under 5</button>
-                <button class="planner-opt" data-value="mid">5-10</button>
-                <button class="planner-opt" data-value="high">10-20</button>
-                <button class="planner-opt" data-value="veryhigh">20+</button>
+            <div class="planner-q-label">Chemistry background going in?</div>
+            <div class="planner-opts" data-key="scienceChem">
+                <button class="planner-opt" data-value="none">None</button>
+                <button class="planner-opt" data-value="some">Some</button>
+                <button class="planner-opt" data-value="strong">Strong</button>
             </div>
         </div>
 
         <div class="planner-q">
-            <div class="planner-q-label">How familiar are you with the exam right now?</div>
+            <div class="planner-q-label">Physics & Maths background going in?</div>
+            <div class="planner-opts" data-key="sciencePhysMath">
+                <button class="planner-opt" data-value="none">None</button>
+                <button class="planner-opt" data-value="some">Some</button>
+                <button class="planner-opt" data-value="strong">Strong</button>
+            </div>
+        </div>
+
+        <div class="planner-q">
+            <div class="planner-q-label">Hours per day you can realistically give it?</div>
+            <div class="planner-opts" data-key="hours">
+                <button class="planner-opt" data-value="none">Under 1</button>
+                <button class="planner-opt" data-value="low">1-2</button>
+                <button class="planner-opt" data-value="mid">2-4</button>
+                <button class="planner-opt" data-value="high">4-7</button>
+                <button class="planner-opt" data-value="veryhigh">7+</button>
+            </div>
+        </div>
+
+        <div class="planner-q">
+            <div class="planner-q-label">How familiar are you with the IMAT structure right now?</div>
             <div class="planner-opts" data-key="confidence">
                 <button class="planner-opt" data-value="new">Haven't really looked into it</button>
                 <button class="planner-opt" data-value="familiar">Familiar, haven't started</button>
@@ -180,8 +199,9 @@
 
     function monthsNeeded(a) {
         var m = 6;
-        m += { none: 2, some: 0, strong: -1.5 }[a.science];
-        m += { low: 2, mid: 0.5, high: -0.5, veryhigh: -1.5 }[a.hours];
+        var scienceDelta = { none: 2, some: 0, strong: -1.5 };
+        m += (scienceDelta[a.scienceBio] + scienceDelta[a.scienceChem] + scienceDelta[a.sciencePhysMath]) / 3;
+        m += { none: 2, low: 1, mid: 0, high: -1, veryhigh: -2 }[a.hours];
         m += { new: 1, familiar: 0, started: -1 }[a.confidence];
         m += { none: 1, some: 0, lots: -1 }[a.examExp];
         m = Math.max(2, Math.min(10, m));
@@ -189,7 +209,7 @@
     }
 
     document.getElementById('calcBtn').addEventListener('click', function () {
-        var required = ['region', 'science', 'hours', 'confidence', 'examExp'];
+        var required = ['region', 'scienceBio', 'scienceChem', 'sciencePhysMath', 'hours', 'confidence', 'examExp'];
         if (examInfo.needsChoice) required.push('examChoice');
         var missing = required.some(function (k) { return !answers[k]; });
         if (missing) {
