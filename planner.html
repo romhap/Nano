@@ -215,6 +215,14 @@
         var startYear = idx <= 1 ? examYear - 1 : examYear;
         var startDate = new Date(startYear, WINDOW_MONTH_INDEX[idx], 1);
 
+        // If that window month has already passed, recommend starting this month instead.
+        var today = new Date();
+        var startYM = startDate.getFullYear() * 12 + startDate.getMonth();
+        var todayYM = today.getFullYear() * 12 + today.getMonth();
+        if (startYM < todayYM) {
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        }
+
         var realMonths = (examDate.getFullYear() - startDate.getFullYear()) * 12 + (examDate.getMonth() - startDate.getMonth());
 
         var resultDateText = MONTH_NAMES[startDate.getMonth()] + ' ' + startDate.getFullYear();
