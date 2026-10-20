@@ -204,14 +204,24 @@
         }
 
         var months = monthsNeeded(answers);
-        var startDate = new Date(examDate);
-        startDate.setMonth(startDate.getMonth() - months);
+
+        // Always land the recommended start inside the November-February window
+        // that precedes the exam, varying where in that window based on months
+        // needed (weaker starting point -> earlier in the window).
+        var WINDOW_MONTH_INDEX = [10, 11, 0, 1]; // Nov, Dec, Jan, Feb (0-indexed)
+        var idx = Math.round((10 - months) / 8 * 3);
+        idx = Math.max(0, Math.min(3, idx));
+        var examYear = examDate.getFullYear();
+        var startYear = idx <= 1 ? examYear - 1 : examYear;
+        var startDate = new Date(startYear, WINDOW_MONTH_INDEX[idx], 1);
+
+        var realMonths = (examDate.getFullYear() - startDate.getFullYear()) * 12 + (examDate.getMonth() - startDate.getMonth());
 
         var resultDateText = MONTH_NAMES[startDate.getMonth()] + ' ' + startDate.getFullYear();
         var examDateText = MONTH_NAMES[examDate.getMonth()] + ' ' + examDate.getDate() + ', ' + examDate.getFullYear();
 
         document.getElementById('resultDate').textContent = resultDateText;
-        document.getElementById('resultSub').textContent = 'That gives you about ' + months + ' month' + (months === 1 ? '' : 's') + ' of real runway before the ' + examDateText + ' IMAT, based on where you are starting from.';
+        document.getElementById('resultSub').textContent = 'That gives you about ' + realMonths + ' month' + (realMonths === 1 ? '' : 's') + ' of real runway before the ' + examDateText + ' IMAT, based on where you are starting from.';
 
         var noteEl = document.getElementById('resultNote');
         if (answers.region === 'noneu') {
